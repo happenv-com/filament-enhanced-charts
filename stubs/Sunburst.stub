@@ -1,0 +1,43 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\SunburstSeries;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->series(
+                SunburstSeries::make()
+                    ->radius([0, '90%'])
+                    ->data([
+                        [
+                            'name' => 'A',
+                            'children' => [
+                                ['name' => 'A1', 'value' => 15],
+                                ['name' => 'A2', 'value' => 10],
+                            ],
+                        ],
+                        [
+                            'name' => 'B',
+                            'children' => [
+                                ['name' => 'B1', 'value' => 20],
+                                ['name' => 'B2', 'value' => 5],
+                            ],
+                        ],
+                    ]),
+            );
+    }
+}

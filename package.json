@@ -1,0 +1,22 @@
+{
+    "name": "filament-enhanced-charts",
+    "version": "1.0.0",
+    "description": "Filament Enchanced Charts Plugin",
+    "private": true,
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "dev": "node bin/build.js --dev",
+        "build": "node bin/build.js"
+    },
+    "author": "happenv",
+    "license": "MIT",
+    "devDependencies": {
+        "esbuild": "^0.25.5",
+        "prettier": "^3.5.3"
+    },
+    "dependencies": {
+        "echarts": "^6.0.0",
+        "lodash.merge": "^4.6.2"
+    }
+}

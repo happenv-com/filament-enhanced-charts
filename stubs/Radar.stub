@@ -1,0 +1,46 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Option\Component\Legend;
+use Happenv\FilamentEnhancedCharts\Option\Component\Radar;
+use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\RadarSeries;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->tooltip(Tooltip::make())
+            ->legend(Legend::make()->top(0))
+            ->radar(
+                Radar::make()->indicator([
+                    ['name' => 'Sales', 'max' => 6500],
+                    ['name' => 'Administration', 'max' => 16000],
+                    ['name' => 'IT', 'max' => 30000],
+                    ['name' => 'Support', 'max' => 38000],
+                    ['name' => 'Development', 'max' => 52000],
+                    ['name' => 'Marketing', 'max' => 25000],
+                ]),
+            )
+            ->series(
+                RadarSeries::make()
+                    ->name('$CLASS_NAME$')
+                    ->data([
+                        ['value' => [4200, 3000, 20000, 35000, 50000, 18000], 'name' => 'Allocated budget'],
+                        ['value' => [5000, 14000, 28000, 26000, 42000, 21000], 'name' => 'Actual spending'],
+                    ]),
+            );
+    }
+}

@@ -1,0 +1,38 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Enums\Focus;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\SankeyLink;
+use Happenv\FilamentEnhancedCharts\Option\Series\SankeySeries;
+use Happenv\FilamentEnhancedCharts\Option\Style\Emphasis;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->series(
+                SankeySeries::make()
+                    ->emphasis(Emphasis::make()->focus(Focus::Adjacency))
+                    ->links([
+                        SankeyLink::make('a', 'a1', 5),
+                        SankeyLink::make('a', 'a2', 3),
+                        SankeyLink::make('b', 'b1', 8),
+                        SankeyLink::make('a', 'b1', 3),
+                        SankeyLink::make('b1', 'a1', 1),
+                        SankeyLink::make('b1', 'c', 2),
+                    ]),
+            );
+    }
+}

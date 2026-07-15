@@ -1,0 +1,39 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Option\Component\Legend;
+use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\PieSeries;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->tooltip(Tooltip::make()->trigger('item'))
+            ->legend(Legend::make()->top(0))
+            ->series(
+                PieSeries::make()
+                    ->name('$CLASS_NAME$')
+                    ->radius('60%')
+                    ->data([
+                        ['value' => 1048, 'name' => 'Search'],
+                        ['value' => 735, 'name' => 'Direct'],
+                        ['value' => 580, 'name' => 'Email'],
+                        ['value' => 484, 'name' => 'Ads'],
+                        ['value' => 300, 'name' => 'Video'],
+                    ]),
+            );
+    }
+}

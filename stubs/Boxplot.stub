@@ -1,0 +1,36 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\BoxplotSeries;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::cartesian()
+            ->xAxis(CategoryAxis::make()->data(['Series 1', 'Series 2', 'Series 3', 'Series 4']))
+            ->series(
+                BoxplotSeries::make()
+                    ->name('$CLASS_NAME$')
+                    // Each row: [min, Q1, median, Q3, max].
+                    ->data([
+                        [655, 850, 940, 980, 1070],
+                        [760, 800, 845, 885, 960],
+                        [780, 840, 855, 880, 940],
+                        [720, 767, 815, 865, 920],
+                    ]),
+            );
+    }
+}

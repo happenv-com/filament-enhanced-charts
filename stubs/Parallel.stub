@@ -1,0 +1,42 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Happenv\FilamentEnhancedCharts\Enums\AxisType;
+use Happenv\FilamentEnhancedCharts\Option\Component\ParallelAxis;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\ParallelSeries;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class $CLASS_NAME$ extends EnhancedChartWidget
+{
+    protected static ?string $chartId = '$CHART_ID$';
+
+    protected static ?string $heading = '$CLASS_NAME$';
+
+    /**
+     * Build the chart with the typed option model.
+     * ECharts option reference: https://echarts.apache.org/en/option.html
+     */
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->parallelAxis(
+                ParallelAxis::make()->dim(0)->name('Price'),
+                ParallelAxis::make()->dim(1)->name('Net weight'),
+                ParallelAxis::make()->dim(2)->name('Amount'),
+                ParallelAxis::make()->dim(3)->name('Score')
+                    ->type(AxisType::Category)
+                    ->data(['Excellent', 'Good', 'OK', 'Bad']),
+            )
+            ->series(
+                ParallelSeries::make()
+                    ->name('$CLASS_NAME$')
+                    ->data([
+                        [12.99, 100, 82, 'Good'],
+                        [9.99, 80, 77, 'OK'],
+                        [20, 120, 60, 'Excellent'],
+                    ]),
+            );
+    }
+}
