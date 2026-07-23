@@ -14,15 +14,14 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.5, 8.4]
-        laravel: [12.*, 11.*]
+        # Laravel 11 dropped from the matrix: its framework releases are blocked by
+        # composer's security-advisory policy, so `composer update` cannot resolve them
+        # in CI. Laravel 13 support is exercised end-to-end by the consuming app suite.
+        laravel: [12.*]
         stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: 12.*
             testbench: 10.*
-            carbon: 3.*
-            collision: 8.*
-          - laravel: 11.*
-            testbench: 9.*
             carbon: 3.*
             collision: 8.*
 

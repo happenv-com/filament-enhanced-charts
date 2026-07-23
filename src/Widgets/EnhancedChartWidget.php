@@ -38,6 +38,11 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
      */
     protected static bool $scrollable = true;
 
+    // The parent types $view as view-string; larastan validates the literal against
+    // registered namespaces, and this package's own namespace does not exist inside
+    // PHPStan's application sandbox. The view ships with the package and is covered
+    // by the widget render tests.
+    // @phpstan-ignore property.defaultValue
     protected string $view = 'filament-enhanced-charts::widgets.echart-widget';
 
     /**
