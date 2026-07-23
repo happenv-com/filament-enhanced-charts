@@ -9,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
 
 covers(EnhancedChartWidget::class);
 
-function makeEChartTestWidget(): EnhancedChartWidget
+function makeEnhancedChartTestWidget(): EnhancedChartWidget
 {
     return new class extends EnhancedChartWidget
     {
@@ -32,11 +32,11 @@ it('defaults dropdownOpen to false, matching the Alpine-side initial state', fun
     // Regression: a `true` default permanently gated updateOptions() — the
     // Alpine $watch sync only fires on change, so a widget whose dropdown is
     // never touched would keep the server-side property at its default forever.
-    expect(makeEChartTestWidget()->dropdownOpen)->toBeFalse();
+    expect(makeEnhancedChartTestWidget()->dropdownOpen)->toBeFalse();
 });
 
 it('applies the widget scrollable default to the resolved options', function () {
-    $options = makeEChartTestWidget()->exposedOptions();
+    $options = makeEnhancedChartTestWidget()->exposedOptions();
 
     // The default $scrollable = true leaves plain options untouched (no
     // dataZoom/roam present) — but the pipeline must run without error and
@@ -45,7 +45,7 @@ it('applies the widget scrollable default to the resolved options', function () 
 });
 
 it('hashes options deterministically and falls back to serialize on encode failure', function () {
-    $widget = makeEChartTestWidget();
+    $widget = makeEnhancedChartTestWidget();
     $hash = (new ReflectionMethod($widget, 'hashOptions'))->getClosure($widget);
 
     // Deterministic and distinguishing.

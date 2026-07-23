@@ -1,11 +1,11 @@
 # Apache ECharts for Filament
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/happenv-com/filament-enhanced-charts.svg?style=flat-square)](https://packagist.org/packages/happenv-com/filament-enhanced-charts)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/tests.yml?branch=1.x&label=tests&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3A"Run+Tests"+branch%3A1.x)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/pint.yml?branch=1.x&label=code%20style&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3A"Fix+PHP+Code+Styling"+branch%3A1.x)
 [![Total Downloads](https://img.shields.io/packagist/dt/happenv-com/filament-enhanced-charts.svg?style=flat-square)](https://packagist.org/packages/happenv-com/filament-enhanced-charts)
 
-[Apache ECharts](https://enhanced-charts.apache.org/) integration for [Filament](https://filamentphp.com/):
+[Apache ECharts](https://echarts.apache.org/) integration for [Filament](https://filamentphp.com/):
 dashboard **widgets** and table **columns** driven by a fully typed, fluent PHP option model.
 
 ```php
@@ -34,7 +34,7 @@ class OrdersChart extends EnhancedChartWidget
 - **Filament-native** — panel theming, automatic dark mode, Filament `Color` palettes, `RawJs`
   for client-side callbacks, Livewire polling, deferred loading, filters.
 - **Table columns** — sparklines, candlesticks and donut pies inside table cells via
-  `EChartColumn`, or any custom per-record chart.
+  `EnhancedChartColumn`, or any custom per-record chart.
 
 ## Requirements
 
@@ -109,9 +109,9 @@ When an x-axis is set and no y-axis is given, a `ValueAxis` is defaulted for you
 ## The option model
 
 Everything under `Happenv\FilamentEnhancedCharts\Option\*` is a fluent builder that serializes to the
-exact [ECharts option](https://enhanced-charts.apache.org/en/option.html) shape. This package deliberately
+exact [ECharts option](https://echarts.apache.org/en/option.html) shape. This package deliberately
 does **not** re-document every chart type — the ECharts docs and
-[examples gallery](https://enhanced-charts.apache.org/examples/en/) are the reference; the builders mirror
+[examples gallery](https://echarts.apache.org/examples/en/) are the reference; the builders mirror
 them method-for-method.
 
 | Kind | Classes |
@@ -168,7 +168,7 @@ Prefer the typed methods — `raw()` is the last resort, not the default.
 ## Formatters and JS callbacks
 
 Strings passed to `formatter()`-style methods are treated as literal
-[ECharts templates](https://enhanced-charts.apache.org/en/option.html#tooltip.formatter) and pass through
+[ECharts templates](https://echarts.apache.org/en/option.html#tooltip.formatter) and pass through
 unchanged. For a real client-side function, pass Filament's `RawJs`: it is serialized as a marker
 and revived into a genuine JS function in the browser.
 
@@ -186,8 +186,8 @@ Option::make()
 
 `RawJs` works anywhere in the tree — `renderItem` on a `CustomSeries`, `symbolSize` callbacks,
 `animationDelay` functions, `labelLayout`, colors-by-callback, and so on. Inside these callbacks
-the `enhanced-charts` global is available, so gallery snippets using `enhanced-charts.format.addCommas(...)` or
-`enhanced-charts.graphic.clipRectByRect(...)` port verbatim.
+the `echarts` global is available, so gallery snippets using `echarts.format.addCommas(...)` or
+`echarts.graphic.clipRectByRect(...)` port verbatim.
 
 ## Numbers
 
@@ -483,7 +483,7 @@ Implementing the contract is what makes the filter dropdown render — don't ski
 ## Maps (GeoJSON)
 
 A `MapSeries` or `geo` component needs its map registered client-side. Return `name => url` pairs
-from `getMaps()`; each is fetched and passed to `enhanced-charts.registerMap()` before first paint:
+from `getMaps()`; each is fetched and passed to `echarts.registerMap()` before first paint:
 
 ```php
 use Happenv\FilamentEnhancedCharts\Option\Component\VisualMap;
@@ -505,24 +505,24 @@ protected function getOption(): Option
 
 ## Charts in table cells
 
-`EChartColumn` renders a small chart per row. Three presets cover the common cases; `chart()`
+`EnhancedChartColumn` renders a small chart per row. Three presets cover the common cases; `chart()`
 takes over for anything else. Return `null`/empty data to render nothing for that row.
 
 ```php
-use Happenv\FilamentEnhancedCharts\Columns\EChartColumn;
+use Happenv\FilamentEnhancedCharts\Columns\EnhancedChartColumn;
 
-EChartColumn::make('trend')
+EnhancedChartColumn::make('trend')
     ->sparkline(fn (Product $record): array => $record->daily_sales)
     ->fill(),                                      // area fill; ->bars() for bar sparklines
 
-EChartColumn::make('ohlc')
+EnhancedChartColumn::make('ohlc')
     ->width(160)                                   // px, '100%', or a Closure; height(int) too
     ->candles(fn (Product $record): array => $record->ohlc_rows), // [open, close, low, high] rows
 
-EChartColumn::make('mix')
+EnhancedChartColumn::make('mix')
     ->pie(fn (Order $record): array => ['B2B' => 60, 'B2C' => 40]), // donut
 
-EChartColumn::make('custom')
+EnhancedChartColumn::make('custom')
     ->chart(fn (Server $record): ?Option => Option::make()
         ->series(GaugeSeries::make()->data([DataPoint::make($record->cpu)]))),
 ```
@@ -530,7 +530,7 @@ EChartColumn::make('custom')
 Cell charts ship with a sensible baseline (tooltip escaping the cell, no legend, tight margins)
 and are disposed cleanly as rows leave the DOM. `->renderer('svg')` is available per column.
 Custom `->chart()` closures can start from the same baseline via
-`EChartColumn::cellOption()` (optionally passing the tooltip trigger, e.g. `'axis'`).
+`EnhancedChartColumn::cellOption()` (optionally passing the tooltip trigger, e.g. `'axis'`).
 
 ## Publishing views / translations / config
 

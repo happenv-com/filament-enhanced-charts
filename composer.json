@@ -64,6 +64,9 @@
         "test:refactor": "rector --dry-run"
     },
     "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.0.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Happenv\\FilamentEnhancedCharts\\FilamentEnhancedChartsServiceProvider"
