@@ -265,7 +265,19 @@ export default function echarts({ options, chartId, renderer, maps }) {
             }
         },
 
+        // An `updateOptions` event can land when there is no chart to paint:
+        // `destroy()` nulls it when the component leaves the DOM (wire:navigate,
+        // Livewire morph), yet a round-trip already in flight still resolves onto
+        // the old listener. Every other reader here guards; this one did not, so
+        // the widget's own refresh crashed the page with "Cannot read properties
+        // of null (reading 'setOption')". Dropping the update is the whole fix —
+        // a chart that no longer exists has nothing to show, and a re-mounted
+        // component paints from `this.options` in `initChart()`.
         updateChart(options) {
+            if (chart === null) {
+                return
+            }
+
             this.baseOptions = merge({}, layoutDefaults(options), options)
             chart.setOption(reviveJs(applyTheme(this.baseOptions, panelBackground(this.chartId))))
             this.tuneAxisNames()
