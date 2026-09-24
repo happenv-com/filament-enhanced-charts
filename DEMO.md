@@ -27,6 +27,7 @@ Every chart below is a plain Filament widget: a class that extends `EnhancedChar
 - **[Pictorial bar](#pictorial-bar)** — [Repeated symbols](#repeated-symbols)
 - **[Map](#map)** — [Hexagonal tile map](#hexagonal-tile-map)
 - **[Lines](#lines)** — [Animated routes on a map](#animated-routes-on-a-map)
+- **[Chord](#chord)** — [Chord diagram](#chord-diagram)
 - **[Custom](#custom)** — [Gantt chart via renderItem](#gantt-chart-via-renderitem)
 
 ## Line
@@ -2254,6 +2255,73 @@ class LinesChart extends EnhancedChartWidget
         $features = json_decode(file_get_contents(public_path('geo/europe-tiles.json')), true)['features'];
 
         return collect($features)->firstWhere('properties.name', $code)['properties']['cp'];
+    }
+}
+```
+
+</details>
+
+[↑ Contents](#contents)
+
+## Chord
+
+`ChordSeries` — Relationships between nodes on a ring, as ribbons sized by value (ECharts 6).
+
+### Chord diagram
+
+_Code reviews between teams — Pull requests reviewed across teams this quarter_
+
+| Light | Dark |
+|:---:|:---:|
+| <img src="screens/chord-light.png" alt="Chord: Chord diagram, light mode" width="100%"> | <img src="screens/chord-dark.png" alt="Chord: Chord diagram, dark mode" width="100%"> |
+
+<details>
+<summary>Widget code</summary>
+
+```php
+use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\ChordSeries;
+use Happenv\FilamentEnhancedCharts\Option\Style\Emphasis;
+use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
+use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
+
+class ChordChart extends EnhancedChartWidget
+{
+    protected static ?string $heading = 'Code reviews between teams';
+
+    protected static ?string $subheading = 'Pull requests reviewed across teams this quarter';
+
+    protected static int $contentHeight = 340;
+
+    protected ?string $pollingInterval = null;
+
+    protected function getOption(): Option
+    {
+        return Option::make()
+            ->color('#6f5be6', '#2e99e9', '#14b8a6', '#f59e0b', '#ec4899', '#8b5cf6')
+            ->tooltip(Tooltip::make()->trigger('item'))
+            ->series(
+                ChordSeries::make()
+                    ->radius(['64%', '72%'])
+                    ->center(['50%', '50%'])
+                    ->padAngle(4)
+                    ->minAngle(8)
+                    ->lineStyle(LineStyle::make()->color('gradient')->opacity(0.35))
+                    ->label(['position' => 'outside', 'fontSize' => 12, 'fontWeight' => 600])
+                    ->emphasis(Emphasis::make()->focus('adjacency'))
+                    ->links([
+                        ['source' => 'Platform', 'target' => 'Payments', 'value' => 42],
+                        ['source' => 'Platform', 'target' => 'Mobile', 'value' => 28],
+                        ['source' => 'Platform', 'target' => 'Data', 'value' => 35],
+                        ['source' => 'Payments', 'target' => 'Mobile', 'value' => 18],
+                        ['source' => 'Payments', 'target' => 'Security', 'value' => 30],
+                        ['source' => 'Mobile', 'target' => 'Design', 'value' => 38],
+                        ['source' => 'Data', 'target' => 'Security', 'value' => 14],
+                        ['source' => 'Design', 'target' => 'Platform', 'value' => 12],
+                        ['source' => 'Security', 'target' => 'Platform', 'value' => 22],
+                    ]),
+            );
     }
 }
 ```
