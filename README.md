@@ -1,5 +1,11 @@
 # Apache ECharts for Filament
 
+<div class="filament-hidden">
+
+![Filament Enhanced Charts](art/banner.png)
+
+</div>
+
 [![Latest Version](https://img.shields.io/github/v/release/happenv-com/filament-enhanced-charts?style=flat-square&label=version)](https://github.com/happenv-com/filament-enhanced-charts/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/tests.yml?label=tests&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions/workflows/tests.yml)
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/phpstan.yml?label=phpstan&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions/workflows/phpstan.yml)
