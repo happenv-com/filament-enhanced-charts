@@ -1,6 +1,6 @@
 import * as ApacheECharts from 'echarts'
 import merge from 'lodash.merge'
-import { reviveJs, applyTheme, panelBackground } from './shared.js'
+import { reviveJs, applyTheme, panelBackground, useLocale } from './shared.js'
 
 // Minimal per-cell defaults: a body-appended tooltip so it escapes the
 // overflow:hidden <td>. Deliberately NOT the widget's layoutDefaults
@@ -9,7 +9,13 @@ function cellDefaults() {
     return { tooltip: { appendTo: 'body', confine: false } }
 }
 
-export default function echartsColumn({ options, renderer, width, height }) {
+export default function echartsColumn({
+    options,
+    renderer,
+    width,
+    height,
+    locale,
+}) {
     let chart = null
     let intersectionObserver = null
     let resizeObserver = null
@@ -20,6 +26,7 @@ export default function echartsColumn({ options, renderer, width, height }) {
         renderer,
         width,
         height,
+        locale,
 
         init() {
             // Lazy: build the chart only when the cell scrolls into view, so a
@@ -45,6 +52,7 @@ export default function echartsColumn({ options, renderer, width, height }) {
                 renderer: this.renderer,
                 width: this.width,
                 height: this.height,
+                locale: useLocale(this.locale),
             })
             chart.setOption(reviveJs(applyTheme(base, panelBackground(el))))
 

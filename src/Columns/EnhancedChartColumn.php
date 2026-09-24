@@ -19,6 +19,7 @@ use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\PieSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 use Happenv\FilamentEnhancedCharts\Option\Support\Normalize;
+use Happenv\FilamentEnhancedCharts\Support\ChartLocale;
 use Illuminate\Support\Js;
 
 class EnhancedChartColumn extends Column implements HasEmbeddedView
@@ -287,10 +288,11 @@ class EnhancedChartColumn extends Column implements HasEmbeddedView
         $width = $this->getChartWidth();
         $height = $this->getChartHeight();
         $renderer = e($this->getRenderer());
+        $locale = Js::from(ChartLocale::currentTime());
 
         return <<<HTML
             <div wire:key="{$key}" x-load x-load-src="{$src}"
-                 x-data="echartsColumn({ options: {$options}, renderer: '{$renderer}', width: {$width}, height: {$height} })">
+                 x-data="echartsColumn({ options: {$options}, renderer: '{$renderer}', width: {$width}, height: {$height}, locale: {$locale} })">
                 <div wire:ignore x-ref="c" style="width: {$width}px; height: {$height}px;"></div>
             </div>
             HTML;

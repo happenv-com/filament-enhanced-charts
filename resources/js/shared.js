@@ -39,6 +39,23 @@ export function reviveJs(node) {
     return node
 }
 
+// ECharts keeps registered locales by name; each bundle registers the panel's
+// locale (month and day names, toolbox, legend and aria strings) once.
+const registeredLocales = new Set()
+
+// Registers `{ name, strings }` from the server and returns the name to pass
+// to echarts.init, or undefined to keep ECharts' default locale.
+export function useLocale(locale) {
+    if (!locale || !locale.name) {
+        return undefined
+    }
+    if (!registeredLocales.has(locale.name)) {
+        ApacheECharts.registerLocale(locale.name, locale.strings)
+        registeredLocales.add(locale.name)
+    }
+    return locale.name
+}
+
 export function isDarkMode() {
     return document.documentElement.classList.contains('dark')
 }

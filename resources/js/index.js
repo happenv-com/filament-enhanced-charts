@@ -1,6 +1,6 @@
 import * as ApacheECharts from 'echarts'
 import merge from 'lodash.merge'
-import { reviveJs, applyTheme, panelBackground } from './shared.js'
+import { reviveJs, applyTheme, panelBackground, useLocale } from './shared.js'
 
 // A cartesian axis config is either a single object or, for multi-axis charts
 // (dual-Y etc.), a list of them. These two helpers normalize that shape so the
@@ -181,7 +181,7 @@ function valueAxisLabelWidth(chart, axisIndex, axisConfig) {
 // which we've already fetched+registered so re-renders/polling don't refetch.
 const registeredMaps = new Set()
 
-export default function echarts({ options, chartId, renderer, maps }) {
+export default function echarts({ options, chartId, renderer, maps, locale }) {
     let chart = null
     let resizeObserver = null
     return {
@@ -189,6 +189,7 @@ export default function echarts({ options, chartId, renderer, maps }) {
         chartId,
         renderer,
         maps: maps || {},
+        locale,
         baseOptions: null,
         themeObserver: null,
 
@@ -242,7 +243,7 @@ export default function echarts({ options, chartId, renderer, maps }) {
 
             // ThemeTest asserts the init call stays on one line.
             // prettier-ignore
-            chart = ApacheECharts.init(document.querySelector(this.chartId), null, { renderer: this.renderer })
+            chart = ApacheECharts.init(document.querySelector(this.chartId), null, { renderer: this.renderer, locale: useLocale(this.locale) })
 
             // Register any GeoJSON maps the option references, THEN paint — a
             // map/geo series draws nothing until echarts.registerMap has run.

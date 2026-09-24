@@ -9,7 +9,8 @@
         "build": "node bin/build.js",
         "dev": "node bin/build.js --dev",
         "format": "prettier --write resources/js resources/css bin",
-        "lint": "prettier --check resources/js resources/css bin"
+        "lint": "prettier --check resources/js resources/css bin",
+        "locales": "node bin/locales.js"
     },
     "author": "happenv",
     "license": "MIT",
