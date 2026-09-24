@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\Symbol;
 use Happenv\FilamentEnhancedCharts\Option\Series\PictorialBarSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(PictorialBarSeries::class);
 
-it('builds a minimal pictorial bar series with data', function () {
+it('builds a minimal pictorial bar series with data', function (): void {
     expect(PictorialBarSeries::make()->data([1, 2, 3])->toArray())
         ->toBe(['type' => 'pictorialBar', 'data' => [1, 2, 3]]);
 });
 
-it('applies a Symbol enum', function () {
+it('applies a Symbol enum', function (): void {
     expect(PictorialBarSeries::make()->symbol(Symbol::Rect)->data([1])->toArray())
         ->toBe(['type' => 'pictorialBar', 'data' => [1], 'symbol' => 'rect']);
 });
 
-it('accepts a custom image:// symbol string', function () {
+it('accepts a custom image:// symbol string', function (): void {
     expect(PictorialBarSeries::make()->symbol('image://https://example.com/car.png')->data([1])->toArray())
         ->toBe(['type' => 'pictorialBar', 'data' => [1], 'symbol' => 'image://https://example.com/car.png']);
 });
 
-it('accepts an array symbolSize relative to symbolBoundingData', function () {
+it('accepts an array symbolSize relative to symbolBoundingData', function (): void {
     expect(PictorialBarSeries::make()->symbolSize(['100%', '50%'])->data([1])->toArray())
         ->toBe(['type' => 'pictorialBar', 'data' => [1], 'symbolSize' => ['100%', '50%']]);
 });
 
-it('applies symbolRepeat, symbolClip and symbolBoundingData', function () {
+it('applies symbolRepeat, symbolClip and symbolBoundingData', function (): void {
     expect(
         PictorialBarSeries::make()
             ->symbolRepeat()
@@ -43,7 +45,7 @@ it('applies symbolRepeat, symbolClip and symbolBoundingData', function () {
     ]);
 });
 
-it('accepts a fixed repeat count and the fixed keyword', function () {
+it('accepts a fixed repeat count and the fixed keyword', function (): void {
     expect(PictorialBarSeries::make()->symbolRepeat(3)->data([1])->toArray()['symbolRepeat'])
         ->toBe(3);
 
@@ -51,7 +53,7 @@ it('accepts a fixed repeat count and the fixed keyword', function () {
         ->toBe('fixed');
 });
 
-it('applies symbolPosition, symbolOffset and symbolMargin', function () {
+it('applies symbolPosition, symbolOffset and symbolMargin', function (): void {
     expect(
         PictorialBarSeries::make()
             ->symbolPosition('center')
@@ -68,22 +70,22 @@ it('applies symbolPosition, symbolOffset and symbolMargin', function () {
     ]);
 });
 
-it('applies barCategoryGap and barGap', function () {
+it('applies barCategoryGap and barGap', function (): void {
     expect(PictorialBarSeries::make()->barCategoryGap('20%')->barGap('10%')->data([1])->toArray())
         ->toBe(['type' => 'pictorialBar', 'data' => [1], 'barCategoryGap' => '20%', 'barGap' => '10%']);
 });
 
-it('applies a Label builder', function () {
+it('applies a Label builder', function (): void {
     expect(PictorialBarSeries::make()->label(['show' => true, 'position' => 'top'])->data([1])->toArray()['label'])
         ->toBe(['show' => true, 'position' => 'top']);
 });
 
-it('applies an ItemStyle builder to itemStyle', function () {
+it('applies an ItemStyle builder to itemStyle', function (): void {
     expect(PictorialBarSeries::make()->itemStyle(ItemStyle::make()->color('#f00'))->data([1])->toArray()['itemStyle'])
         ->toBe(['color' => '#f00']);
 });
 
-it('lets raw() override a typed key', function () {
+it('lets raw() override a typed key', function (): void {
     expect(PictorialBarSeries::make()->symbolClip(true)->raw(['symbolClip' => false])->toArray()['symbolClip'])
         ->toBeFalse();
 });

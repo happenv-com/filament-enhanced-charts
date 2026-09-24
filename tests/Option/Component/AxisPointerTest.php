@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\AxisPointerType;
 use Happenv\FilamentEnhancedCharts\Option\Component\AxisPointer;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
@@ -7,12 +9,12 @@ use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
 
 covers(AxisPointer::class);
 
-it('builds show, snap and triggerTooltip flags', function () {
+it('builds show, snap and triggerTooltip flags', function (): void {
     expect(AxisPointer::make()->show()->snap()->triggerTooltip()->toArray())
         ->toEqual(['show' => true, 'snap' => true, 'triggerTooltip' => true]);
 });
 
-it('accepts an AxisPointerType enum or a raw string on type()', function () {
+it('accepts an AxisPointerType enum or a raw string on type()', function (): void {
     expect(AxisPointer::make()->type(AxisPointerType::Cross)->toArray())
         ->toEqual(['type' => 'cross']);
 
@@ -20,7 +22,7 @@ it('accepts an AxisPointerType enum or a raw string on type()', function () {
         ->toEqual(['type' => 'shadow']);
 });
 
-it('normalizes a Label node or a plain array on label()', function () {
+it('normalizes a Label node or a plain array on label()', function (): void {
     expect(AxisPointer::make()->label(Label::make()->formatter('{value}'))->toArray())
         ->toEqual(['label' => ['formatter' => '{value}']]);
 
@@ -28,7 +30,7 @@ it('normalizes a Label node or a plain array on label()', function () {
         ->toEqual(['label' => ['backgroundColor' => '#333']]);
 });
 
-it('normalizes a LineStyle node or a plain array on lineStyle()', function () {
+it('normalizes a LineStyle node or a plain array on lineStyle()', function (): void {
     expect(AxisPointer::make()->lineStyle(LineStyle::make()->dashed()->width(2))->toArray())
         ->toEqual(['lineStyle' => ['type' => 'dashed', 'width' => 2]]);
 
@@ -36,7 +38,7 @@ it('normalizes a LineStyle node or a plain array on lineStyle()', function () {
         ->toEqual(['lineStyle' => ['color' => '#999']]);
 });
 
-it('passes shadowStyle and handle through as plain arrays', function () {
+it('passes shadowStyle and handle through as plain arrays', function (): void {
     expect(AxisPointer::make()->shadowStyle(['color' => 'rgba(0,0,0,0.3)'])->toArray())
         ->toEqual(['shadowStyle' => ['color' => 'rgba(0,0,0,0.3)']]);
 
@@ -44,12 +46,12 @@ it('passes shadowStyle and handle through as plain arrays', function () {
         ->toEqual(['handle' => ['show' => true, 'size' => 45]]);
 });
 
-it('builds a fixed value and status', function () {
+it('builds a fixed value and status', function (): void {
     expect(AxisPointer::make()->value(10)->status('show')->toArray())
         ->toEqual(['value' => 10, 'status' => 'show']);
 });
 
-it('lets raw() override a typed key', function () {
+it('lets raw() override a typed key', function (): void {
     expect(AxisPointer::make()->type('line')->raw(['type' => 'cross'])->toArray())
         ->toEqual(['type' => 'cross']);
 });

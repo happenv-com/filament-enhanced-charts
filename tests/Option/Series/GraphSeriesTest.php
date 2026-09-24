@@ -11,7 +11,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(GraphSeries::class);
 
-it('builds a minimal graph series from data', function () {
+it('builds a minimal graph series from data', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A'], ['name' => 'B']])
@@ -22,7 +22,7 @@ it('builds a minimal graph series from data', function () {
     ]);
 });
 
-it('accepts a GraphLayout enum for layout()', function () {
+it('accepts a GraphLayout enum for layout()', function (): void {
     expect(
         GraphSeries::make()->layout(GraphLayout::Force)->data([['name' => 'A']])->toArray()
     )->toBe([
@@ -32,7 +32,7 @@ it('accepts a GraphLayout enum for layout()', function () {
     ]);
 });
 
-it('accepts a raw string for layout()', function () {
+it('accepts a raw string for layout()', function (): void {
     expect(
         GraphSeries::make()->layout('circular')->data([['name' => 'A']])->toArray()
     )->toBe([
@@ -42,7 +42,7 @@ it('accepts a raw string for layout()', function () {
     ]);
 });
 
-it('applies roam as a bool or a string', function () {
+it('applies roam as a bool or a string', function (): void {
     expect(GraphSeries::make()->roam()->data([['name' => 'A']])->toArray())
         ->toBe(['type' => 'graph', 'data' => [['name' => 'A']], 'roam' => true]);
 
@@ -50,12 +50,12 @@ it('applies roam as a bool or a string', function () {
         ->toBe(['type' => 'graph', 'data' => [['name' => 'A']], 'roam' => 'move']);
 });
 
-it('applies draggable', function () {
+it('applies draggable', function (): void {
     expect(GraphSeries::make()->draggable()->data([['name' => 'A']])->toArray())
         ->toBe(['type' => 'graph', 'data' => [['name' => 'A']], 'draggable' => true]);
 });
 
-it('builds links with a BcMath-normalized value', function () {
+it('builds links with a BcMath-normalized value', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A'], ['name' => 'B']])
@@ -68,7 +68,7 @@ it('builds links with a BcMath-normalized value', function () {
     ]);
 });
 
-it('accepts edges() as an alias for links()', function () {
+it('accepts edges() as an alias for links()', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A'], ['name' => 'B']])
@@ -77,7 +77,7 @@ it('accepts edges() as an alias for links()', function () {
     )->toBe([['source' => 'A', 'target' => 'B']]);
 });
 
-it('applies categories', function () {
+it('applies categories', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A', 'category' => 0]])
@@ -90,7 +90,7 @@ it('applies categories', function () {
     ]);
 });
 
-it('applies a Force builder for force()', function () {
+it('applies a Force builder for force()', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -114,7 +114,7 @@ it('applies a Force builder for force()', function () {
     ]);
 });
 
-it('applies edgeSymbol, edgeSymbolSize and symbolSize', function () {
+it('applies edgeSymbol, edgeSymbolSize and symbolSize', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -131,12 +131,12 @@ it('applies edgeSymbol, edgeSymbolSize and symbolSize', function () {
     ]);
 });
 
-it('applies symbol and a [width, height] symbolSize via the shared symbol concern', function () {
+it('applies symbol and a [width, height] symbolSize via the shared symbol concern', function (): void {
     expect(GraphSeries::make()->symbol(Symbol::Circle)->symbolSize([20, 10])->toArray())
         ->toBe(['type' => 'graph', 'symbol' => 'circle', 'symbolSize' => [20, 10]]);
 });
 
-it('applies lineStyle, label, edgeLabel and itemStyle from arrays', function () {
+it('applies lineStyle, label, edgeLabel and itemStyle from arrays', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -155,7 +155,7 @@ it('applies lineStyle, label, edgeLabel and itemStyle from arrays', function () 
     ]);
 });
 
-it('applies center and zoom', function () {
+it('applies center and zoom', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -170,7 +170,7 @@ it('applies center and zoom', function () {
     ]);
 });
 
-it('lets raw() override a graph series type', function () {
+it('lets raw() override a graph series type', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -179,7 +179,7 @@ it('lets raw() override a graph series type', function () {
     )->toBe('tree');
 });
 
-it('applies left/right/top/bottom/width/height from HasLayout', function () {
+it('applies left/right/top/bottom/width/height from HasLayout', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -198,7 +198,7 @@ it('applies left/right/top/bottom/width/height from HasLayout', function () {
     ]);
 });
 
-it('still resolves its own layout(GraphLayout|string) setter alongside HasLayout', function () {
+it('still resolves its own layout(GraphLayout|string) setter alongside HasLayout', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -213,7 +213,7 @@ it('still resolves its own layout(GraphLayout|string) setter alongside HasLayout
     ]);
 });
 
-it('applies roamTrigger and scaleLimit', function () {
+it('applies roamTrigger and scaleLimit', function (): void {
     expect(
         GraphSeries::make()
             ->data([['name' => 'A']])
@@ -228,7 +228,7 @@ it('applies roamTrigger and scaleLimit', function () {
     ]);
 });
 
-it('accepts circular as a bool or a full config array', function () {
+it('accepts circular as a bool or a full config array', function (): void {
     expect(GraphSeries::make()->data([['name' => 'A']])->circular()->toArray()['circular'])
         ->toEqual(['rotateLabel' => true]);
 
@@ -239,7 +239,7 @@ it('accepts circular as a bool or a full config array', function () {
         ->toEqual(['rotateLabel' => true]);
 });
 
-it('applies nodeScaleRatio', function () {
+it('applies nodeScaleRatio', function (): void {
     expect(GraphSeries::make()->data([['name' => 'A']])->nodeScaleRatio(0.6)->toArray()['nodeScaleRatio'])
         ->toBe(0.6);
 });

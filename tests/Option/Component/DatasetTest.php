@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 covers(Dataset::class);
 
-it('accepts an iterable Collection of rows as the source', function () {
+it('accepts an iterable Collection of rows as the source', function (): void {
     $rows = new Collection([
         ['product' => 'A', 'sales' => 10],
         ['product' => 'B', 'sales' => 20],
@@ -22,7 +22,7 @@ it('accepts an iterable Collection of rows as the source', function () {
         ]);
 });
 
-it('projects rows to the chart columns via fromModels()', function () {
+it('projects rows to the chart columns via fromModels()', function (): void {
     // Objects stand in for models; data_get() resolves properties, array keys
     // and dotted paths alike, keeping only the requested columns.
     $rows = new Collection([
@@ -40,7 +40,7 @@ it('projects rows to the chart columns via fromModels()', function () {
         ]);
 });
 
-it('builds a dataset from a 2D array source', function () {
+it('builds a dataset from a 2D array source', function (): void {
     expect(
         Dataset::make()->source([
             ['Product', 'Sales'],
@@ -54,7 +54,7 @@ it('builds a dataset from a 2D array source', function () {
     ]);
 });
 
-it('builds a dataset from an array-of-objects source', function () {
+it('builds a dataset from an array-of-objects source', function (): void {
     expect(
         Dataset::make()->source([
             ['Product' => 'Cookies', 'Sales' => 321],
@@ -68,7 +68,7 @@ it('builds a dataset from an array-of-objects source', function () {
     ]);
 });
 
-it('normalizes a BcMath Number inside source into a js marker', function () {
+it('normalizes a BcMath Number inside source into a js marker', function (): void {
     expect(
         Dataset::make()->source([
             ['Product', 'Sales'],
@@ -82,13 +82,13 @@ it('normalizes a BcMath Number inside source into a js marker', function () {
     ]);
 });
 
-it('sets dimensions', function () {
+it('sets dimensions', function (): void {
     expect(Dataset::make()->dimensions(['Product', 'Sales'])->toArray())->toEqual([
         'dimensions' => ['Product', 'Sales'],
     ]);
 });
 
-it('sets sourceHeader', function () {
+it('sets sourceHeader', function (): void {
     expect(Dataset::make()->sourceHeader()->toArray())->toEqual([
         'sourceHeader' => true,
     ]);
@@ -98,25 +98,25 @@ it('sets sourceHeader', function () {
     ]);
 });
 
-it('references another dataset by index', function () {
+it('references another dataset by index', function (): void {
     expect(Dataset::make()->fromDatasetIndex(0)->toArray())->toEqual([
         'fromDatasetIndex' => 0,
     ]);
 });
 
-it('references another dataset by id', function () {
+it('references another dataset by id', function (): void {
     expect(Dataset::make()->fromDatasetId('raw')->toArray())->toEqual([
         'fromDatasetId' => 'raw',
     ]);
 });
 
-it('names a dataset via id', function () {
+it('names a dataset via id', function (): void {
     expect(Dataset::make()->id('regressionData')->toArray())->toEqual([
         'id' => 'regressionData',
     ]);
 });
 
-it('attaches a transform built via the Transform builder', function () {
+it('attaches a transform built via the Transform builder', function (): void {
     expect(
         Dataset::make()
             ->fromDatasetIndex(0)
@@ -131,7 +131,7 @@ it('attaches a transform built via the Transform builder', function () {
     ]);
 });
 
-it('attaches a transform passed as a raw array', function () {
+it('attaches a transform passed as a raw array', function (): void {
     expect(
         Dataset::make()
             ->transform(['type' => 'sort', 'config' => ['dimension' => 'value', 'order' => 'desc']])
@@ -144,7 +144,7 @@ it('attaches a transform passed as a raw array', function () {
     ]);
 });
 
-it('picks a transform result set by index via fromTransformResult', function () {
+it('picks a transform result set by index via fromTransformResult', function (): void {
     expect(
         Dataset::make()
             ->fromDatasetIndex(0)
@@ -161,7 +161,7 @@ it('picks a transform result set by index via fromTransformResult', function () 
     ]);
 });
 
-it('lets raw() override any typed key on dataset', function () {
+it('lets raw() override any typed key on dataset', function (): void {
     expect(
         Dataset::make()
             ->source([['Product', 'Sales'], ['Cookies', 321]])

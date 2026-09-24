@@ -9,12 +9,12 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(PieSeries::class);
 
-it('builds a minimal pie series with data', function () {
+it('builds a minimal pie series with data', function (): void {
     expect(PieSeries::make()->data([['value' => 10, 'name' => 'A']])->toArray())
         ->toEqual(['type' => 'pie', 'data' => [['value' => 10, 'name' => 'A']]]);
 });
 
-it('applies startAngle, endAngle, minAngle and clockwise', function () {
+it('applies startAngle, endAngle, minAngle and clockwise', function (): void {
     expect(
         PieSeries::make()
             ->startAngle(90)
@@ -33,11 +33,11 @@ it('applies startAngle, endAngle, minAngle and clockwise', function () {
     ]);
 });
 
-it('clockwise defaults to true', function () {
+it('clockwise defaults to true', function (): void {
     expect(PieSeries::make()->clockwise()->data([1])->toArray()['clockwise'])->toBeTrue();
 });
 
-it('accepts roseType as an enum, a bool, or a string', function () {
+it('accepts roseType as an enum, a bool, or a string', function (): void {
     expect(PieSeries::make()->roseType(RoseType::Area)->data([1])->toArray()['roseType'])
         ->toBe('area');
 
@@ -51,7 +51,7 @@ it('accepts roseType as an enum, a bool, or a string', function () {
         ->toBe('area');
 });
 
-it('applies avoidLabelOverlap, selectedMode and selectedOffset', function () {
+it('applies avoidLabelOverlap, selectedMode and selectedOffset', function (): void {
     expect(
         PieSeries::make()
             ->avoidLabelOverlap(false)
@@ -68,7 +68,7 @@ it('applies avoidLabelOverlap, selectedMode and selectedOffset', function () {
     ]);
 });
 
-it('applies itemStyle from a builder or an array', function () {
+it('applies itemStyle from a builder or an array', function (): void {
     expect(PieSeries::make()->itemStyle(ItemStyle::make()->color('#f00'))->data([1])->toArray()['itemStyle'])
         ->toEqual(['color' => '#f00']);
 
@@ -76,7 +76,7 @@ it('applies itemStyle from a builder or an array', function () {
         ->toEqual(['color' => '#0f0']);
 });
 
-it('accepts labelLine as a boolean or a full config array', function () {
+it('accepts labelLine as a boolean or a full config array', function (): void {
     expect(PieSeries::make()->labelLine(false)->data([1])->toArray()['labelLine'])
         ->toEqual(['show' => false]);
 
@@ -84,7 +84,7 @@ it('accepts labelLine as a boolean or a full config array', function () {
         ->toEqual(['length' => 20, 'length2' => 10]);
 });
 
-it('accepts labelLayout as an array or a RawJs callback', function () {
+it('accepts labelLayout as an array or a RawJs callback', function (): void {
     expect(PieSeries::make()->labelLayout(['hideOverlap' => true])->data([1])->toArray()['labelLayout'])
         ->toEqual(['hideOverlap' => true]);
 
@@ -96,7 +96,7 @@ it('accepts labelLayout as an array or a RawJs callback', function () {
     )->toEqual(['__js__' => 'function (params) { return { x: params.rect.x }; }']);
 });
 
-it('applies radius and center from HasRadius', function () {
+it('applies radius and center from HasRadius', function (): void {
     expect(PieSeries::make()->radius(['40%', '70%'])->center(['50%', '50%'])->data([1])->toArray())
         ->toEqual([
             'type' => 'pie',
@@ -106,12 +106,12 @@ it('applies radius and center from HasRadius', function () {
         ]);
 });
 
-it('lets raw() override a typed pie key', function () {
+it('lets raw() override a typed pie key', function (): void {
     expect(PieSeries::make()->clockwise(true)->raw(['clockwise' => false])->toArray()['clockwise'])
         ->toBeFalse();
 });
 
-it('applies left/right/top/bottom from HasLayout alongside width and height', function () {
+it('applies left/right/top/bottom from HasLayout alongside width and height', function (): void {
     expect(
         PieSeries::make()
             ->left('5%')

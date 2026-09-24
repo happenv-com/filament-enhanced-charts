@@ -12,10 +12,10 @@ covers(HasChartData::class);
 
 function quickChartOptions(QuickChartTestWidget $widget): array
 {
-    return (new ReflectionMethod($widget, 'getOptions'))->invoke($widget);
+    return new ReflectionMethod($widget, 'getOptions')->invoke($widget);
 }
 
-it('builds a cartesian option from data + type without writing getOption()', function () {
+it('builds a cartesian option from data + type without writing getOption()', function (): void {
     $widget = new QuickChartTestWidget;
     $widget->type = ChartType::Bar;
 
@@ -29,7 +29,7 @@ it('builds a cartesian option from data + type without writing getOption()', fun
         ->and($options)->toHaveKey('legend');
 });
 
-it('builds a named (pie) option without axes for a pie type', function () {
+it('builds a named (pie) option without axes for a pie type', function (): void {
     $widget = new QuickChartTestWidget;
     $widget->type = ChartType::Pie;
 
@@ -43,7 +43,7 @@ it('builds a named (pie) option without axes for a pie type', function () {
         ]]]);
 });
 
-it('renders a HasChartData widget under Livewire', function () {
+it('renders a HasChartData widget under Livewire', function (): void {
     livewire(QuickChartTestWidget::class)
         ->assertOk()
         ->assertChartSeriesCount(1)

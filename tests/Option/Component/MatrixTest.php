@@ -9,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Component\MatrixDimension;
 
 covers(Matrix::class);
 
-it('builds x and y from MatrixDimension builders', function () {
+it('builds x and y from MatrixDimension builders', function (): void {
     expect(
         Matrix::make()
             ->x(MatrixDimension::make()->data(['Q1', 'Q2'])->levelSize(40))
@@ -21,7 +21,7 @@ it('builds x and y from MatrixDimension builders', function () {
     ]);
 });
 
-it('accepts x and y as plain arrays', function () {
+it('accepts x and y as plain arrays', function (): void {
     expect(
         Matrix::make()
             ->x(['data' => ['Q1', 'Q2'], 'levelSize' => 40])
@@ -33,7 +33,7 @@ it('accepts x and y as plain arrays', function () {
     ]);
 });
 
-it('normalizes a BcMath Number nested inside an x builder', function () {
+it('normalizes a BcMath Number nested inside an x builder', function (): void {
     expect(
         Matrix::make()->x(MatrixDimension::make()->levelSize(0)->data([
             ['value' => 'Q1', 'size' => new Number('40.0')],
@@ -48,7 +48,7 @@ it('normalizes a BcMath Number nested inside an x builder', function () {
     ]);
 });
 
-it('builds the corner from specific cell definitions addressed by negative coord', function () {
+it('builds the corner from specific cell definitions addressed by negative coord', function (): void {
     expect(
         Matrix::make()->corner([
             'data' => [
@@ -66,7 +66,7 @@ it('builds the corner from specific cell definitions addressed by negative coord
     ]);
 });
 
-it('builds the body from specific cell definitions addressed by coord', function () {
+it('builds the body from specific cell definitions addressed by coord', function (): void {
     expect(
         Matrix::make()->body([
             'data' => [
@@ -82,7 +82,7 @@ it('builds the body from specific cell definitions addressed by coord', function
     ]);
 });
 
-it('normalizes a BcMath Number nested inside body cell data', function () {
+it('normalizes a BcMath Number nested inside body cell data', function (): void {
     expect(
         Matrix::make()->body([
             'data' => [
@@ -98,7 +98,7 @@ it('normalizes a BcMath Number nested inside body cell data', function () {
     ]);
 });
 
-it('applies left/right/top/bottom layout via HasLayout', function () {
+it('applies left/right/top/bottom layout via HasLayout', function (): void {
     expect(Matrix::make()->left('center')->top(30)->bottom(80)->toArray())->toEqual([
         'left' => 'center',
         'top' => 30,
@@ -106,14 +106,14 @@ it('applies left/right/top/bottom layout via HasLayout', function () {
     ]);
 });
 
-it('applies width and height', function () {
+it('applies width and height', function (): void {
     expect(Matrix::make()->width('90%')->height(400)->toArray())->toEqual([
         'width' => '90%',
         'height' => 400,
     ]);
 });
 
-it('sets backgroundColor as backgroundStyle.color, accepting a string or a Filament palette', function () {
+it('sets backgroundColor as backgroundStyle.color, accepting a string or a Filament palette', function (): void {
     expect(Matrix::make()->backgroundColor('#f5f5f5')->toArray())->toEqual([
         'backgroundStyle' => ['color' => '#f5f5f5'],
     ]);
@@ -127,7 +127,7 @@ it('sets backgroundColor as backgroundStyle.color, accepting a string or a Filam
     ]);
 });
 
-it('combines x, y, corner, body, layout and backgroundColor together', function () {
+it('combines x, y, corner, body, layout and backgroundColor together', function (): void {
     expect(
         Matrix::make()
             ->x(MatrixDimension::make()->data(['Q1', 'Q2'])->levelSize(40))
@@ -151,7 +151,7 @@ it('combines x, y, corner, body, layout and backgroundColor together', function 
     ]);
 });
 
-it('lets raw() override any typed key on the matrix, including nested backgroundStyle', function () {
+it('lets raw() override any typed key on the matrix, including nested backgroundStyle', function (): void {
     expect(
         Matrix::make()->backgroundColor('#fff')->raw(['backgroundStyle' => ['borderColor' => '#000']])->toArray()
     )->toEqual([

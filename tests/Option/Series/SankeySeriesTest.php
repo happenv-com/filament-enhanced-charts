@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\NodeAlign;
 use Happenv\FilamentEnhancedCharts\Enums\Orient;
 use Happenv\FilamentEnhancedCharts\Option\Series\SankeySeries;
@@ -7,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(SankeySeries::class);
 
-it('derives nodes from links', function () {
+it('derives nodes from links', function (): void {
     expect(
         SankeySeries::make()
             ->links([['source' => 'A', 'target' => 'B', 'value' => 5]])
@@ -19,7 +21,7 @@ it('derives nodes from links', function () {
     ]);
 });
 
-it('applies orient from an enum and a bare string', function () {
+it('applies orient from an enum and a bare string', function (): void {
     expect(SankeySeries::make()->orient(Orient::Vertical)->toArray())
         ->toHaveKey('orient', 'vertical');
 
@@ -27,7 +29,7 @@ it('applies orient from an enum and a bare string', function () {
         ->toHaveKey('orient', 'horizontal');
 });
 
-it('applies nodeAlign, nodeGap and nodeWidth', function () {
+it('applies nodeAlign, nodeGap and nodeWidth', function (): void {
     expect(
         SankeySeries::make()
             ->nodeAlign(NodeAlign::Left)
@@ -42,7 +44,7 @@ it('applies nodeAlign, nodeGap and nodeWidth', function () {
     ]);
 });
 
-it('applies layoutIterations and draggable', function () {
+it('applies layoutIterations and draggable', function (): void {
     expect(SankeySeries::make()->layoutIterations(64)->draggable(false)->toArray())
         ->toEqual([
             'type' => 'sankey',
@@ -51,7 +53,7 @@ it('applies layoutIterations and draggable', function () {
         ]);
 });
 
-it('applies levels as a raw array', function () {
+it('applies levels as a raw array', function (): void {
     expect(
         SankeySeries::make()
             ->levels([['depth' => 0, 'itemStyle' => ['color' => '#f00']]])
@@ -62,7 +64,7 @@ it('applies levels as a raw array', function () {
     ]);
 });
 
-it('applies edgeLabel and itemStyle', function () {
+it('applies edgeLabel and itemStyle', function (): void {
     expect(
         SankeySeries::make()
             ->edgeLabel(['show' => true])
@@ -75,7 +77,7 @@ it('applies edgeLabel and itemStyle', function () {
     ]);
 });
 
-it('applies width and height alongside HasLayout edges', function () {
+it('applies width and height alongside HasLayout edges', function (): void {
     expect(
         SankeySeries::make()->width('80%')->height(300)->left('5%')->toArray()
     )->toEqual([
@@ -86,7 +88,7 @@ it('applies width and height alongside HasLayout edges', function () {
     ]);
 });
 
-it('applies layout alongside HasLayout box positioning', function () {
+it('applies layout alongside HasLayout box positioning', function (): void {
     expect(
         SankeySeries::make()->layout('none')->left('5%')->toArray()
     )->toEqual([

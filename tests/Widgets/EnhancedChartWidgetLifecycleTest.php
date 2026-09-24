@@ -10,19 +10,19 @@ use function Pest\Livewire\livewire;
 
 covers(EnhancedChartWidget::class);
 
-it('mounts a chart widget and renders it under Livewire', function () {
+it('mounts a chart widget and renders it under Livewire', function (): void {
     livewire(PollableTestWidget::class)
         ->assertOk()
         ->assertChartSeriesCount(1)
         ->assertChartHasSeries('bar');
 });
 
-it('hashes the resolved options on mount', function () {
+it('hashes the resolved options on mount', function (): void {
     livewire(PollableTestWidget::class)
         ->assertSet('optionsHash', fn (?string $hash): bool => filled($hash));
 });
 
-it('dispatches updateOptions only when the resolved options actually change', function () {
+it('dispatches updateOptions only when the resolved options actually change', function (): void {
     livewire(PollableTestWidget::class)
         // Nothing changed since mount → the poll dirty-check short-circuits.
         ->call('updateOptions')
@@ -33,7 +33,7 @@ it('dispatches updateOptions only when the resolved options actually change', fu
         ->assertDispatched('updateOptions');
 });
 
-it('suppresses updateOptions while the filter dropdown is open', function () {
+it('suppresses updateOptions while the filter dropdown is open', function (): void {
     livewire(PollableTestWidget::class)
         ->set('dropdownOpen', true)
         ->set('value', 99)
@@ -41,7 +41,7 @@ it('suppresses updateOptions while the filter dropdown is open', function () {
         ->assertNotDispatched('updateOptions');
 });
 
-it('defers loading until loadWidget is called', function () {
+it('defers loading until loadWidget is called', function (): void {
     livewire(DeferredTestWidget::class)
         ->assertSet('readyToLoad', false)
         ->assertChartSeriesCount(0)

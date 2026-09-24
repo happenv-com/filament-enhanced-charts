@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\Symbol;
 use Happenv\FilamentEnhancedCharts\Option\Component\Parallel;
 use Happenv\FilamentEnhancedCharts\Option\Component\ParallelAxis;
@@ -11,7 +13,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\AreaStyle;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
 
-it('composes a radar option', function () {
+it('composes a radar option', function (): void {
     $option = Option::make()
         ->radar(Radar::make()->indicator([['name' => 'A', 'max' => 10]]))
         ->series(RadarSeries::make()->data([['value' => [3], 'name' => 'x']]));
@@ -22,7 +24,7 @@ it('composes a radar option', function () {
     ]);
 });
 
-it('composes a parallel option with axes', function () {
+it('composes a parallel option with axes', function (): void {
     $option = Option::make()
         ->parallelAxis(ParallelAxis::make()->dim(0)->name('A'), ParallelAxis::make()->dim(1)->name('B'))
         ->series(ParallelSeries::make()->data([[1, 2]]));
@@ -33,12 +35,12 @@ it('composes a parallel option with axes', function () {
     ]);
 });
 
-it('emits a parallel key from Option::parallel()', function () {
+it('emits a parallel key from Option::parallel()', function (): void {
     expect(Option::make()->parallel(Parallel::make())->toArray())
         ->toBe(['parallel' => []]);
 });
 
-it('lets raw() override a value on a new coordinate component', function () {
+it('lets raw() override a value on a new coordinate component', function (): void {
     expect(
         Radar::make()->indicator([['name' => 'A', 'max' => 5]])->raw(['shape' => 'circle'])->toArray()
     )->toBe([
@@ -47,12 +49,12 @@ it('lets raw() override a value on a new coordinate component', function () {
     ]);
 });
 
-it('emits parallelAxis as a list even with a single axis', function () {
+it('emits parallelAxis as a list even with a single axis', function (): void {
     expect(Option::make()->parallelAxis(ParallelAxis::make()->dim(0)->name('A'))->toArray())
         ->toBe(['parallelAxis' => [['dim' => 0, 'name' => 'A']]]);
 });
 
-it('applies itemStyle, lineStyle and areaStyle builders to a radar series', function () {
+it('applies itemStyle, lineStyle and areaStyle builders to a radar series', function (): void {
     expect(
         RadarSeries::make()
             ->itemStyle(ItemStyle::make()->color('#f00'))
@@ -69,7 +71,7 @@ it('applies itemStyle, lineStyle and areaStyle builders to a radar series', func
     ]);
 });
 
-it('accepts plain arrays for itemStyle, lineStyle and areaStyle on a radar series', function () {
+it('accepts plain arrays for itemStyle, lineStyle and areaStyle on a radar series', function (): void {
     expect(
         RadarSeries::make()
             ->itemStyle(['color' => '#00f'])
@@ -84,18 +86,18 @@ it('accepts plain arrays for itemStyle, lineStyle and areaStyle on a radar serie
     ]);
 });
 
-it('applies a symbol and symbolSize to a radar series', function () {
+it('applies a symbol and symbolSize to a radar series', function (): void {
     expect(RadarSeries::make()->symbol(Symbol::Diamond)->symbolSize(8)->toArray())
         ->toEqual(['type' => 'radar', 'symbol' => 'diamond', 'symbolSize' => 8]);
 });
 
-it('lets raw() override a typed key on a radar series', function () {
+it('lets raw() override a typed key on a radar series', function (): void {
     expect(
         RadarSeries::make()->itemStyle(['color' => '#f00'])->raw(['itemStyle' => ['color' => '#0f0']])->toArray()
     )->toEqual(['type' => 'radar', 'itemStyle' => ['color' => '#0f0']]);
 });
 
-it('applies lineStyle, opacities and smooth to a parallel series', function () {
+it('applies lineStyle, opacities and smooth to a parallel series', function (): void {
     expect(
         ParallelSeries::make()
             ->lineStyle(LineStyle::make()->width(1))
@@ -114,12 +116,12 @@ it('applies lineStyle, opacities and smooth to a parallel series', function () {
     ]);
 });
 
-it('accepts a plain array for lineStyle on a parallel series', function () {
+it('accepts a plain array for lineStyle on a parallel series', function (): void {
     expect(ParallelSeries::make()->lineStyle(['color' => '#f00'])->toArray())
         ->toEqual(['type' => 'parallel', 'lineStyle' => ['color' => '#f00']]);
 });
 
-it('lets raw() override a typed key on a parallel series', function () {
+it('lets raw() override a typed key on a parallel series', function (): void {
     expect(ParallelSeries::make()->smooth()->raw(['smooth' => false])->toArray())
         ->toEqual(['type' => 'parallel', 'smooth' => false]);
 });

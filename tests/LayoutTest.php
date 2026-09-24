@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('the chart component injects cartesian layout defaults (tight grid + placed axis names)', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/index.js');
 

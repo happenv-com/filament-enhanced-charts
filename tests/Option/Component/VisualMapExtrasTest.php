@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Option\Component\VisualMap;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 covers(VisualMap::class);
 
-it('sets an inRange color scale via colors() and inRange()', function () {
+it('sets an inRange color scale via colors() and inRange()', function (): void {
     expect(VisualMap::continuous()->min(0)->max(100)->colors('#eee', '#c00')->toArray())
         ->toEqual(['type' => 'continuous', 'min' => 0, 'max' => 100, 'inRange' => ['color' => ['#eee', '#c00']]]);
 
@@ -14,17 +16,17 @@ it('sets an inRange color scale via colors() and inRange()', function () {
         ->toEqual(['type' => 'continuous', 'inRange' => ['symbolSize' => [5, 40]]]);
 });
 
-it('sets outOfRange and positioning', function () {
+it('sets outOfRange and positioning', function (): void {
     expect(VisualMap::piecewise()->outOfRange(['color' => '#ccc'])->left(20)->bottom('10%')->toArray())
         ->toEqual(['type' => 'piecewise', 'outOfRange' => ['color' => '#ccc'], 'left' => 20, 'bottom' => '10%']);
 });
 
-it('sets categories for categorical piecewise mapping', function () {
+it('sets categories for categorical piecewise mapping', function (): void {
     expect(VisualMap::piecewise()->categories(['A', 'B', 'C'])->toArray())
         ->toEqual(['type' => 'piecewise', 'categories' => ['A', 'B', 'C']]);
 });
 
-it('accepts a string or int dimension', function () {
+it('accepts a string or int dimension', function (): void {
     expect(VisualMap::continuous()->dimension(2)->toArray())
         ->toEqual(['type' => 'continuous', 'dimension' => 2]);
 
@@ -32,7 +34,7 @@ it('accepts a string or int dimension', function () {
         ->toEqual(['type' => 'continuous', 'dimension' => 'value']);
 });
 
-it('sets seriesIndex as a single index or a list', function () {
+it('sets seriesIndex as a single index or a list', function (): void {
     expect(VisualMap::continuous()->seriesIndex(1)->toArray())
         ->toEqual(['type' => 'continuous', 'seriesIndex' => 1]);
 
@@ -40,7 +42,7 @@ it('sets seriesIndex as a single index or a list', function () {
         ->toEqual(['type' => 'continuous', 'seriesIndex' => [0, 1]]);
 });
 
-it('sets precision, text, and hoverLink', function () {
+it('sets precision, text, and hoverLink', function (): void {
     expect(
         VisualMap::continuous()->min(0)->max(100)->precision(1)->text(['High', 'Low'])->hoverLink(false)->toArray()
     )->toEqual([
@@ -53,7 +55,7 @@ it('sets precision, text, and hoverLink', function () {
     ]);
 });
 
-it('accepts textStyle as a Label builder or a plain array', function () {
+it('accepts textStyle as a Label builder or a plain array', function (): void {
     expect(VisualMap::continuous()->textStyle(Label::make()->color('#333'))->toArray())
         ->toEqual(['type' => 'continuous', 'textStyle' => ['color' => '#333']]);
 
@@ -61,7 +63,7 @@ it('accepts textStyle as a Label builder or a plain array', function () {
         ->toEqual(['type' => 'continuous', 'textStyle' => ['color' => '#333']]);
 });
 
-it('builds itemWidth, itemHeight, range, and splitNumber', function () {
+it('builds itemWidth, itemHeight, range, and splitNumber', function (): void {
     expect(
         VisualMap::continuous()->itemWidth(20)->itemHeight(140)->range([10, 90])->splitNumber(5)->toArray()
     )->toEqual([
@@ -73,7 +75,7 @@ it('builds itemWidth, itemHeight, range, and splitNumber', function () {
     ]);
 });
 
-it('accepts a literal template or a RawJs formatter', function () {
+it('accepts a literal template or a RawJs formatter', function (): void {
     expect(VisualMap::continuous()->formatter('{value}')->toArray())
         ->toEqual(['type' => 'continuous', 'formatter' => '{value}']);
 
@@ -81,7 +83,7 @@ it('accepts a literal template or a RawJs formatter', function () {
         ->toEqual(['type' => 'continuous', 'formatter' => ['__js__' => '(value) => value.toFixed(1)']]);
 });
 
-it('sets realtime, controller, and a fractional precision', function () {
+it('sets realtime, controller, and a fractional precision', function (): void {
     expect(
         VisualMap::continuous()->realtime(false)->controller(['inRange' => ['color' => ['#eee']]])->precision(0.1)->toArray()
     )->toEqual([
@@ -92,7 +94,7 @@ it('sets realtime, controller, and a fractional precision', function () {
     ]);
 });
 
-it('sets textGap, background/border color and border width', function () {
+it('sets textGap, background/border color and border width', function (): void {
     expect(
         VisualMap::continuous()
             ->textGap(12)

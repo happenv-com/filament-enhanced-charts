@@ -23,7 +23,7 @@ covers(
     GraphicGroup::class,
 );
 
-it('builds a rect element with shape and positioning', function () {
+it('builds a rect element with shape and positioning', function (): void {
     expect(
         GraphicRect::make()
             ->left(10)
@@ -40,7 +40,7 @@ it('builds a rect element with shape and positioning', function () {
     ]);
 });
 
-it('merges repeated shape() calls on a rect instead of replacing', function () {
+it('merges repeated shape() calls on a rect instead of replacing', function (): void {
     expect(
         GraphicRect::make()
             ->shape(['x' => 0, 'y' => 0])
@@ -52,7 +52,7 @@ it('merges repeated shape() calls on a rect instead of replacing', function () {
     ]);
 });
 
-it('builds a circle element with cx/cy/r shape', function () {
+it('builds a circle element with cx/cy/r shape', function (): void {
     expect(
         GraphicCircle::make()->shape(['cx' => 50, 'cy' => 50, 'r' => 20])->toArray()
     )->toEqual([
@@ -61,7 +61,7 @@ it('builds a circle element with cx/cy/r shape', function () {
     ]);
 });
 
-it('builds a line element with x1/y1/x2/y2 shape', function () {
+it('builds a line element with x1/y1/x2/y2 shape', function (): void {
     expect(
         GraphicLine::make()->shape(['x1' => 0, 'y1' => 0, 'x2' => 100, 'y2' => 100])->toArray()
     )->toEqual([
@@ -70,7 +70,7 @@ it('builds a line element with x1/y1/x2/y2 shape', function () {
     ]);
 });
 
-it('builds a text element via the text/font/textFill convenience setters', function () {
+it('builds a text element via the text/font/textFill convenience setters', function (): void {
     expect(
         GraphicText::make()->text('Hello')->font('14px sans-serif')->textFill('#333')->toArray()
     )->toEqual([
@@ -79,7 +79,7 @@ it('builds a text element via the text/font/textFill convenience setters', funct
     ]);
 });
 
-it('builds an image element via the image/width/height convenience setters', function () {
+it('builds an image element via the image/width/height convenience setters', function (): void {
     expect(
         GraphicImage::make()->image('logo.png')->width(64)->height(32)->toArray()
     )->toEqual([
@@ -88,7 +88,7 @@ it('builds an image element via the image/width/height convenience setters', fun
     ]);
 });
 
-it('sets every base positioning and interaction key on an element', function () {
+it('sets every base positioning and interaction key on an element', function (): void {
     expect(
         GraphicRect::make()
             ->id('badge')
@@ -127,7 +127,7 @@ it('sets every base positioning and interaction key on an element', function () 
     ]);
 });
 
-it('builds a group with nested children', function () {
+it('builds a group with nested children', function (): void {
     expect(
         GraphicGroup::make()
             ->left('center')
@@ -144,7 +144,7 @@ it('builds a group with nested children', function () {
     ]);
 });
 
-it('builds a graphic component with a rect, circle, text and a group of a line', function () {
+it('builds a graphic component with a rect, circle, text and a group of a line', function (): void {
     expect(
         Graphic::make()
             ->elements([
@@ -171,7 +171,7 @@ it('builds a graphic component with a rect, circle, text and a group of a line',
     ]);
 });
 
-it('accepts a raw array alongside GraphicElement builders in elements()', function () {
+it('accepts a raw array alongside GraphicElement builders in elements()', function (): void {
     expect(
         Graphic::make()
             ->elements([
@@ -187,7 +187,7 @@ it('accepts a raw array alongside GraphicElement builders in elements()', functi
     ]);
 });
 
-it('lets raw() override any typed key on the graphic component', function () {
+it('lets raw() override any typed key on the graphic component', function (): void {
     expect(
         Graphic::make()
             ->elements([GraphicRect::make()])
@@ -196,18 +196,18 @@ it('lets raw() override any typed key on the graphic component', function () {
     )->toEqual(['elements' => [['type' => 'circle']]]);
 });
 
-it('lets raw() override any typed key on a graphic element', function () {
+it('lets raw() override any typed key on a graphic element', function (): void {
     expect(
         GraphicRect::make()->left(0)->raw(['left' => 5, 'type' => 'circle'])->toArray()
     )->toEqual(['left' => 5, 'type' => 'circle']);
 });
 
-it('sets bounding to control how the bounding rect is computed for locating', function () {
+it('sets bounding to control how the bounding rect is computed for locating', function (): void {
     expect(GraphicGroup::make()->bounding('raw')->toArray())
         ->toEqual(['type' => 'group', 'bounding' => 'raw']);
 });
 
-it('merges multiple Graphic wrappers into one elements object on the option', function () {
+it('merges multiple Graphic wrappers into one elements object on the option', function (): void {
     // Regression: two Graphics used to emit a LIST of {elements} wrappers,
     // which is not a valid ECharts top-level `graphic` shape.
     expect(
@@ -227,7 +227,7 @@ it('merges multiple Graphic wrappers into one elements object on the option', fu
     ]);
 });
 
-it('accepts bare GraphicElement builders on Option::graphic()', function () {
+it('accepts bare GraphicElement builders on Option::graphic()', function (): void {
     expect(
         Option::make()
             ->graphic(
@@ -245,7 +245,7 @@ it('accepts bare GraphicElement builders on Option::graphic()', function () {
     ]);
 });
 
-it('emits a single Graphic wrapper verbatim (raw keys preserved)', function () {
+it('emits a single Graphic wrapper verbatim (raw keys preserved)', function (): void {
     expect(
         Option::make()
             ->graphic(Graphic::make()->elements([GraphicRect::make()])->raw(['id' => 'overlay']))

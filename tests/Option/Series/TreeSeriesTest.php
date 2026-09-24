@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Happenv\FilamentEnhancedCharts\Enums\Symbol;
 use Happenv\FilamentEnhancedCharts\Enums\TreeEdgeShape;
@@ -10,7 +12,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(TreeSeries::class);
 
-it('builds a tree with hierarchical BcMath-normalized data', function () {
+it('builds a tree with hierarchical BcMath-normalized data', function (): void {
     expect(
         TreeSeries::make()->data([
             ['name' => 'A', 'value' => new Number('5.00'), 'children' => [
@@ -27,7 +29,7 @@ it('builds a tree with hierarchical BcMath-normalized data', function () {
     ]);
 });
 
-it('applies layout and orient from enums', function () {
+it('applies layout and orient from enums', function (): void {
     expect(
         TreeSeries::make()
             ->layout(TreeLayout::Radial)
@@ -42,7 +44,7 @@ it('applies layout and orient from enums', function () {
     ]);
 });
 
-it('accepts layout and orient as bare strings', function () {
+it('accepts layout and orient as bare strings', function (): void {
     expect(
         TreeSeries::make()
             ->layout('orthogonal')
@@ -57,7 +59,7 @@ it('accepts layout and orient as bare strings', function () {
     ]);
 });
 
-it('applies edgeShape from an enum and a bare string', function () {
+it('applies edgeShape from an enum and a bare string', function (): void {
     expect(TreeSeries::make()->edgeShape(TreeEdgeShape::Polyline)->data([['name' => 'A']])->toArray())
         ->toHaveKey('edgeShape', 'polyline');
 
@@ -65,7 +67,7 @@ it('applies edgeShape from an enum and a bare string', function () {
         ->toHaveKey('edgeShape', 'curve');
 });
 
-it('applies roam, initialTreeDepth and leaves', function () {
+it('applies roam, initialTreeDepth and leaves', function (): void {
     expect(
         TreeSeries::make()
             ->roam()
@@ -82,12 +84,12 @@ it('applies roam, initialTreeDepth and leaves', function () {
     ]);
 });
 
-it('accepts a string roam mode', function () {
+it('accepts a string roam mode', function (): void {
     expect(TreeSeries::make()->roam('move')->data([['name' => 'A']])->toArray())
         ->toHaveKey('roam', 'move');
 });
 
-it('applies symbol and symbolSize via HasSymbol', function () {
+it('applies symbol and symbolSize via HasSymbol', function (): void {
     expect(TreeSeries::make()->symbol(Symbol::Diamond)->symbolSize(8)->data([['name' => 'A']])->toArray())
         ->toBe([
             'type' => 'tree',
@@ -97,7 +99,7 @@ it('applies symbol and symbolSize via HasSymbol', function () {
         ]);
 });
 
-it('applies itemStyle as a builder and lineStyle as an array', function () {
+it('applies itemStyle as a builder and lineStyle as an array', function (): void {
     expect(
         TreeSeries::make()
             ->itemStyle(ItemStyle::make()->color('#f00'))
@@ -112,7 +114,7 @@ it('applies itemStyle as a builder and lineStyle as an array', function () {
     ]);
 });
 
-it('applies expandAndCollapse and edgeForkPosition', function () {
+it('applies expandAndCollapse and edgeForkPosition', function (): void {
     expect(
         TreeSeries::make()
             ->expandAndCollapse()
@@ -127,13 +129,13 @@ it('applies expandAndCollapse and edgeForkPosition', function () {
     ]);
 });
 
-it('adds box-layout edges (HasLayout) alongside the tree layout algorithm', function () {
+it('adds box-layout edges (HasLayout) alongside the tree layout algorithm', function (): void {
     expect(
         TreeSeries::make()->layout(TreeLayout::Radial)->left('5%')->top(10)->data([['name' => 'A']])->toArray()
     )->toMatchArray(['layout' => 'radial', 'left' => '5%', 'top' => 10]);
 });
 
-it('lets raw() override a typed key', function () {
+it('lets raw() override a typed key', function (): void {
     expect(
         TreeSeries::make()->layout(TreeLayout::Orthogonal)->raw(['layout' => 'radial'])->toArray()['layout']
     )->toBe('radial');

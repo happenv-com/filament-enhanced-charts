@@ -4,7 +4,7 @@ use Happenv\FilamentEnhancedCharts\Columns\EnhancedChartColumn;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 
-it('resolves a per-record Option from ->chart()', function () {
+it('resolves a per-record Option from ->chart()', function (): void {
     $column = EnhancedChartColumn::make('trend')->chart(
         fn (array $record): Option => Option::make()->series(
             LineSeries::make()->data($record['values'])
@@ -17,7 +17,7 @@ it('resolves a per-record Option from ->chart()', function () {
         ->and($array['series'][0]['data'])->toBe([1, 2, 3]);
 });
 
-it('defaults to the svg renderer and 120x32, overridable', function () {
+it('defaults to the svg renderer and 120x32, overridable', function (): void {
     $column = EnhancedChartColumn::make('t');
     expect($column->getRenderer())->toBe('svg')
         ->and($column->getChartWidth())->toBe(120)
@@ -29,7 +29,7 @@ it('defaults to the svg renderer and 120x32, overridable', function () {
         ->and($column->getChartHeight())->toBe(60);
 });
 
-it('resolves to null when there is no chart resolver', function () {
+it('resolves to null when there is no chart resolver', function (): void {
     expect(EnhancedChartColumn::make('t')->resolveOption(['x' => 1]))->toBeNull();
 });
 
@@ -37,7 +37,7 @@ it('resolves to null when there is no chart resolver', function () {
 // global scope, so a shared `function` here risks a fatal redeclare against
 // another module. Inline `->resolveOption(...)->toArray()` in each test.
 
-it('sparkline builds a hidden-axis line with a body-appended tooltip', function () {
+it('sparkline builds a hidden-axis line with a body-appended tooltip', function (): void {
     $array = EnhancedChartColumn::make('s')->sparkline(fn (array $r) => $r['d'])
         ->resolveOption(['d' => [3, 1, 4, 1, 5]])->toArray();
 
@@ -51,7 +51,7 @@ it('sparkline builds a hidden-axis line with a body-appended tooltip', function 
         ->and($array['legend']['show'])->toBeFalse();
 });
 
-it('sparkline ->fill() adds an areaStyle and ->bars() switches to a bar series', function () {
+it('sparkline ->fill() adds an areaStyle and ->bars() switches to a bar series', function (): void {
     $filled = EnhancedChartColumn::make('s')->sparkline(fn ($r) => $r['d'])->fill()
         ->resolveOption(['d' => [1, 2]])->toArray();
     expect($filled['series'][0]['type'])->toBe('line')
@@ -62,7 +62,7 @@ it('sparkline ->fill() adds an areaStyle and ->bars() switches to a bar series',
     expect($bars['series'][0]['type'])->toBe('bar');
 });
 
-it('candles builds a candlestick with hidden axes', function () {
+it('candles builds a candlestick with hidden axes', function (): void {
     $array = EnhancedChartColumn::make('c')->candles(fn ($r) => $r['ohlc'])
         ->resolveOption(['ohlc' => [[20, 34, 10, 38], [40, 35, 30, 50]]])->toArray();
 
@@ -71,7 +71,7 @@ it('candles builds a candlestick with hidden axes', function () {
         ->and($array['tooltip']['appendTo'])->toBe('body');
 });
 
-it('pie builds a donut, defaults to 40x40, and normalizes label=>value data', function () {
+it('pie builds a donut, defaults to 40x40, and normalizes label=>value data', function (): void {
     $column = EnhancedChartColumn::make('p')->pie(fn ($r) => $r['b']);
     $array = $column->resolveOption(['b' => ['A' => 3, 'B' => 5]])->toArray();
 
@@ -85,6 +85,6 @@ it('pie builds a donut, defaults to 40x40, and normalizes label=>value data', fu
     expect(EnhancedChartColumn::make('p')->pie(fn ($r) => $r['b'])->width(64)->getChartWidth())->toBe(64);
 });
 
-it('a preset returns null for blank data (placeholder path)', function () {
+it('a preset returns null for blank data (placeholder path)', function (): void {
     expect(EnhancedChartColumn::make('s')->sparkline(fn ($r) => $r['d'])->resolveOption(['d' => []]))->toBeNull();
 });

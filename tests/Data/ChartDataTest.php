@@ -8,21 +8,21 @@ use Illuminate\Support\Collection;
 
 covers(ChartData::class);
 
-it('splits a keyed map into labels and values (keyed pluck shape)', function () {
+it('splits a keyed map into labels and values (keyed pluck shape)', function (): void {
     $data = ChartData::fromPairs(['B2B' => 60, 'B2C' => 40]);
 
     expect($data->labels())->toBe(['B2B', 'B2C'])
         ->and($data->values())->toBe([60, 40]);
 });
 
-it('splits a keyed Collection into labels and values', function () {
+it('splits a keyed Collection into labels and values', function (): void {
     $data = ChartData::fromPairs(new Collection(['jan' => 5, 'feb' => 8]));
 
     expect($data->labels())->toBe(['jan', 'feb'])
         ->and($data->values())->toBe([5, 8]);
 });
 
-it('reads label/value columns from a time-series row list (TrendValue shape)', function () {
+it('reads label/value columns from a time-series row list (TrendValue shape)', function (): void {
     // The exact shape flowframe/laravel-trend returns: objects with public
     // date/aggregate — reproduced here so the bridge is proven decoupled.
     $trend = new Collection([
@@ -36,7 +36,7 @@ it('reads label/value columns from a time-series row list (TrendValue shape)', f
         ->and($data->values())->toBe([12, 7]);
 });
 
-it('reads custom label/value keys from array rows', function () {
+it('reads custom label/value keys from array rows', function (): void {
     $rows = [
         ['day' => 'Mon', 'total' => 3],
         ['day' => 'Tue', 'total' => 9],
@@ -48,7 +48,7 @@ it('reads custom label/value keys from array rows', function () {
         ->and($data->values())->toBe([3, 9]);
 });
 
-it('maps values to DataPoints named by their label', function () {
+it('maps values to DataPoints named by their label', function (): void {
     $points = ChartData::fromPairs(['B2B' => 60, 'B2C' => 40])->toDataPoints();
 
     expect($points)->each->toBeInstanceOf(DataPoint::class)

@@ -8,19 +8,19 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(Calendar::class);
 
-it('builds a calendar with a single-year string range', function () {
+it('builds a calendar with a single-year string range', function (): void {
     expect(Calendar::make()->range('2017')->toArray())->toEqual([
         'range' => '2017',
     ]);
 });
 
-it('builds a calendar with a start/end date range', function () {
+it('builds a calendar with a start/end date range', function (): void {
     expect(Calendar::make()->range(['2017-01-01', '2017-12-31'])->toArray())->toEqual([
         'range' => ['2017-01-01', '2017-12-31'],
     ]);
 });
 
-it('accepts cellSize as a single value or an auto pair', function () {
+it('accepts cellSize as a single value or an auto pair', function (): void {
     expect(Calendar::make()->cellSize(20)->toArray())->toEqual([
         'cellSize' => 20,
     ]);
@@ -30,7 +30,7 @@ it('accepts cellSize as a single value or an auto pair', function () {
     ]);
 });
 
-it('accepts orient as an enum or a string', function () {
+it('accepts orient as an enum or a string', function (): void {
     expect(Calendar::make()->orient(Orient::Vertical)->toArray())->toEqual([
         'orient' => 'vertical',
     ]);
@@ -40,7 +40,7 @@ it('accepts orient as an enum or a string', function () {
     ]);
 });
 
-it('builds dayLabel, monthLabel and yearLabel configs', function () {
+it('builds dayLabel, monthLabel and yearLabel configs', function (): void {
     expect(
         Calendar::make()
             ->dayLabel(['firstDay' => 1, 'margin' => 8, 'position' => 'start', 'nameMap' => 'en'])
@@ -54,7 +54,7 @@ it('builds dayLabel, monthLabel and yearLabel configs', function () {
     ]);
 });
 
-it('accepts splitLine as a boolean or an array config', function () {
+it('accepts splitLine as a boolean or an array config', function (): void {
     expect(Calendar::make()->splitLine(true)->toArray())->toEqual([
         'splitLine' => ['show' => true],
     ]);
@@ -68,7 +68,7 @@ it('accepts splitLine as a boolean or an array config', function () {
     ]);
 });
 
-it('accepts itemStyle as a builder or an array', function () {
+it('accepts itemStyle as a builder or an array', function (): void {
     $viaBuilder = Calendar::make()->itemStyle(ItemStyle::make()->color('#c23531')->borderWidth(1))->toArray();
     $viaArray = Calendar::make()->itemStyle(['color' => '#c23531', 'borderWidth' => 1])->toArray();
 
@@ -78,7 +78,7 @@ it('accepts itemStyle as a builder or an array', function () {
     expect($viaArray)->toEqual($viaBuilder);
 });
 
-it('applies box layout edges via HasLayout', function () {
+it('applies box layout edges via HasLayout', function (): void {
     expect(Calendar::make()->top(30)->left('5%')->right(20)->bottom('10%')->toArray())->toEqual([
         'left' => '5%',
         'right' => 20,
@@ -87,7 +87,7 @@ it('applies box layout edges via HasLayout', function () {
     ]);
 });
 
-it('combines range, cellSize, orient and layout together', function () {
+it('combines range, cellSize, orient and layout together', function (): void {
     expect(
         Calendar::make()
             ->range('2017')
@@ -103,7 +103,7 @@ it('combines range, cellSize, orient and layout together', function () {
     ]);
 });
 
-it('lets raw() override any typed key on calendar', function () {
+it('lets raw() override any typed key on calendar', function (): void {
     expect(Calendar::make()->range('2017')->cellSize(20)->raw(['cellSize' => 30, 'orient' => 'vertical'])->toArray())
         ->toEqual([
             'range' => '2017',

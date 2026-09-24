@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Enums\AxisType;
@@ -7,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Component\RadiusAxis;
 
 covers(RadiusAxis::class);
 
-it('accepts an AxisType enum or a raw string on type()', function () {
+it('accepts an AxisType enum or a raw string on type()', function (): void {
     expect(RadiusAxis::make()->type(AxisType::Value)->toArray())
         ->toEqual(['type' => 'value']);
 
@@ -15,11 +17,11 @@ it('accepts an AxisType enum or a raw string on type()', function () {
         ->toEqual(['type' => 'category']);
 });
 
-it('builds a name', function () {
+it('builds a name', function (): void {
     expect(RadiusAxis::make()->name('Score')->toArray())->toEqual(['name' => 'Score']);
 });
 
-it('normalizes a BcMath min and passes a plain max through', function () {
+it('normalizes a BcMath min and passes a plain max through', function (): void {
     expect(RadiusAxis::make()->min(new Number('0.50'))->max(100)->toArray())
         ->toEqual([
             'min' => ['__js__' => '0.5'],
@@ -27,32 +29,32 @@ it('normalizes a BcMath min and passes a plain max through', function () {
         ]);
 });
 
-it('builds category data', function () {
+it('builds category data', function (): void {
     expect(RadiusAxis::make()->data(['A', 'B'])->toArray())
         ->toEqual(['data' => ['A', 'B']]);
 });
 
-it('normalizes a BcMath value inside data', function () {
+it('normalizes a BcMath value inside data', function (): void {
     expect(RadiusAxis::make()->data([new Number('1.50'), 2])->toArray())
         ->toEqual(['data' => [['__js__' => '1.5'], 2]]);
 });
 
-it('wraps a RawJs axisLabel formatter in a js marker', function () {
+it('wraps a RawJs axisLabel formatter in a js marker', function (): void {
     expect(RadiusAxis::make()->axisLabel(RawJs::make('(v)=>v'))->toArray())
         ->toEqual(['axisLabel' => ['formatter' => ['__js__' => '(v)=>v']]]);
 });
 
-it('treats a bare string axisLabel as a literal ECharts template', function () {
+it('treats a bare string axisLabel as a literal ECharts template', function (): void {
     expect(RadiusAxis::make()->axisLabel('{value}')->toArray())
         ->toEqual(['axisLabel' => ['formatter' => '{value}']]);
 });
 
-it('passes an axisLabel array through as a full config', function () {
+it('passes an axisLabel array through as a full config', function (): void {
     expect(RadiusAxis::make()->axisLabel(['show' => false])->toArray())
         ->toEqual(['axisLabel' => ['show' => false]]);
 });
 
-it('applies splitLine as a show flag or a config array', function () {
+it('applies splitLine as a show flag or a config array', function (): void {
     expect(RadiusAxis::make()->splitLine(false)->toArray())
         ->toEqual(['splitLine' => ['show' => false]]);
 
@@ -63,30 +65,30 @@ it('applies splitLine as a show flag or a config array', function () {
         ->toEqual(['splitLine' => ['show' => true, 'interval' => 2]]);
 });
 
-it('builds polarIndex', function () {
+it('builds polarIndex', function (): void {
     expect(RadiusAxis::make()->polarIndex(0)->toArray())->toEqual(['polarIndex' => 0]);
 });
 
-it('accepts boundaryGap as a bool or a pair, defaulting to true', function () {
+it('accepts boundaryGap as a bool or a pair, defaulting to true', function (): void {
     expect(RadiusAxis::make()->boundaryGap()->toArray())->toEqual(['boundaryGap' => true]);
 
     expect(RadiusAxis::make()->boundaryGap(['20%', '20%'])->toArray())
         ->toEqual(['boundaryGap' => ['20%', '20%']]);
 });
 
-it('builds interval, accepting a RawJs marker', function () {
+it('builds interval, accepting a RawJs marker', function (): void {
     expect(RadiusAxis::make()->interval(5)->toArray())->toEqual(['interval' => 5]);
 
     expect(RadiusAxis::make()->interval(RawJs::make('(v)=>v'))->toArray())
         ->toEqual(['interval' => ['__js__' => '(v)=>v']]);
 });
 
-it('builds show, z, zlevel, and silent (shared HasAxisDecorations)', function () {
+it('builds show, z, zlevel, and silent (shared HasAxisDecorations)', function (): void {
     expect(RadiusAxis::make()->show()->z(2)->zlevel(0)->silent(false)->toArray())
         ->toEqual(['show' => true, 'z' => 2, 'zlevel' => 0, 'silent' => false]);
 });
 
-it('applies axisLine, axisTick, splitArea, minorTick, and minorSplitLine as show flags or config arrays', function () {
+it('applies axisLine, axisTick, splitArea, minorTick, and minorSplitLine as show flags or config arrays', function (): void {
     expect(RadiusAxis::make()->axisLine()->toArray())->toEqual(['axisLine' => ['show' => true]]);
     expect(RadiusAxis::make()->axisTick(false)->toArray())->toEqual(['axisTick' => ['show' => false]]);
     expect(RadiusAxis::make()->splitArea()->toArray())->toEqual(['splitArea' => ['show' => true]]);
@@ -95,12 +97,12 @@ it('applies axisLine, axisTick, splitArea, minorTick, and minorSplitLine as show
         ->toEqual(['minorSplitLine' => ['lineStyle' => ['type' => 'dashed']]]);
 });
 
-it('builds minInterval, maxInterval, and splitNumber', function () {
+it('builds minInterval, maxInterval, and splitNumber', function (): void {
     expect(RadiusAxis::make()->minInterval(1)->maxInterval(10)->splitNumber(4)->toArray())
         ->toEqual(['minInterval' => 1, 'maxInterval' => 10, 'splitNumber' => 4]);
 });
 
-it('positions the axis name via nameGap, nameLocation, nameTextStyle, and nameRotate', function () {
+it('positions the axis name via nameGap, nameLocation, nameTextStyle, and nameRotate', function (): void {
     expect(RadiusAxis::make()->nameGap(15)->nameLocation('end')->nameTextStyle(['fontSize' => 10])->nameRotate(30)->toArray())
         ->toEqual([
             'nameGap' => 15,
@@ -110,17 +112,17 @@ it('positions the axis name via nameGap, nameLocation, nameTextStyle, and nameRo
         ]);
 });
 
-it('applies axisPointer as a show flag or a config array', function () {
+it('applies axisPointer as a show flag or a config array', function (): void {
     expect(RadiusAxis::make()->axisPointer()->toArray())->toEqual(['axisPointer' => ['show' => true]]);
     expect(RadiusAxis::make()->axisPointer(['type' => 'shadow'])->toArray())
         ->toEqual(['axisPointer' => ['type' => 'shadow']]);
 });
 
-it('sets scale', function () {
+it('sets scale', function (): void {
     expect(RadiusAxis::make()->scale(false)->toArray())->toEqual(['scale' => false]);
 });
 
-it('lets raw() override a typed key', function () {
+it('lets raw() override a typed key', function (): void {
     expect(RadiusAxis::make()->type('value')->raw(['type' => 'category'])->toArray())
         ->toEqual(['type' => 'category']);
 });

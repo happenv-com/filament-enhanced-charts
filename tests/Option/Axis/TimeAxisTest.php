@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Option\Axis\TimeAxis;
 
 covers(TimeAxis::class);
 
-it('builds a minimal time axis', function () {
+it('builds a minimal time axis', function (): void {
     expect(TimeAxis::make()->toArray())->toEqual(['type' => 'time']);
 });
 
-it('inherits the base Axis setters', function () {
+it('inherits the base Axis setters', function (): void {
     expect(TimeAxis::make()->name('Date')->min('2026-01-01')->splitLine(false)->toArray())
         ->toEqual([
             'type' => 'time',
@@ -18,6 +20,6 @@ it('inherits the base Axis setters', function () {
         ]);
 });
 
-it('lets raw() override the time axis type', function () {
+it('lets raw() override the time axis type', function (): void {
     expect(TimeAxis::make()->raw(['type' => 'value'])->toArray()['type'])->toBe('value');
 });

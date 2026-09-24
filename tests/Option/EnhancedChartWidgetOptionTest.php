@@ -5,7 +5,7 @@ use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
 
-it('renders getOption() through getOptions() as an array', function () {
+it('renders getOption() through getOptions() as an array', function (): void {
     $widget = new class extends EnhancedChartWidget
     {
         protected function getOption(): Option

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Happenv\FilamentEnhancedCharts\Option\Series\ThemeRiverSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
@@ -7,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 covers(ThemeRiverSeries::class);
 
-it('builds a themeRiver series with time/value/name rows, normalizing BcMath values', function () {
+it('builds a themeRiver series with time/value/name rows, normalizing BcMath values', function (): void {
     expect(
         ThemeRiverSeries::make()
             ->data([
@@ -24,12 +26,12 @@ it('builds a themeRiver series with time/value/name rows, normalizing BcMath val
     ]);
 });
 
-it('binds to a singleAxis by index', function () {
+it('binds to a singleAxis by index', function (): void {
     expect(ThemeRiverSeries::make()->singleAxisIndex(0)->toArray())
         ->toBe(['type' => 'themeRiver', 'singleAxisIndex' => 0]);
 });
 
-it('accepts a Label object or a plain array for label()', function () {
+it('accepts a Label object or a plain array for label()', function (): void {
     $viaObject = ThemeRiverSeries::make()->label(Label::make()->show()->position('right'))->toArray();
     $viaArray = ThemeRiverSeries::make()->label(['show' => true, 'position' => 'right'])->toArray();
 
@@ -37,7 +39,7 @@ it('accepts a Label object or a plain array for label()', function () {
         ->and($viaArray)->toBe($viaObject);
 });
 
-it('accepts an ItemStyle object or a plain array for itemStyle()', function () {
+it('accepts an ItemStyle object or a plain array for itemStyle()', function (): void {
     $viaObject = ThemeRiverSeries::make()->itemStyle(ItemStyle::make()->borderColor('#fff'))->toArray();
     $viaArray = ThemeRiverSeries::make()->itemStyle(['borderColor' => '#fff'])->toArray();
 
@@ -45,17 +47,17 @@ it('accepts an ItemStyle object or a plain array for itemStyle()', function () {
         ->and($viaArray)->toBe($viaObject);
 });
 
-it('sets boundaryGap', function () {
+it('sets boundaryGap', function (): void {
     expect(ThemeRiverSeries::make()->boundaryGap(['10%', '10%'])->toArray())
         ->toBe(['type' => 'themeRiver', 'boundaryGap' => ['10%', '10%']]);
 });
 
-it('applies left/right/top/bottom layout via HasLayout', function () {
+it('applies left/right/top/bottom layout via HasLayout', function (): void {
     expect(ThemeRiverSeries::make()->left('10%')->right(20)->top('5%')->bottom(10)->toArray())
         ->toBe(['type' => 'themeRiver', 'left' => '10%', 'right' => 20, 'top' => '5%', 'bottom' => 10]);
 });
 
-it('inherits name, color and emphasis from the base series without redeclaring them', function () {
+it('inherits name, color and emphasis from the base series without redeclaring them', function (): void {
     expect(
         ThemeRiverSeries::make()
             ->name('Themes')
@@ -70,7 +72,7 @@ it('inherits name, color and emphasis from the base series without redeclaring t
     ]);
 });
 
-it('lets raw() override a themeRiver series type', function () {
+it('lets raw() override a themeRiver series type', function (): void {
     expect(ThemeRiverSeries::make()->raw(['type' => 'custom'])->toArray()['type'])
         ->toBe('custom');
 });

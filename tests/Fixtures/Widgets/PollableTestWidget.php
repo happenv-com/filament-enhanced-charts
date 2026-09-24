@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Happenv\FilamentEnhancedCharts\Tests\Fixtures\Widgets;
 
 use Happenv\FilamentEnhancedCharts\Option\Option;

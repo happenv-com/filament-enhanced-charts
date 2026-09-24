@@ -9,21 +9,21 @@ use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 covers(Geo::class);
 
-it('builds a geo component with a map name', function () {
+it('builds a geo component with a map name', function (): void {
     expect(Geo::make()->map('world')->toArray())->toBe(['map' => 'world']);
 });
 
-it('accepts roam as a boolean or a gesture string', function () {
+it('accepts roam as a boolean or a gesture string', function (): void {
     expect(Geo::make()->map('world')->roam()->toArray()['roam'])->toBeTrue();
     expect(Geo::make()->map('world')->roam('move')->toArray()['roam'])->toBe('move');
 });
 
-it('applies zoom and center', function () {
+it('applies zoom and center', function (): void {
     expect(Geo::make()->map('world')->zoom(2)->center([104.0, 37.5])->toArray())
         ->toBe(['map' => 'world', 'zoom' => 2, 'center' => [104.0, 37.5]]);
 });
 
-it('accepts label, itemStyle and emphasis as builders or arrays', function () {
+it('accepts label, itemStyle and emphasis as builders or arrays', function (): void {
     $viaBuilder = Geo::make()
         ->map('world')
         ->label(Label::make()->show())
@@ -47,27 +47,27 @@ it('accepts label, itemStyle and emphasis as builders or arrays', function () {
     expect($viaArray)->toBe($viaBuilder);
 });
 
-it('normalizes a builder nested inside select()', function () {
+it('normalizes a builder nested inside select()', function (): void {
     expect(
         Geo::make()->map('world')->select(['itemStyle' => ItemStyle::make()->color('#c23531')])->toArray()['select']
     )->toBe(['itemStyle' => ['color' => '#c23531']]);
 });
 
-it('applies nameProperty', function () {
+it('applies nameProperty', function (): void {
     expect(Geo::make()->map('world')->nameProperty('NAME')->toArray()['nameProperty'])->toBe('NAME');
 });
 
-it('applies box layout edges', function () {
+it('applies box layout edges', function (): void {
     expect(Geo::make()->map('world')->top(10)->left('5%')->right(20)->bottom('10%')->toArray())
         ->toBe(['map' => 'world', 'left' => '5%', 'right' => 20, 'top' => 10, 'bottom' => '10%']);
 });
 
-it('applies layoutCenter and layoutSize', function () {
+it('applies layoutCenter and layoutSize', function (): void {
     expect(Geo::make()->map('world')->layoutCenter(['50%', '50%'])->layoutSize('100%')->toArray())
         ->toBe(['map' => 'world', 'layoutCenter' => ['50%', '50%'], 'layoutSize' => '100%']);
 });
 
-it('normalizes builders nested inside regions()', function () {
+it('normalizes builders nested inside regions()', function (): void {
     expect(
         Geo::make()
             ->map('world')
@@ -82,11 +82,11 @@ it('normalizes builders nested inside regions()', function () {
     ]);
 });
 
-it('lets raw() override a geo map name', function () {
+it('lets raw() override a geo map name', function (): void {
     expect(Geo::make()->map('world')->raw(['map' => 'USA'])->toArray()['map'])->toBe('USA');
 });
 
-it('defaults silent() to true', function () {
+it('defaults silent() to true', function (): void {
     expect(Geo::make()->map('world')->silent()->toArray())
         ->toEqual(['map' => 'world', 'silent' => true]);
 

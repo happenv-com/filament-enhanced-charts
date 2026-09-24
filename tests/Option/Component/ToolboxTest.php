@@ -9,11 +9,11 @@ use Happenv\FilamentEnhancedCharts\Option\Component\Toolbox\MagicType;
 use Happenv\FilamentEnhancedCharts\Option\Component\Toolbox\Restore;
 use Happenv\FilamentEnhancedCharts\Option\Component\Toolbox\SaveAsImage;
 
-it('builds an empty toolbox when nothing is set', function () {
+it('builds an empty toolbox when nothing is set', function (): void {
     expect(Toolbox::make()->toArray())->toEqual([]);
 });
 
-it('registers a saveAsImage feature with its title and type', function () {
+it('registers a saveAsImage feature with its title and type', function (): void {
     expect(
         Toolbox::make()
             ->feature(SaveAsImage::make()->title('Zapisz')->type('png'))
@@ -25,7 +25,7 @@ it('registers a saveAsImage feature with its title and type', function () {
     ]);
 });
 
-it('registers a magicType feature remembering its switchable types', function () {
+it('registers a magicType feature remembering its switchable types', function (): void {
     expect(Toolbox::make()->feature(MagicType::make(['line', 'bar']))->toArray())
         ->toEqual([
             'feature' => [
@@ -34,7 +34,7 @@ it('registers a magicType feature remembering its switchable types', function ()
         ]);
 });
 
-it('registers a dataView feature with readOnly', function () {
+it('registers a dataView feature with readOnly', function (): void {
     expect(Toolbox::make()->feature(DataView::make()->readOnly())->toArray())
         ->toEqual([
             'feature' => [
@@ -43,7 +43,7 @@ it('registers a dataView feature with readOnly', function () {
         ]);
 });
 
-it('registers multiple features together, keyed by their feature key', function () {
+it('registers multiple features together, keyed by their feature key', function (): void {
     expect(
         Toolbox::make()
             ->feature(SaveAsImage::make(), Restore::make(), DataView::make()->readOnly(false))
@@ -57,12 +57,12 @@ it('registers multiple features together, keyed by their feature key', function 
     ]);
 });
 
-it('positions the toolbox via HasLayout', function () {
+it('positions the toolbox via HasLayout', function (): void {
     expect(Toolbox::make()->right(0)->top('top')->toArray())
         ->toEqual(['right' => 0, 'top' => 'top']);
 });
 
-it('sets orient from the enum or a raw string', function () {
+it('sets orient from the enum or a raw string', function (): void {
     expect(Toolbox::make()->orient(Orient::Vertical)->toArray())
         ->toEqual(['orient' => 'vertical']);
 
@@ -70,7 +70,7 @@ it('sets orient from the enum or a raw string', function () {
         ->toEqual(['orient' => 'horizontal']);
 });
 
-it('emits show, itemSize, itemGap and showTitle when set', function () {
+it('emits show, itemSize, itemGap and showTitle when set', function (): void {
     expect(Toolbox::make()->show()->itemSize(20)->itemGap(12)->showTitle(false)->toArray())
         ->toEqual([
             'show' => true,

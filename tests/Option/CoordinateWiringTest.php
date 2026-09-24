@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
 use Happenv\FilamentEnhancedCharts\Option\Component\AngleAxis;
 use Happenv\FilamentEnhancedCharts\Option\Component\Calendar;
@@ -17,7 +19,7 @@ use Happenv\FilamentEnhancedCharts\Option\Series\BarSeries;
 
 covers(Option::class);
 
-it('emits a single coordinate component as an object and multiple as a list', function () {
+it('emits a single coordinate component as an object and multiple as a list', function (): void {
     $one = Option::make()->polar(Polar::make()->radius('75%'))->toArray();
     expect($one['polar'])->toEqual(['radius' => '75%']);
 
@@ -26,7 +28,7 @@ it('emits a single coordinate component as an object and multiple as a list', fu
         ->and($many['polar'][0])->toEqual([]);
 });
 
-it('wires every new coordinate system + graphic into the option tree', function () {
+it('wires every new coordinate system + graphic into the option tree', function (): void {
     $option = Option::make()
         ->polar(Polar::make())
         ->angleAxis(AngleAxis::make())
@@ -43,7 +45,7 @@ it('wires every new coordinate system + graphic into the option tree', function 
         ->and($option['geo'])->toEqual(['map' => 'world']);
 });
 
-it('emits a title (single object, multiple as a list) and multi-grid with gridIndex', function () {
+it('emits a title (single object, multiple as a list) and multi-grid with gridIndex', function (): void {
     $one = Option::make()->title(Title::make('Sprzedaż')->subtext('2024'))->toArray();
     expect($one['title'])->toEqual(['text' => 'Sprzedaż', 'subtext' => '2024']);
 
@@ -55,13 +57,13 @@ it('emits a title (single object, multiple as a list) and multi-grid with gridIn
         ->and($grids['xAxis']['gridIndex'])->toBe(1);
 });
 
-it('always emits dataset as a list, even for a single dataset', function () {
+it('always emits dataset as a list, even for a single dataset', function (): void {
     $option = Option::make()->dataset(Dataset::make()->source([[1, 2], [3, 4]]))->toArray();
 
     expect($option['dataset'])->toEqual([['source' => [[1, 2], [3, 4]]]]);
 });
 
-it('lets a series bind to a coordinate system and a matrix cell', function () {
+it('lets a series bind to a coordinate system and a matrix cell', function (): void {
     $series = BarSeries::make()
         ->coordinateSystem('polar')
         ->polarIndex(0)
