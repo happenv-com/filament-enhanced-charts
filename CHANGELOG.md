@@ -2,14 +2,35 @@
 
 All notable changes to `filament-enhanced-charts` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.1.0 - 2026-09-24
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Dependencies
+
+* chore(deps): bump the npm group with 3 updates by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/5
+
+#### Other
+
+* ci: adopt the Happenv package standard by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/4
+* docs: add a chart gallery with light and dark screenshots, and fix the layout and dark-mode bugs it surfaced by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/6
+* feat: add ChordSeries and the ECharts 6.1 options, rebuild the assets with 6.1.0 by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/7
+* feat: render charts in the app locale, in every language Filament ships by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/8
+* fix: play the initial chart animation, dark gauge holes, time-axis label overlap by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/9
+
+**Full Changelog**: https://github.com/happenv-com/filament-enhanced-charts/compare/v1.0.2...v1.1.0
+
 ## v1.0.2 - 2026-08-18
 
 ## What's Changed
+
 * Bump dependabot/fetch-metadata from 2.5.0 to 3.1.0 by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/2
 * Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/1
 * fix: updateChart crashes the page when the chart is already disposed by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/3
 
 ## New Contributors
+
 * @dependabot[bot] made their first contribution in https://github.com/happenv-com/filament-enhanced-charts/pull/2
 * @webard made their first contribution in https://github.com/happenv-com/filament-enhanced-charts/pull/3
 
