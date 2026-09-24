@@ -1,36 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\DataZoomFilterMode;
 use Happenv\FilamentEnhancedCharts\Option\Component\DataZoom;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
-it('builds a slider data zoom with start, end and a single x-axis index', function () {
+it('builds a slider data zoom with start, end and a single x-axis index', function (): void {
     expect(DataZoom::slider()->start(0)->end(50)->xAxisIndex(0)->toArray())
         ->toBe(['type' => 'slider', 'start' => 0, 'end' => 50, 'xAxisIndex' => 0]);
 });
 
-it('sets the filter mode from the enum', function () {
+it('sets the filter mode from the enum', function (): void {
     expect(DataZoom::slider()->filterMode(DataZoomFilterMode::WeakFilter)->toArray())
         ->toEqual(['type' => 'slider', 'filterMode' => 'weakFilter']);
 });
 
-it('sets the filter mode from a bare string', function () {
+it('sets the filter mode from a bare string', function (): void {
     expect(DataZoom::slider()->filterMode('none')->toArray())
         ->toEqual(['type' => 'slider', 'filterMode' => 'none']);
 });
 
-it('sets realtime', function () {
+it('sets realtime', function (): void {
     expect(DataZoom::inside()->realtime(false)->toArray())
         ->toEqual(['type' => 'inside', 'realtime' => false]);
 });
 
-it('sets start/end value', function () {
+it('sets start/end value', function (): void {
     expect(DataZoom::slider()->startValue(10)->endValue('2026-07-01')->toArray())
         ->toEqual(['type' => 'slider', 'startValue' => 10, 'endValue' => '2026-07-01']);
 });
 
-it('sets show, min/max span, zoom lock, throttle and handle styling', function () {
+it('sets show, min/max span, zoom lock, throttle and handle styling', function (): void {
     expect(
         DataZoom::slider()
             ->show(false)
@@ -53,7 +55,7 @@ it('sets show, min/max span, zoom lock, throttle and handle styling', function (
     ]);
 });
 
-it('sets min/max value span, data background, brush select and mouse interactions', function () {
+it('sets min/max value span, data background, brush select and mouse interactions', function (): void {
     expect(
         DataZoom::inside()
             ->minValueSpan(1)
@@ -76,12 +78,12 @@ it('sets min/max value span, data background, brush select and mouse interaction
     ]);
 });
 
-it('sets the label formatter, zlevel and z', function () {
+it('sets the label formatter, zlevel and z', function (): void {
     expect(DataZoom::slider()->labelFormatter('{value}')->zlevel(1)->z(2)->toArray())
         ->toEqual(['type' => 'slider', 'labelFormatter' => '{value}', 'zlevel' => 1, 'z' => 2]);
 });
 
-it('emits multiple data zoom entries as a list', function () {
+it('emits multiple data zoom entries as a list', function (): void {
     expect(Option::make()->dataZoom(DataZoom::slider(), DataZoom::inside())->toArray()['dataZoom'])
         ->toBe([
             ['type' => 'slider'],
@@ -89,12 +91,12 @@ it('emits multiple data zoom entries as a list', function () {
         ]);
 });
 
-it('emits a single data zoom entry as an object', function () {
+it('emits a single data zoom entry as an object', function (): void {
     expect(Option::make()->dataZoom(DataZoom::inside())->toArray()['dataZoom'])
         ->toBe(['type' => 'inside']);
 });
 
-it('accepts textStyle as a Label builder or a plain array', function () {
+it('accepts textStyle as a Label builder or a plain array', function (): void {
     expect(DataZoom::slider()->textStyle(Label::make()->color('#333'))->toArray())
         ->toEqual(['type' => 'slider', 'textStyle' => ['color' => '#333']]);
 
@@ -102,7 +104,7 @@ it('accepts textStyle as a Label builder or a plain array', function () {
         ->toEqual(['type' => 'slider', 'textStyle' => ['fontSize' => 12]]);
 });
 
-it('sets showDataShadow, showDetail and id', function () {
+it('sets showDataShadow, showDetail and id', function (): void {
     expect(
         DataZoom::slider()->showDataShadow('auto')->showDetail(false)->id('myZoom')->toArray()
     )->toEqual([

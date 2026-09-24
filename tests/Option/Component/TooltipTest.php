@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Enums\TooltipTrigger;
 use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
-it('sets show and trigger from the enum', function () {
+it('sets show and trigger from the enum', function (): void {
     expect(Tooltip::make()->show(false)->trigger(TooltipTrigger::Axis)->toArray())
         ->toEqual(['show' => false, 'trigger' => 'axis']);
 });
 
-it('sets a formatter string and a RawJs value formatter', function () {
+it('sets a formatter string and a RawJs value formatter', function (): void {
     expect(Tooltip::make()->formatter('{b}: {c}')->valueFormatter(RawJs::make('(value) => value'))->toArray())
         ->toEqual([
             'formatter' => '{b}: {c}',
@@ -18,12 +20,12 @@ it('sets a formatter string and a RawJs value formatter', function () {
         ]);
 });
 
-it('sets an axis pointer config', function () {
+it('sets an axis pointer config', function (): void {
     expect(Tooltip::make()->axisPointer(['type' => 'shadow'])->toArray())
         ->toEqual(['axisPointer' => ['type' => 'shadow']]);
 });
 
-it('sets background/border color, width and text style', function () {
+it('sets background/border color, width and text style', function (): void {
     expect(
         Tooltip::make()
             ->backgroundColor('#fff')
@@ -39,12 +41,12 @@ it('sets background/border color, width and text style', function () {
     ]);
 });
 
-it('accepts a plain array for text style', function () {
+it('accepts a plain array for text style', function (): void {
     expect(Tooltip::make()->textStyle(['fontSize' => 14])->toArray())
         ->toEqual(['textStyle' => ['fontSize' => 14]]);
 });
 
-it('sets position as a string, an array and a RawJs callback', function () {
+it('sets position as a string, an array and a RawJs callback', function (): void {
     expect(Tooltip::make()->position('top')->toArray())
         ->toEqual(['position' => 'top']);
 
@@ -55,7 +57,7 @@ it('sets position as a string, an array and a RawJs callback', function () {
         ->toEqual(['position' => ['__js__' => '(point) => point']]);
 });
 
-it('sets confine, appendTo, enterable, padding, extraCssText and order', function () {
+it('sets confine, appendTo, enterable, padding, extraCssText and order', function (): void {
     expect(
         Tooltip::make()
             ->confine(true)
@@ -75,16 +77,16 @@ it('sets confine, appendTo, enterable, padding, extraCssText and order', functio
     ]);
 });
 
-it('does not emit keys for unset setters', function () {
+it('does not emit keys for unset setters', function (): void {
     expect(Tooltip::make()->toArray())->toEqual([]);
 });
 
-it('sets showContent and transitionDuration', function () {
+it('sets showContent and transitionDuration', function (): void {
     expect(Tooltip::make()->showContent(false)->transitionDuration(0)->toArray())
         ->toEqual(['showContent' => false, 'transitionDuration' => 0]);
 });
 
-it('sets borderRadius as a single value or [tl, tr, br, bl]', function () {
+it('sets borderRadius as a single value or [tl, tr, br, bl]', function (): void {
     expect(Tooltip::make()->borderRadius(4)->toArray())
         ->toEqual(['borderRadius' => 4]);
 

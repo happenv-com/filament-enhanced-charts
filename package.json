@@ -6,8 +6,10 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
+        "build": "node bin/build.js",
         "dev": "node bin/build.js --dev",
-        "build": "node bin/build.js"
+        "format": "prettier --write resources/js resources/css bin",
+        "lint": "prettier --check resources/js resources/css bin"
     },
     "author": "happenv",
     "license": "MIT",

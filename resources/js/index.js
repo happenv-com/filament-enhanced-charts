@@ -39,16 +39,24 @@ function layoutDefaults(base) {
     const hasSideLegend =
         !!base.legend &&
         base.legend.show !== false &&
-        (base.legend.left !== undefined || base.legend.right !== undefined || base.legend.orient === 'vertical')
+        (base.legend.left !== undefined ||
+            base.legend.right !== undefined ||
+            base.legend.orient === 'vertical')
     const legendOnRight = hasSideLegend && base.legend.right !== undefined
     const legendOnLeft = hasSideLegend && !legendOnRight
 
     // A legend without an explicit `bottom` sits at the top (ECharts default);
     // one with `bottom` sits beneath the plot. Reserve room for whichever applies.
     const hasTopLegend =
-        !hasSideLegend && base.legend && base.legend.show !== false && base.legend.bottom === undefined
+        !hasSideLegend &&
+        base.legend &&
+        base.legend.show !== false &&
+        base.legend.bottom === undefined
     const hasBottomLegend =
-        !hasSideLegend && base.legend && base.legend.show !== false && base.legend.bottom !== undefined
+        !hasSideLegend &&
+        base.legend &&
+        base.legend.show !== false &&
+        base.legend.bottom !== undefined
 
     // `containLabel` reserves room for axis LABELS but not axis NAMES, so a side
     // that carries a name needs a little extra margin. The vertical value-axis
@@ -94,7 +102,12 @@ let measureCtx = null
 function valueAxisLabelWidth(chart, axisIndex, axisConfig) {
     try {
         const model = chart.getModel().getComponent('yAxis', axisIndex)
-        if (!model || !model.axis || !model.axis.scale || !model.axis.scale.getTicks) {
+        if (
+            !model ||
+            !model.axis ||
+            !model.axis.scale ||
+            !model.axis.scale.getTicks
+        ) {
             return null
         }
 
@@ -107,18 +120,26 @@ function valueAxisLabelWidth(chart, axisIndex, axisConfig) {
         const labelOpt = (axisConfig && axisConfig.axisLabel) || {}
         let formatter = labelOpt.formatter
         if (formatter && typeof formatter === 'object' && formatter.__js__) {
-            try { formatter = new Function('return (' + formatter.__js__ + ')')() } catch (e) { formatter = undefined }
+            try {
+                formatter = new Function('return (' + formatter.__js__ + ')')()
+            } catch (e) {
+                formatter = undefined
+            }
         }
         const fontSize = labelOpt.fontSize || 12
 
         if (measureCtx === null) {
             measureCtx = document.createElement('canvas').getContext('2d')
         }
-        measureCtx.font = fontSize + 'px ' + (labelOpt.fontFamily || 'sans-serif')
+        measureCtx.font =
+            fontSize + 'px ' + (labelOpt.fontFamily || 'sans-serif')
 
         let max = 0
         for (const tick of ticks) {
-            const value = tick && typeof tick === 'object' && 'value' in tick ? tick.value : tick
+            const value =
+                tick && typeof tick === 'object' && 'value' in tick
+                    ? tick.value
+                    : tick
             let label
             try {
                 if (typeof formatter === 'function') {
@@ -174,7 +195,12 @@ export default function echarts({ options, chartId, renderer, maps }) {
             this.themeObserver = new MutationObserver(() => {
                 if (chart && this.baseOptions) {
                     chart.setOption(
-                        reviveJs(applyTheme(this.baseOptions, panelBackground(this.chartId))),
+                        reviveJs(
+                            applyTheme(
+                                this.baseOptions,
+                                panelBackground(this.chartId),
+                            ),
+                        ),
                         { notMerge: true },
                     )
                 }
@@ -192,8 +218,14 @@ export default function echarts({ options, chartId, renderer, maps }) {
         },
 
         initChart: function () {
-            this.baseOptions = merge({}, layoutDefaults(this.options), this.options)
+            this.baseOptions = merge(
+                {},
+                layoutDefaults(this.options),
+                this.options,
+            )
 
+            // ThemeTest asserts the init call stays on one line.
+            // prettier-ignore
             chart = ApacheECharts.init(document.querySelector(this.chartId), null, { renderer: this.renderer })
 
             // Register any GeoJSON maps the option references, THEN paint — a
@@ -202,7 +234,14 @@ export default function echarts({ options, chartId, renderer, maps }) {
                 if (!chart) {
                     return
                 }
-                chart.setOption(reviveJs(applyTheme(this.baseOptions, panelBackground(this.chartId))))
+                chart.setOption(
+                    reviveJs(
+                        applyTheme(
+                            this.baseOptions,
+                            panelBackground(this.chartId),
+                        ),
+                    ),
+                )
                 this.tuneAxisNames()
             })
 
@@ -279,7 +318,11 @@ export default function echarts({ options, chartId, renderer, maps }) {
             }
 
             this.baseOptions = merge({}, layoutDefaults(options), options)
-            chart.setOption(reviveJs(applyTheme(this.baseOptions, panelBackground(this.chartId))))
+            chart.setOption(
+                reviveJs(
+                    applyTheme(this.baseOptions, panelBackground(this.chartId)),
+                ),
+            )
             this.tuneAxisNames()
         },
 
@@ -315,7 +358,11 @@ export default function echarts({ options, chartId, renderer, maps }) {
                 })
 
                 if (changed) {
-                    chart.setOption(reviveJs(applyTheme(base, panelBackground(this.chartId))))
+                    chart.setOption(
+                        reviveJs(
+                            applyTheme(base, panelBackground(this.chartId)),
+                        ),
+                    )
                 }
                 return
             }
@@ -332,7 +379,9 @@ export default function echarts({ options, chartId, renderer, maps }) {
             const nameGap = Math.round(width) + 14
             if (Math.abs((base.yAxis.nameGap || 0) - nameGap) > 2) {
                 base.yAxis.nameGap = nameGap
-                chart.setOption(reviveJs(applyTheme(base, panelBackground(this.chartId))))
+                chart.setOption(
+                    reviveJs(applyTheme(base, panelBackground(this.chartId))),
+                )
             }
         },
     }

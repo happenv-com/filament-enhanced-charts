@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Option\Component\Title;
 
 covers(Title::class);
 
-it('builds text and subtext via make() and the fluent setters', function () {
+it('builds text and subtext via make() and the fluent setters', function (): void {
     expect(Title::make('Revenue')->subtext('Last 12 months')->toArray())
         ->toEqual(['text' => 'Revenue', 'subtext' => 'Last 12 months']);
 });
 
-it('builds link, sublink, target, and subtarget', function () {
+it('builds link, sublink, target, and subtarget', function (): void {
     expect(
         Title::make('Revenue')
             ->link('https://example.com')
@@ -26,22 +28,22 @@ it('builds link, sublink, target, and subtarget', function () {
     ]);
 });
 
-it('builds itemGap and padding', function () {
+it('builds itemGap and padding', function (): void {
     expect(Title::make('Revenue')->itemGap(6)->padding([4, 8])->toArray())
         ->toEqual(['text' => 'Revenue', 'itemGap' => 6, 'padding' => [4, 8]]);
 });
 
-it('normalizes backgroundColor and borderColor through the Filament color palette', function () {
+it('normalizes backgroundColor and borderColor through the Filament color palette', function (): void {
     expect(Title::make('Revenue')->backgroundColor('#fff')->borderColor('#eee')->toArray())
         ->toEqual(['text' => 'Revenue', 'backgroundColor' => '#fff', 'borderColor' => '#eee']);
 });
 
-it('builds borderWidth and borderRadius', function () {
+it('builds borderWidth and borderRadius', function (): void {
     expect(Title::make('Revenue')->borderWidth(1.5)->borderRadius([4, 4, 0, 0])->toArray())
         ->toEqual(['text' => 'Revenue', 'borderWidth' => 1.5, 'borderRadius' => [4, 4, 0, 0]]);
 });
 
-it('defaults show() to true and builds triggerEvent', function () {
+it('defaults show() to true and builds triggerEvent', function (): void {
     expect(Title::make('Revenue')->show()->triggerEvent()->toArray())
         ->toEqual(['text' => 'Revenue', 'show' => true, 'triggerEvent' => true]);
 
@@ -49,12 +51,12 @@ it('defaults show() to true and builds triggerEvent', function () {
         ->toEqual(['text' => 'Revenue', 'show' => false]);
 });
 
-it('combines the shared layout edges from HasLayout', function () {
+it('combines the shared layout edges from HasLayout', function (): void {
     expect(Title::make('Revenue')->left('center')->top(10)->toArray())
         ->toEqual(['text' => 'Revenue', 'left' => 'center', 'top' => 10]);
 });
 
-it('builds textBaseline', function () {
+it('builds textBaseline', function (): void {
     expect(Title::make('Revenue')->textBaseline('middle')->toArray())
         ->toEqual(['text' => 'Revenue', 'textBaseline' => 'middle']);
 });

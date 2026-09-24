@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
 use Happenv\FilamentEnhancedCharts\Option\Axis\ValueAxis;
@@ -9,7 +11,7 @@ use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\BarSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 
-it('composes a full cartesian option with normalized data', function () {
+it('composes a full cartesian option with normalized data', function (): void {
     $option = Option::make()
         ->color('#0084d1', '#d1d5db')
         ->legend(Legend::make()->top(0))
@@ -30,12 +32,12 @@ it('composes a full cartesian option with normalized data', function () {
     ]);
 });
 
-it('lets raw() override a typed key', function () {
+it('lets raw() override a typed key', function (): void {
     expect(Option::make()->color('#000')->raw(['color' => ['#fff']])->toArray())
         ->toBe(['color' => ['#fff']]);
 });
 
-it('emits a single legend as an object and multiple legends as a list', function () {
+it('emits a single legend as an object and multiple legends as a list', function (): void {
     expect(Option::make()->legend(Legend::make()->top(0))->toArray())
         ->toBe(['legend' => ['top' => 0]]);
 
@@ -43,17 +45,17 @@ it('emits a single legend as an object and multiple legends as a list', function
         ->toEqual(['legend' => [[], ['right' => 0]]]);
 });
 
-it('emits a single visualMap as an object', function () {
+it('emits a single visualMap as an object', function (): void {
     expect(Option::make()->visualMap(VisualMap::piecewise())->toArray())
         ->toBe(['visualMap' => ['type' => 'piecewise']]);
 });
 
-it('emits multiple visualMap entries as a list', function () {
+it('emits multiple visualMap entries as a list', function (): void {
     expect(Option::make()->visualMap(VisualMap::piecewise(), VisualMap::continuous())->toArray())
         ->toBe(['visualMap' => [['type' => 'piecewise'], ['type' => 'continuous']]]);
 });
 
-it('emits multiple y-axes as a list', function () {
+it('emits multiple y-axes as a list', function (): void {
     expect(
         Option::make()
             ->xAxis(CategoryAxis::make()->data(['a']))
@@ -65,7 +67,7 @@ it('emits multiple y-axes as a list', function () {
     ]);
 });
 
-it('emits multiple x-axes as a list', function () {
+it('emits multiple x-axes as a list', function (): void {
     expect(
         Option::make()
             ->xAxis(CategoryAxis::make()->data(['a']), CategoryAxis::make()->data(['b']))
@@ -76,7 +78,7 @@ it('emits multiple x-axes as a list', function () {
     ]);
 });
 
-it('defaults the y-axis to value when an x-axis is set but no y-axis is', function () {
+it('defaults the y-axis to value when an x-axis is set but no y-axis is', function (): void {
     expect(Option::make()->xAxis(CategoryAxis::make()->data(['Jan']))->series(LineSeries::make()->data([1]))->toArray())
         ->toBe([
             'xAxis' => ['type' => 'category', 'data' => ['Jan']],
@@ -85,7 +87,7 @@ it('defaults the y-axis to value when an x-axis is set but no y-axis is', functi
         ]);
 });
 
-it('defaults the x-axis to value when a y-axis is set but no x-axis is', function () {
+it('defaults the x-axis to value when a y-axis is set but no x-axis is', function (): void {
     // Mirror of the y-default, for a horizontal (category-y) chart.
     expect(Option::make()->yAxis(CategoryAxis::make()->data(['Jan']))->series(BarSeries::make()->data([1]))->toArray())
         ->toBe([
@@ -95,12 +97,12 @@ it('defaults the x-axis to value when a y-axis is set but no x-axis is', functio
         ]);
 });
 
-it('does not default any axis when neither is set', function () {
+it('does not default any axis when neither is set', function (): void {
     expect(Option::make()->series(LineSeries::make()->data([1]))->toArray())
         ->toBe(['series' => [['type' => 'line', 'data' => [1]]]]);
 });
 
-it('keeps an explicit y-axis instead of the default', function () {
+it('keeps an explicit y-axis instead of the default', function (): void {
     expect(Option::make()->xAxis(CategoryAxis::make()->data(['a']))->yAxis(CategoryAxis::make()->data(['x', 'y']))->toArray())
         ->toBe([
             'xAxis' => ['type' => 'category', 'data' => ['a']],
@@ -108,7 +110,7 @@ it('keeps an explicit y-axis instead of the default', function () {
         ]);
 });
 
-it('cartesian() presets an axis tooltip and a top legend', function () {
+it('cartesian() presets an axis tooltip and a top legend', function (): void {
     expect(Option::cartesian()->xAxis(CategoryAxis::make()->data(['a']))->series(LineSeries::make()->data([1]))->toArray())
         ->toBe([
             'legend' => ['top' => 0],
@@ -119,7 +121,7 @@ it('cartesian() presets an axis tooltip and a top legend', function () {
         ]);
 });
 
-it('resolves a Filament color palette in the option palette', function () {
+it('resolves a Filament color palette in the option palette', function (): void {
     expect(Option::make()->color([500 => 'base'], '#000')->toArray())
         ->toBe(['color' => ['base', '#000']]);
 });

@@ -9,12 +9,12 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(GaugeSeries::class);
 
-it('builds a minimal gauge series with data', function () {
+it('builds a minimal gauge series with data', function (): void {
     expect(GaugeSeries::make()->data([['value' => 42]])->toArray())
         ->toEqual(['type' => 'gauge', 'data' => [['value' => 42]]]);
 });
 
-it('normalizes BcMath min and max to markers', function () {
+it('normalizes BcMath min and max to markers', function (): void {
     expect(GaugeSeries::make()->min(new Number('0'))->max(new Number('100'))->data([['value' => 42]])->toArray())
         ->toEqual([
             'type' => 'gauge',
@@ -24,7 +24,7 @@ it('normalizes BcMath min and max to markers', function () {
         ]);
 });
 
-it('applies startAngle, endAngle, clockwise and splitNumber', function () {
+it('applies startAngle, endAngle, clockwise and splitNumber', function (): void {
     expect(
         GaugeSeries::make()
             ->startAngle(180)
@@ -43,11 +43,11 @@ it('applies startAngle, endAngle, clockwise and splitNumber', function () {
     ]);
 });
 
-it('clockwise defaults to true', function () {
+it('clockwise defaults to true', function (): void {
     expect(GaugeSeries::make()->clockwise()->data([['value' => 1]])->toArray()['clockwise'])->toBeTrue();
 });
 
-it('accepts a full axisLine config array with color bands', function () {
+it('accepts a full axisLine config array with color bands', function (): void {
     expect(
         GaugeSeries::make()
             ->axisLine([
@@ -70,7 +70,7 @@ it('accepts a full axisLine config array with color bands', function () {
     ]);
 });
 
-it('builds axisLine.lineStyle via axisLineWidth and axisLineColor convenience setters', function () {
+it('builds axisLine.lineStyle via axisLineWidth and axisLineColor convenience setters', function (): void {
     expect(
         GaugeSeries::make()
             ->axisLineWidth(20)
@@ -85,7 +85,7 @@ it('builds axisLine.lineStyle via axisLineWidth and axisLineColor convenience se
     ]);
 });
 
-it('normalizes a BcMath stop fraction in an axisLineColor band to a marker', function () {
+it('normalizes a BcMath stop fraction in an axisLineColor band to a marker', function (): void {
     expect(
         GaugeSeries::make()
             ->axisLineColor([[new Number('0.5'), '#37a2da']])
@@ -94,7 +94,7 @@ it('normalizes a BcMath stop fraction in an axisLineColor band to a marker', fun
     )->toEqual([[['__js__' => '0.5'], '#37a2da']]);
 });
 
-it('merges axisLineWidth and axisLineColor without clobbering each other', function () {
+it('merges axisLineWidth and axisLineColor without clobbering each other', function (): void {
     $viaWidthFirst = GaugeSeries::make()
         ->axisLineWidth(30)
         ->axisLineColor([[1, '#fd666d']])
@@ -111,7 +111,7 @@ it('merges axisLineWidth and axisLineColor without clobbering each other', funct
     expect($viaColorFirst)->toEqual($viaWidthFirst);
 });
 
-it('accepts axisLine as a boolean or a full config array', function () {
+it('accepts axisLine as a boolean or a full config array', function (): void {
     expect(GaugeSeries::make()->axisLine(false)->data([1])->toArray()['axisLine'])
         ->toEqual(['show' => false]);
 
@@ -119,7 +119,7 @@ it('accepts axisLine as a boolean or a full config array', function () {
         ->toEqual(['lineStyle' => ['width' => 10]]);
 });
 
-it('applies itemStyle from a builder or an array', function () {
+it('applies itemStyle from a builder or an array', function (): void {
     expect(GaugeSeries::make()->itemStyle(ItemStyle::make()->color('#f00'))->data([1])->toArray()['itemStyle'])
         ->toEqual(['color' => '#f00']);
 
@@ -127,7 +127,7 @@ it('applies itemStyle from a builder or an array', function () {
         ->toEqual(['color' => '#0f0']);
 });
 
-it('accepts axisTick as a boolean or a full config array', function () {
+it('accepts axisTick as a boolean or a full config array', function (): void {
     expect(GaugeSeries::make()->axisTick(false)->data([1])->toArray()['axisTick'])
         ->toEqual(['show' => false]);
 
@@ -135,7 +135,7 @@ it('accepts axisTick as a boolean or a full config array', function () {
         ->toEqual(['splitNumber' => 5, 'length' => 8]);
 });
 
-it('accepts splitLine as a boolean or a full config array', function () {
+it('accepts splitLine as a boolean or a full config array', function (): void {
     expect(GaugeSeries::make()->splitLine(false)->data([1])->toArray()['splitLine'])
         ->toEqual(['show' => false]);
 
@@ -143,7 +143,7 @@ it('accepts splitLine as a boolean or a full config array', function () {
         ->toEqual(['length' => 20, 'distance' => 5]);
 });
 
-it('accepts axisLabel as a formatter string, a RawJs formatter, or a full config array', function () {
+it('accepts axisLabel as a formatter string, a RawJs formatter, or a full config array', function (): void {
     expect(GaugeSeries::make()->axisLabel('{value}')->data([1])->toArray()['axisLabel'])
         ->toEqual(['formatter' => '{value}']);
 
@@ -154,7 +154,7 @@ it('accepts axisLabel as a formatter string, a RawJs formatter, or a full config
         ->toEqual(['color' => '#333', 'distance' => 10]);
 });
 
-it('accepts pointer as a boolean or a full config array', function () {
+it('accepts pointer as a boolean or a full config array', function (): void {
     expect(GaugeSeries::make()->pointer(false)->data([1])->toArray()['pointer'])
         ->toEqual(['show' => false]);
 
@@ -162,7 +162,7 @@ it('accepts pointer as a boolean or a full config array', function () {
         ->toEqual(['icon' => 'circle', 'length' => '60%']);
 });
 
-it('accepts anchor as a boolean or a full config array', function () {
+it('accepts anchor as a boolean or a full config array', function (): void {
     expect(GaugeSeries::make()->anchor(true)->data([1])->toArray()['anchor'])
         ->toEqual(['show' => true]);
 
@@ -170,13 +170,13 @@ it('accepts anchor as a boolean or a full config array', function () {
         ->toEqual(['showAbove' => true, 'size' => 6]);
 });
 
-it('applies a title config array', function () {
+it('applies a title config array', function (): void {
     expect(
         GaugeSeries::make()->title(['offsetCenter' => [0, '20%'], 'fontSize' => 14])->data([['value' => 1]])->toArray()['title']
     )->toEqual(['offsetCenter' => [0, '20%'], 'fontSize' => 14]);
 });
 
-it('applies progress and detail', function () {
+it('applies progress and detail', function (): void {
     expect(
         GaugeSeries::make()
             ->progress(['show' => true, 'width' => 8])
@@ -191,7 +191,7 @@ it('applies progress and detail', function () {
     ]);
 });
 
-it('applies radius and center from HasRadius', function () {
+it('applies radius and center from HasRadius', function (): void {
     expect(GaugeSeries::make()->radius('80%')->center(['50%', '60%'])->data([1])->toArray())
         ->toEqual([
             'type' => 'gauge',
@@ -201,7 +201,7 @@ it('applies radius and center from HasRadius', function () {
         ]);
 });
 
-it('builds a full rich gauge without needing raw()', function () {
+it('builds a full rich gauge without needing raw()', function (): void {
     expect(
         GaugeSeries::make()
             ->startAngle(200)
@@ -240,7 +240,7 @@ it('builds a full rich gauge without needing raw()', function () {
     ]);
 });
 
-it('lets raw() override a typed gauge key', function () {
+it('lets raw() override a typed gauge key', function (): void {
     expect(GaugeSeries::make()->clockwise(true)->raw(['clockwise' => false])->toArray()['clockwise'])
         ->toBeFalse();
 });

@@ -16,7 +16,7 @@ use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\ScatterSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
-it('gives every series a typed label() via the base', function () {
+it('gives every series a typed label() via the base', function (): void {
     expect(BarSeries::make()->data([1])->label(Label::make()->show()->position('top'))->toArray()['label'])
         ->toEqual(['show' => true, 'position' => 'top']);
 
@@ -24,7 +24,7 @@ it('gives every series a typed label() via the base', function () {
         ->toEqual(['formatter' => '{c}']);
 });
 
-it('adds boundaryGap/scale/inverse to axes', function () {
+it('adds boundaryGap/scale/inverse to axes', function (): void {
     expect(CategoryAxis::make()->boundaryGap(false)->inverse()->toArray())
         ->toEqual(['type' => 'category', 'boundaryGap' => false, 'inverse' => true]);
 
@@ -32,12 +32,12 @@ it('adds boundaryGap/scale/inverse to axes', function () {
         ->toEqual(['type' => 'value', 'boundaryGap' => ['10%', '20%'], 'scale' => true]);
 });
 
-it('adds explicit data() items to a legend', function () {
+it('adds explicit data() items to a legend', function (): void {
     expect(Legend::make()->data(['Sales', 'Costs'])->toArray())
         ->toEqual(['data' => ['Sales', 'Costs']]);
 });
 
-it('adds axisLine to an axis and matrixIndex to a series', function () {
+it('adds axisLine to an axis and matrixIndex to a series', function (): void {
     expect(CategoryAxis::make()->axisLine(false)->toArray())
         ->toEqual(['type' => 'category', 'axisLine' => ['show' => false]]);
 
@@ -45,18 +45,18 @@ it('adds axisLine to an axis and matrixIndex to a series', function () {
         ->toMatchArray(['coordinateSystem' => 'matrix', 'matrixIndex' => 1, 'coord' => [0, 2]]);
 });
 
-it('positions a dataZoom via layout + height/width', function () {
+it('positions a dataZoom via layout + height/width', function (): void {
     expect(DataZoom::slider()->bottom(10)->height(24)->left('10%')->toArray())
         ->toEqual(['type' => 'slider', 'bottom' => 10, 'left' => '10%', 'height' => 24]);
 });
 
-it('exposes hierarchical Focus and the EmptyCircle symbol', function () {
+it('exposes hierarchical Focus and the EmptyCircle symbol', function (): void {
     expect(Focus::Descendant->value)->toBe('descendant')
         ->and(Focus::Ancestor->value)->toBe('ancestor')
         ->and(Symbol::EmptyCircle->value)->toBe('emptyCircle');
 });
 
-it('fills the last common gaps', function () {
+it('fills the last common gaps', function (): void {
     expect(Option::make()->backgroundColor('#111827')->toArray())
         ->toEqual(['backgroundColor' => '#111827']);
 
@@ -75,7 +75,7 @@ it('fills the last common gaps', function () {
         ->toMatchArray(['width' => '40%', 'funnelAlign' => 'left']);
 });
 
-it('accepts keyword rotate and pie alignment options on Label', function () {
+it('accepts keyword rotate and pie alignment options on Label', function (): void {
     expect(
         Label::make()->rotate('radial')->alignTo('edge')->edgeDistance(10)->bleedMargin(5)->distanceToLabelLine(4)->toArray()
     )->toEqual([
@@ -87,7 +87,7 @@ it('accepts keyword rotate and pie alignment options on Label', function () {
     ]);
 });
 
-it('accepts a RawJs symbolSize callback', function () {
+it('accepts a RawJs symbolSize callback', function (): void {
     expect(
         ScatterSeries::make()
             ->symbolSize(RawJs::make('(d) => Math.sqrt(d[2])'))
@@ -96,12 +96,12 @@ it('accepts a RawJs symbolSize callback', function () {
     )->toEqual(['__js__' => '(d) => Math.sqrt(d[2])']);
 });
 
-it('exposes jitter controls on cartesian axes', function () {
+it('exposes jitter controls on cartesian axes', function (): void {
     expect(ValueAxis::make()->jitter(30)->jitterOverlap(false)->jitterMargin(2)->toArray())
         ->toEqual(['type' => 'value', 'jitter' => 30, 'jitterOverlap' => false, 'jitterMargin' => 2]);
 });
 
-it('links axis pointers across grids', function () {
+it('links axis pointers across grids', function (): void {
     expect(
         AxisPointer::make()->link([['xAxisIndex' => 'all']])->toArray()
     )->toEqual(['link' => [['xAxisIndex' => 'all']]]);

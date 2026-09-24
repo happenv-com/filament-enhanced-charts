@@ -28,9 +28,9 @@ function bindEChartsMixinAssertion(Closure $method): Closure
         }
     };
 
-    $host = new class($widget)
+    $host = new readonly class($widget)
     {
-        public function __construct(private readonly EnhancedChartWidget $widget) {}
+        public function __construct(private EnhancedChartWidget $widget) {}
 
         public function instance(): EnhancedChartWidget
         {
@@ -41,7 +41,7 @@ function bindEChartsMixinAssertion(Closure $method): Closure
     return Closure::bind($method, $host, $host::class);
 }
 
-it('asserts on the resolved chart options', function () {
+it('asserts on the resolved chart options', function (): void {
     $mixin = new TestsFilamentEnhancedCharts;
 
     bindEChartsMixinAssertion($mixin->assertChartOptions())(
@@ -49,19 +49,19 @@ it('asserts on the resolved chart options', function () {
     );
 });
 
-it('asserts the series count', function () {
+it('asserts the series count', function (): void {
     $mixin = new TestsFilamentEnhancedCharts;
 
     bindEChartsMixinAssertion($mixin->assertChartSeriesCount())(2);
 });
 
-it('asserts a series type is present', function () {
+it('asserts a series type is present', function (): void {
     $mixin = new TestsFilamentEnhancedCharts;
 
     bindEChartsMixinAssertion($mixin->assertChartHasSeries())('bar');
 });
 
-it('fails when the series type is absent', function () {
+it('fails when the series type is absent', function (): void {
     $mixin = new TestsFilamentEnhancedCharts;
 
     bindEChartsMixinAssertion($mixin->assertChartHasSeries())('pie');

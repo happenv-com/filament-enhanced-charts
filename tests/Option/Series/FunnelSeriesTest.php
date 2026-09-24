@@ -8,17 +8,17 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(FunnelSeries::class);
 
-it('builds a minimal funnel series with data', function () {
+it('builds a minimal funnel series with data', function (): void {
     expect(FunnelSeries::make()->data([['value' => 60, 'name' => 'Visit']])->toArray())
         ->toEqual(['type' => 'funnel', 'data' => [['value' => 60, 'name' => 'Visit']]]);
 });
 
-it('applies sort from an enum or a bare string', function () {
+it('applies sort from an enum or a bare string', function (): void {
     expect(FunnelSeries::make()->sort(Sort::Ascending)->data([1])->toArray()['sort'])->toBe('ascending');
     expect(FunnelSeries::make()->sort('none')->data([1])->toArray()['sort'])->toBe('none');
 });
 
-it('applies gap, width, height and funnelAlign', function () {
+it('applies gap, width, height and funnelAlign', function (): void {
     expect(
         FunnelSeries::make()
             ->gap(4)
@@ -37,7 +37,7 @@ it('applies gap, width, height and funnelAlign', function () {
     ]);
 });
 
-it('applies min, max, minSize and maxSize', function () {
+it('applies min, max, minSize and maxSize', function (): void {
     expect(
         FunnelSeries::make()
             ->min(0)
@@ -56,12 +56,12 @@ it('applies min, max, minSize and maxSize', function () {
     ]);
 });
 
-it('accepts numeric minSize/maxSize as pixel numbers', function () {
+it('accepts numeric minSize/maxSize as pixel numbers', function (): void {
     expect(FunnelSeries::make()->minSize(10)->maxSize(200)->data([1])->toArray())
         ->toEqual(['type' => 'funnel', 'data' => [1], 'minSize' => 10, 'maxSize' => 200]);
 });
 
-it('applies itemStyle from a builder or an array', function () {
+it('applies itemStyle from a builder or an array', function (): void {
     expect(FunnelSeries::make()->itemStyle(ItemStyle::make()->color('#f00'))->data([1])->toArray()['itemStyle'])
         ->toEqual(['color' => '#f00']);
 
@@ -69,7 +69,7 @@ it('applies itemStyle from a builder or an array', function () {
         ->toEqual(['color' => '#0f0']);
 });
 
-it('accepts labelLine as a boolean or a full config array', function () {
+it('accepts labelLine as a boolean or a full config array', function (): void {
     expect(FunnelSeries::make()->labelLine(false)->data([1])->toArray()['labelLine'])
         ->toEqual(['show' => false]);
 
@@ -77,11 +77,11 @@ it('accepts labelLine as a boolean or a full config array', function () {
         ->toEqual(['length' => 20, 'length2' => 10]);
 });
 
-it('applies left/right/top/bottom from HasLayout', function () {
+it('applies left/right/top/bottom from HasLayout', function (): void {
     expect(FunnelSeries::make()->left('5%')->top(20)->data([1])->toArray())
         ->toEqual(['type' => 'funnel', 'data' => [1], 'left' => '5%', 'top' => 20]);
 });
 
-it('lets raw() override a typed funnel key', function () {
+it('lets raw() override a typed funnel key', function (): void {
     expect(FunnelSeries::make()->min(0)->raw(['min' => 10])->toArray()['min'])->toBe(10);
 });

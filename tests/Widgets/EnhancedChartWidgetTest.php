@@ -28,14 +28,14 @@ function makeEnhancedChartTestWidget(): EnhancedChartWidget
     };
 }
 
-it('defaults dropdownOpen to false, matching the Alpine-side initial state', function () {
+it('defaults dropdownOpen to false, matching the Alpine-side initial state', function (): void {
     // Regression: a `true` default permanently gated updateOptions() — the
     // Alpine $watch sync only fires on change, so a widget whose dropdown is
     // never touched would keep the server-side property at its default forever.
     expect(makeEnhancedChartTestWidget()->dropdownOpen)->toBeFalse();
 });
 
-it('applies the widget scrollable default to the resolved options', function () {
+it('applies the widget scrollable default to the resolved options', function (): void {
     $options = makeEnhancedChartTestWidget()->exposedOptions();
 
     // The default $scrollable = true leaves plain options untouched (no
@@ -44,9 +44,9 @@ it('applies the widget scrollable default to the resolved options', function () 
     expect($options)->toHaveKeys(['xAxis', 'yAxis', 'series']);
 });
 
-it('hashes options deterministically and falls back to serialize on encode failure', function () {
+it('hashes options deterministically and falls back to serialize on encode failure', function (): void {
     $widget = makeEnhancedChartTestWidget();
-    $hash = (new ReflectionMethod($widget, 'hashOptions'))->getClosure($widget);
+    $hash = new ReflectionMethod($widget, 'hashOptions')->getClosure($widget);
 
     // Deterministic and distinguishing.
     expect($hash(['a' => 1]))->toBe($hash(['a' => 1]))

@@ -10,15 +10,15 @@ use function Pest\Livewire\livewire;
 
 covers(CanFilter::class);
 
-describe('single-select filter', function () {
-    it('renders the filter options in the header', function () {
+describe('single-select filter', function (): void {
+    it('renders the filter options in the header', function (): void {
         livewire(FilteredTestWidget::class)
             ->assertSet('filter', 'week')
             ->assertSee('Last week')
             ->assertSee('Last month');
     });
 
-    it('rebuilds the chart and pushes an update when the filter changes', function () {
+    it('rebuilds the chart and pushes an update when the filter changes', function (): void {
         livewire(FilteredTestWidget::class)
             ->assertChartOptions(fn (array $options): bool => count($options['xAxis']['data']) === 7)
             ->set('filter', 'month')
@@ -27,22 +27,22 @@ describe('single-select filter', function () {
     });
 });
 
-describe('filter schema', function () {
-    it('fills the schema defaults into $filters on mount', function () {
+describe('filter schema', function (): void {
+    it('fills the schema defaults into $filters on mount', function (): void {
         livewire(SchemaFilteredTestWidget::class)
             ->assertOk()
             ->assertSet('filters.range', 'short')
             ->assertChartOptions(fn (array $options): bool => $options['series'][0]['data'] === [1, 2]);
     });
 
-    it('reads the active filter value in getOption and pushes an update', function () {
+    it('reads the active filter value in getOption and pushes an update', function (): void {
         livewire(SchemaFilteredTestWidget::class)
             ->set('filters.range', 'long')
             ->assertDispatched('updateOptions')
             ->assertChartOptions(fn (array $options): bool => $options['series'][0]['data'] === [1, 2, 3, 4, 5]);
     });
 
-    it('renders the filter trigger only for a widget implementing the contract', function () {
+    it('renders the filter trigger only for a widget implementing the contract', function (): void {
         // The dropdown UI is gated on the package `HasFiltersSchema` contract,
         // not on the trait — a plain widget shows no filter trigger.
         livewire(SchemaFilteredTestWidget::class)

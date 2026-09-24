@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 covers(Normalize::class, HasData::class, Dataset::class);
 
-it('drops keys from a keyed Collection passed to a series data()', function () {
+it('drops keys from a keyed Collection passed to a series data()', function (): void {
     // Regression: a keyed pluck/groupBy result used to keep its keys and
     // serialize to a JSON object, which ECharts reads as an empty series.
     $keyed = collect(['jan' => 5, 'feb' => 8, 'mar' => 3]);
@@ -21,16 +21,16 @@ it('drops keys from a keyed Collection passed to a series data()', function () {
         ->toBe([5, 8, 3]);
 });
 
-it('drops keys from a keyed Collection passed to a category axis data()', function () {
+it('drops keys from a keyed Collection passed to a category axis data()', function (): void {
     expect(CategoryAxis::make()->data(collect(['a' => 'Jan', 'b' => 'Feb']))->toArray()['data'])
         ->toBe(['Jan', 'Feb']);
 });
 
-it('accepts a plain array in series data() unchanged', function () {
+it('accepts a plain array in series data() unchanged', function (): void {
     expect(BarSeries::make()->data([10, 20, 30])->toArray()['data'])->toBe([10, 20, 30]);
 });
 
-it('accepts an iterable (Collection) of rows in Dataset::source()', function () {
+it('accepts an iterable (Collection) of rows in Dataset::source()', function (): void {
     $rows = new Collection([
         ['product' => 'A', 'sales' => 10],
         ['product' => 'B', 'sales' => 20],
@@ -43,7 +43,7 @@ it('accepts an iterable (Collection) of rows in Dataset::source()', function () 
         ]);
 });
 
-it('Normalize::list drops keys while Normalize::iterable preserves them', function () {
+it('Normalize::list drops keys while Normalize::iterable preserves them', function (): void {
     expect(Normalize::list(collect(['x' => 1, 'y' => 2])))->toBe([1, 2])
         ->and(Normalize::iterable(collect(['x' => 1, 'y' => 2])))->toBe(['x' => 1, 'y' => 2]);
 });

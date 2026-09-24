@@ -9,7 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 covers(MapSeries::class);
 
-it('builds a map series with a map name and data', function () {
+it('builds a map series with a map name and data', function (): void {
     expect(
         MapSeries::make()
             ->map('USA')
@@ -22,7 +22,7 @@ it('builds a map series with a map name and data', function () {
     ]);
 });
 
-it('normalizes a BcMath value in map data to a marker', function () {
+it('normalizes a BcMath value in map data to a marker', function (): void {
     expect(
         MapSeries::make()
             ->map('world')
@@ -31,12 +31,12 @@ it('normalizes a BcMath value in map data to a marker', function () {
     )->toEqual([['name' => 'France', 'value' => ['__js__' => '12.5']]]);
 });
 
-it('accepts roam as a boolean or a gesture string', function () {
+it('accepts roam as a boolean or a gesture string', function (): void {
     expect(MapSeries::make()->map('world')->roam()->toArray()['roam'])->toBeTrue();
     expect(MapSeries::make()->map('world')->roam('scale')->toArray()['roam'])->toBe('scale');
 });
 
-it('applies nameProperty and selectedMode', function () {
+it('applies nameProperty and selectedMode', function (): void {
     expect(
         MapSeries::make()->map('world')->nameProperty('NAME')->selectedMode('multiple')->toArray()
     )->toEqual([
@@ -49,7 +49,7 @@ it('applies nameProperty and selectedMode', function () {
     expect(MapSeries::make()->map('world')->selectedMode(true)->toArray()['selectedMode'])->toBeTrue();
 });
 
-it('accepts label and itemStyle as builders or arrays', function () {
+it('accepts label and itemStyle as builders or arrays', function (): void {
     $viaBuilder = MapSeries::make()
         ->map('world')
         ->label(Label::make()->show())
@@ -71,7 +71,7 @@ it('accepts label and itemStyle as builders or arrays', function () {
     expect($viaArray)->toBe($viaBuilder);
 });
 
-it('applies zoom, center and geoIndex', function () {
+it('applies zoom, center and geoIndex', function (): void {
     expect(
         MapSeries::make()->map('world')->zoom(1.5)->center([104.0, 37.5])->geoIndex(0)->toArray()
     )->toEqual([
@@ -83,6 +83,6 @@ it('applies zoom, center and geoIndex', function () {
     ]);
 });
 
-it('lets raw() override a map series map name', function () {
+it('lets raw() override a map series map name', function (): void {
     expect(MapSeries::make()->map('world')->raw(['map' => 'USA'])->toArray()['map'])->toBe('USA');
 });

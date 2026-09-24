@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Option\Series\TreemapSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 covers(TreemapSeries::class);
 
-it('builds a treemap with hierarchical data', function () {
+it('builds a treemap with hierarchical data', function (): void {
     expect(
         TreemapSeries::make()->data([
             ['name' => 'A', 'value' => 10, 'children' => [
@@ -23,7 +25,7 @@ it('builds a treemap with hierarchical data', function () {
     ]);
 });
 
-it('applies roam as a bool or a string mode', function () {
+it('applies roam as a bool or a string mode', function (): void {
     expect(TreemapSeries::make()->roam(false)->toArray())
         ->toEqual(['type' => 'treemap', 'roam' => false]);
 
@@ -31,12 +33,12 @@ it('applies roam as a bool or a string mode', function () {
         ->toEqual(['type' => 'treemap', 'roam' => 'move']);
 });
 
-it('applies visibleMin and leafDepth', function () {
+it('applies visibleMin and leafDepth', function (): void {
     expect(TreemapSeries::make()->visibleMin(20)->leafDepth(2)->toArray())
         ->toEqual(['type' => 'treemap', 'visibleMin' => 20, 'leafDepth' => 2]);
 });
 
-it('applies nodeClick as a bool or a string mode', function () {
+it('applies nodeClick as a bool or a string mode', function (): void {
     expect(TreemapSeries::make()->nodeClick(false)->toArray())
         ->toEqual(['type' => 'treemap', 'nodeClick' => false]);
 
@@ -44,7 +46,7 @@ it('applies nodeClick as a bool or a string mode', function () {
         ->toEqual(['type' => 'treemap', 'nodeClick' => 'link']);
 });
 
-it('applies breadcrumb as a false flag by default-true convention', function () {
+it('applies breadcrumb as a false flag by default-true convention', function (): void {
     expect(TreemapSeries::make()->breadcrumb(false)->toArray())
         ->toEqual(['type' => 'treemap', 'breadcrumb' => ['show' => false]]);
 
@@ -55,7 +57,7 @@ it('applies breadcrumb as a false flag by default-true convention', function () 
         ->toEqual(['type' => 'treemap', 'breadcrumb' => ['left' => 'center']]);
 });
 
-it('applies upperLabel as a bool or a config array', function () {
+it('applies upperLabel as a bool or a config array', function (): void {
     expect(TreemapSeries::make()->upperLabel()->toArray())
         ->toEqual(['type' => 'treemap', 'upperLabel' => ['show' => true]]);
 
@@ -63,7 +65,7 @@ it('applies upperLabel as a bool or a config array', function () {
         ->toEqual(['type' => 'treemap', 'upperLabel' => ['height' => 20]]);
 });
 
-it('applies itemStyle as a builder and label as an array', function () {
+it('applies itemStyle as a builder and label as an array', function (): void {
     expect(
         TreemapSeries::make()
             ->itemStyle(ItemStyle::make()->color('#f00'))
@@ -76,7 +78,7 @@ it('applies itemStyle as a builder and label as an array', function () {
     ]);
 });
 
-it('applies colorMappingBy, visualDimension, visualMin and visualMax', function () {
+it('applies colorMappingBy, visualDimension, visualMin and visualMax', function (): void {
     expect(
         TreemapSeries::make()
             ->colorMappingBy('value')
@@ -93,7 +95,7 @@ it('applies colorMappingBy, visualDimension, visualMin and visualMax', function 
     ]);
 });
 
-it('applies levels as a raw array', function () {
+it('applies levels as a raw array', function (): void {
     expect(
         TreemapSeries::make()->levels([['itemStyle' => ['borderWidth' => 0, 'gapWidth' => 1]]])->toArray()
     )->toEqual([
@@ -102,7 +104,7 @@ it('applies levels as a raw array', function () {
     ]);
 });
 
-it('applies width and height alongside HasLayout edges', function () {
+it('applies width and height alongside HasLayout edges', function (): void {
     expect(TreemapSeries::make()->width('90%')->height('80%')->top(10)->toArray())
         ->toEqual([
             'type' => 'treemap',

@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Happenv\FilamentEnhancedCharts\Option\Series\FunnelSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\GaugeSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\SunburstSeries;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
-it('builds a funnel with sort', function () {
+it('builds a funnel with sort', function (): void {
     expect(FunnelSeries::make()->sort('descending')->data([['value' => 1, 'name' => 'A']])->toArray())
         ->toBe(['type' => 'funnel', 'data' => [['value' => 1, 'name' => 'A']], 'sort' => 'descending']);
 });
 
-it('applies gap and label on a funnel series', function () {
+it('applies gap and label on a funnel series', function (): void {
     expect(FunnelSeries::make()->gap(2)->label(['show' => true])->data([['value' => 1]])->toArray())
         ->toBe(['type' => 'funnel', 'label' => ['show' => true], 'data' => [['value' => 1]], 'gap' => 2]);
 });
 
-it('lets raw() override a funnel series sort', function () {
+it('lets raw() override a funnel series sort', function (): void {
     expect(FunnelSeries::make()->sort('descending')->raw(['sort' => 'ascending'])->toArray()['sort'])
         ->toBe('ascending');
 });
 
-it('builds a gauge with BcMath max', function () {
+it('builds a gauge with BcMath max', function (): void {
     expect(GaugeSeries::make()->max(new Number('100'))->data([['value' => 42]])->toArray())
         ->toBe(['type' => 'gauge', 'data' => [['value' => 42]], 'max' => ['__js__' => '100']]);
 });
 
-it('applies min, progress and detail on a gauge series', function () {
+it('applies min, progress and detail on a gauge series', function (): void {
     expect(
         GaugeSeries::make()
             ->min(0)
@@ -43,12 +45,12 @@ it('applies min, progress and detail on a gauge series', function () {
     ]);
 });
 
-it('builds a sunburst with nested data', function () {
+it('builds a sunburst with nested data', function (): void {
     expect(SunburstSeries::make()->radius(['0%', '90%'])->data([['name' => 'A']])->toArray())
         ->toBe(['type' => 'sunburst', 'data' => [['name' => 'A']], 'radius' => ['0%', '90%']]);
 });
 
-it('applies itemStyle on a sunburst series', function () {
+it('applies itemStyle on a sunburst series', function (): void {
     $viaBuilder = SunburstSeries::make()->itemStyle(ItemStyle::make()->color('#c23531'))->data([['name' => 'A']])->toArray();
     $viaArray = SunburstSeries::make()->itemStyle(['color' => '#c23531'])->data([['name' => 'A']])->toArray();
 
@@ -60,7 +62,7 @@ it('applies itemStyle on a sunburst series', function () {
     expect($viaArray)->toBe($viaBuilder);
 });
 
-it('applies levels on a sunburst series', function () {
+it('applies levels on a sunburst series', function (): void {
     expect(
         SunburstSeries::make()
             ->levels([['r0' => '15%', 'r' => '35%'], ['r0' => '35%', 'r' => '70%']])
@@ -73,12 +75,12 @@ it('applies levels on a sunburst series', function () {
     ]);
 });
 
-it('normalizes a BcMath value inside sunburst levels to a marker', function () {
+it('normalizes a BcMath value inside sunburst levels to a marker', function (): void {
     expect(SunburstSeries::make()->levels([['itemStyle' => ['borderWidth' => new Number('1.50')]]])->toArray()['levels'])
         ->toEqual([['itemStyle' => ['borderWidth' => ['__js__' => '1.5']]]]);
 });
 
-it('applies and clears sort on a sunburst series', function () {
+it('applies and clears sort on a sunburst series', function (): void {
     expect(SunburstSeries::make()->sort('asc')->data([['name' => 'A']])->toArray())
         ->toEqual(['type' => 'sunburst', 'data' => [['name' => 'A']], 'sort' => 'asc']);
 

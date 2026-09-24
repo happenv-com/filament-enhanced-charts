@@ -57,7 +57,10 @@ export default function echartsColumn({ options, renderer, width, height }) {
 
             themeObserver = new MutationObserver(() => {
                 if (chart) {
-                    chart.setOption(reviveJs(applyTheme(base, panelBackground(el))), { notMerge: true })
+                    chart.setOption(
+                        reviveJs(applyTheme(base, panelBackground(el))),
+                        { notMerge: true },
+                    )
                 }
             })
             themeObserver.observe(document.documentElement, {

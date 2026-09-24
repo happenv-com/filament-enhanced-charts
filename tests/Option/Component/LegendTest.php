@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Enums\Orient;
 use Happenv\FilamentEnhancedCharts\Option\Component\Legend;
@@ -8,7 +10,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
 
 covers(Legend::class);
 
-it('builds show, type, and orient', function () {
+it('builds show, type, and orient', function (): void {
     expect(Legend::make()->show(false)->type('scroll')->orient(Orient::Vertical)->toArray())
         ->toEqual(['show' => false, 'type' => 'scroll', 'orient' => 'vertical']);
 
@@ -16,11 +18,11 @@ it('builds show, type, and orient', function () {
         ->toEqual(['orient' => 'horizontal']);
 });
 
-it('defaults show() to true', function () {
+it('defaults show() to true', function (): void {
     expect(Legend::make()->show()->toArray())->toEqual(['show' => true]);
 });
 
-it('builds data, textStyle, selectedMode, and itemGap', function () {
+it('builds data, textStyle, selectedMode, and itemGap', function (): void {
     expect(
         Legend::make()
             ->data(['Sales', 'Costs'])
@@ -36,7 +38,7 @@ it('builds data, textStyle, selectedMode, and itemGap', function () {
     ]);
 });
 
-it('builds align, padding, itemWidth, and itemHeight', function () {
+it('builds align, padding, itemWidth, and itemHeight', function (): void {
     expect(
         Legend::make()
             ->align('left')
@@ -52,11 +54,11 @@ it('builds align, padding, itemWidth, and itemHeight', function () {
     ]);
 });
 
-it('builds icon', function () {
+it('builds icon', function (): void {
     expect(Legend::make()->icon('circle')->toArray())->toEqual(['icon' => 'circle']);
 });
 
-it('accepts a literal template or a RawJs formatter', function () {
+it('accepts a literal template or a RawJs formatter', function (): void {
     expect(Legend::make()->formatter('{name}')->toArray())
         ->toEqual(['formatter' => '{name}']);
 
@@ -64,12 +66,12 @@ it('accepts a literal template or a RawJs formatter', function () {
         ->toEqual(['formatter' => ['__js__' => '(name) => name.toUpperCase()']]);
 });
 
-it('normalizes inactiveColor through the Filament color palette', function () {
+it('normalizes inactiveColor through the Filament color palette', function (): void {
     expect(Legend::make()->inactiveColor('#ccc')->toArray())
         ->toEqual(['inactiveColor' => '#ccc']);
 });
 
-it('accepts itemStyle and lineStyle as builders or plain arrays', function () {
+it('accepts itemStyle and lineStyle as builders or plain arrays', function (): void {
     expect(Legend::make()->itemStyle(ItemStyle::make()->borderWidth(2))->toArray())
         ->toEqual(['itemStyle' => ['borderWidth' => 2]]);
 
@@ -80,27 +82,27 @@ it('accepts itemStyle and lineStyle as builders or plain arrays', function () {
         ->toEqual(['lineStyle' => ['width' => 3]]);
 });
 
-it('builds width and height', function () {
+it('builds width and height', function (): void {
     expect(Legend::make()->width(200)->height('50%')->toArray())
         ->toEqual(['width' => 200, 'height' => '50%']);
 });
 
-it('combines the shared layout edges from HasLayout', function () {
+it('combines the shared layout edges from HasLayout', function (): void {
     expect(Legend::make()->left('center')->top(10)->toArray())
         ->toEqual(['left' => 'center', 'top' => 10]);
 });
 
-it('sets the initial selected visibility per legend item', function () {
+it('sets the initial selected visibility per legend item', function (): void {
     expect(Legend::make()->selected(['Sales' => false, 'Costs' => true])->toArray())
         ->toEqual(['selected' => ['Sales' => false, 'Costs' => true]]);
 });
 
-it('normalizes borderColor and backgroundColor through the Filament color palette', function () {
+it('normalizes borderColor and backgroundColor through the Filament color palette', function (): void {
     expect(Legend::make()->borderColor('#eee')->backgroundColor('#fff')->toArray())
         ->toEqual(['borderColor' => '#eee', 'backgroundColor' => '#fff']);
 });
 
-it('builds borderWidth and borderRadius', function () {
+it('builds borderWidth and borderRadius', function (): void {
     expect(Legend::make()->borderWidth(1.5)->borderRadius([4, 4, 0, 0])->toArray())
         ->toEqual(['borderWidth' => 1.5, 'borderRadius' => [4, 4, 0, 0]]);
 });

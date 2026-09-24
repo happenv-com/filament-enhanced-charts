@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Enums\CoordinateSystem;
 use Happenv\FilamentEnhancedCharts\Enums\Symbol;
 use Happenv\FilamentEnhancedCharts\Option\Series\LinesSeries;
@@ -8,7 +10,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
 
 covers(LinesSeries::class);
 
-it('builds a minimal lines series bound to geo via a CoordinateSystem enum', function () {
+it('builds a minimal lines series bound to geo via a CoordinateSystem enum', function (): void {
     expect(
         LinesSeries::make()
             ->coordinateSystem(CoordinateSystem::Geo)
@@ -23,7 +25,7 @@ it('builds a minimal lines series bound to geo via a CoordinateSystem enum', fun
     ]);
 });
 
-it('accepts a coordinateSystem string alongside polarIndex', function () {
+it('accepts a coordinateSystem string alongside polarIndex', function (): void {
     expect(
         LinesSeries::make()->coordinateSystem('polar')->polarIndex(1)->data([])->toArray()
     )->toEqual([
@@ -34,7 +36,7 @@ it('accepts a coordinateSystem string alongside polarIndex', function () {
     ]);
 });
 
-it('passes an already-shaped data item through unchanged', function () {
+it('passes an already-shaped data item through unchanged', function (): void {
     expect(
         LinesSeries::make()
             ->data([['coords' => [[0, 0], [1, 1]], 'name' => 'Flight 1']])
@@ -42,28 +44,28 @@ it('passes an already-shaped data item through unchanged', function () {
     )->toEqual([['coords' => [[0, 0], [1, 1]], 'name' => 'Flight 1']]);
 });
 
-it('enables polyline', function () {
+it('enables polyline', function (): void {
     expect(LinesSeries::make()->polyline()->data([])->toArray())
         ->toBe(['type' => 'lines', 'data' => [], 'polyline' => true]);
 });
 
-it('applies large and largeThreshold', function () {
+it('applies large and largeThreshold', function (): void {
     expect(LinesSeries::make()->large()->largeThreshold(2000)->data([])->toArray())
         ->toBe(['type' => 'lines', 'large' => true, 'largeThreshold' => 2000, 'data' => []]);
 });
 
-it('applies a lineStyle builder', function () {
+it('applies a lineStyle builder', function (): void {
     expect(
         LinesSeries::make()->lineStyle(LineStyle::make()->color('#f00')->curveness(0.3))->data([])->toArray()['lineStyle']
     )->toEqual(['color' => '#f00', 'curveness' => 0.3]);
 });
 
-it('applies a lineStyle array', function () {
+it('applies a lineStyle array', function (): void {
     expect(LinesSeries::make()->lineStyle(['width' => 2])->data([])->toArray()['lineStyle'])
         ->toBe(['width' => 2]);
 });
 
-it('composes an effect builder with a Symbol enum', function () {
+it('composes an effect builder with a Symbol enum', function (): void {
     expect(
         LinesSeries::make()
             ->effect(
@@ -89,11 +91,11 @@ it('composes an effect builder with a Symbol enum', function () {
     ]);
 });
 
-it('accepts a bare symbol string on the effect builder', function () {
+it('accepts a bare symbol string on the effect builder', function (): void {
     expect(LinesEffect::make()->symbol('circle')->toArray())->toEqual(['symbol' => 'circle']);
 });
 
-it('lets raw() override a typed key on the lines series', function () {
+it('lets raw() override a typed key on the lines series', function (): void {
     expect(LinesSeries::make()->polyline()->raw(['polyline' => false, 'z' => 3])->data([])->toArray())
         ->toBe(['type' => 'lines', 'data' => [], 'polyline' => false, 'z' => 3]);
 });

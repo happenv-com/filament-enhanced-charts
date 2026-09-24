@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BcMath\Number;
 use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Enums\AxisPointerType;
@@ -8,12 +10,12 @@ use Happenv\FilamentEnhancedCharts\Option\Axis\LogAxis;
 use Happenv\FilamentEnhancedCharts\Option\Axis\ValueAxis;
 use Happenv\FilamentEnhancedCharts\Option\Component\AxisPointer;
 
-it('builds a category axis with data', function () {
+it('builds a category axis with data', function (): void {
     expect(CategoryAxis::make()->data(['Jan', 'Feb'])->toArray())
         ->toBe(['type' => 'category', 'data' => ['Jan', 'Feb']]);
 });
 
-it('builds a value axis with a name and js formatter marker', function () {
+it('builds a value axis with a name and js formatter marker', function (): void {
     expect(ValueAxis::make()->name('USD')->axisLabel(RawJs::make('(v)=>v'))->toArray())
         ->toBe([
             'type' => 'value',
@@ -22,17 +24,17 @@ it('builds a value axis with a name and js formatter marker', function () {
         ]);
 });
 
-it('treats a bare string formatter as a literal ECharts template', function () {
+it('treats a bare string formatter as a literal ECharts template', function (): void {
     expect(ValueAxis::make()->axisLabel('{value}')->toArray())
         ->toBe(['type' => 'value', 'axisLabel' => ['formatter' => '{value}']]);
 });
 
-it('passes a template with extra text through unchanged', function () {
+it('passes a template with extra text through unchanged', function (): void {
     expect(ValueAxis::make()->axisLabel('{value} °C')->toArray())
         ->toBe(['type' => 'value', 'axisLabel' => ['formatter' => '{value} °C']]);
 });
 
-it('normalizes min through BcMath and passes a plain int max through', function () {
+it('normalizes min through BcMath and passes a plain int max through', function (): void {
     expect(ValueAxis::make()->min(new Number('0.50'))->max(100)->toArray())
         ->toBe([
             'type' => 'value',
@@ -41,22 +43,22 @@ it('normalizes min through BcMath and passes a plain int max through', function 
         ]);
 });
 
-it('applies splitLine as a show flag', function () {
+it('applies splitLine as a show flag', function (): void {
     expect(ValueAxis::make()->splitLine(false)->toArray())
         ->toBe(['type' => 'value', 'splitLine' => ['show' => false]]);
 });
 
-it('defaults ->splitLine() to true', function () {
+it('defaults ->splitLine() to true', function (): void {
     expect(ValueAxis::make()->splitLine()->toArray())
         ->toBe(['type' => 'value', 'splitLine' => ['show' => true]]);
 });
 
-it('builds a minimal log axis', function () {
+it('builds a minimal log axis', function (): void {
     expect(LogAxis::make()->toArray())
         ->toBe(['type' => 'log']);
 });
 
-it('positions the axis name via nameGap and nameLocation', function () {
+it('positions the axis name via nameGap and nameLocation', function (): void {
     expect(ValueAxis::make()->name('USD')->nameGap(20)->nameLocation('middle')->toArray())
         ->toEqual([
             'type' => 'value',
@@ -66,7 +68,7 @@ it('positions the axis name via nameGap and nameLocation', function () {
         ]);
 });
 
-it('places the axis via position and offset', function () {
+it('places the axis via position and offset', function (): void {
     expect(ValueAxis::make()->position('right')->offset(10)->toArray())
         ->toEqual([
             'type' => 'value',
@@ -75,7 +77,7 @@ it('places the axis via position and offset', function () {
         ]);
 });
 
-it('applies splitArea as a show flag and as a raw config array', function () {
+it('applies splitArea as a show flag and as a raw config array', function (): void {
     expect(ValueAxis::make()->splitArea()->toArray())
         ->toEqual(['type' => 'value', 'splitArea' => ['show' => true]]);
 
@@ -86,7 +88,7 @@ it('applies splitArea as a show flag and as a raw config array', function () {
         ]);
 });
 
-it('accepts a splitLine config array in addition to a bool', function () {
+it('accepts a splitLine config array in addition to a bool', function (): void {
     expect(ValueAxis::make()->splitLine(['lineStyle' => ['type' => 'dashed']])->toArray())
         ->toEqual([
             'type' => 'value',
@@ -94,7 +96,7 @@ it('accepts a splitLine config array in addition to a bool', function () {
         ]);
 });
 
-it('attaches an axis pointer built from the AxisPointer node', function () {
+it('attaches an axis pointer built from the AxisPointer node', function (): void {
     expect(
         ValueAxis::make()
             ->axisPointer(AxisPointer::make()->type(AxisPointerType::Cross)->snap())
@@ -105,7 +107,7 @@ it('attaches an axis pointer built from the AxisPointer node', function () {
     ]);
 });
 
-it('applies axisPointer as a show flag', function () {
+it('applies axisPointer as a show flag', function (): void {
     expect(ValueAxis::make()->axisPointer(false)->toArray())
         ->toEqual(['type' => 'value', 'axisPointer' => ['show' => false]]);
 });

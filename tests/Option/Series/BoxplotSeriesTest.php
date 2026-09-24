@@ -8,12 +8,12 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(BoxplotSeries::class);
 
-it('builds a minimal boxplot series with data', function () {
+it('builds a minimal boxplot series with data', function (): void {
     expect(BoxplotSeries::make()->data([[655, 850, 940, 980, 1070]])->toArray())
         ->toEqual(['type' => 'boxplot', 'data' => [[655, 850, 940, 980, 1070]]]);
 });
 
-it('applies itemStyle from a builder or an array', function () {
+it('applies itemStyle from a builder or an array', function (): void {
     expect(BoxplotSeries::make()->itemStyle(ItemStyle::make()->color('#f00'))->data([1])->toArray()['itemStyle'])
         ->toEqual(['color' => '#f00']);
 
@@ -21,12 +21,12 @@ it('applies itemStyle from a builder or an array', function () {
         ->toEqual(['color' => '#0f0']);
 });
 
-it('applies layout from an Orient enum or a bare string', function () {
+it('applies layout from an Orient enum or a bare string', function (): void {
     expect(BoxplotSeries::make()->layout(Orient::Vertical)->data([1])->toArray()['layout'])->toBe('vertical');
     expect(BoxplotSeries::make()->layout('horizontal')->data([1])->toArray()['layout'])->toBe('horizontal');
 });
 
-it('applies boxWidth as a min/max pair', function () {
+it('applies boxWidth as a min/max pair', function (): void {
     expect(BoxplotSeries::make()->boxWidth([7, 50])->data([1])->toArray())
         ->toEqual(['type' => 'boxplot', 'data' => [1], 'boxWidth' => [7, 50]]);
 
@@ -34,7 +34,7 @@ it('applies boxWidth as a min/max pair', function () {
         ->toEqual(['20%', '50%']);
 });
 
-it('lets raw() override a typed boxplot key', function () {
+it('lets raw() override a typed boxplot key', function (): void {
     expect(BoxplotSeries::make()->layout('horizontal')->raw(['layout' => 'vertical'])->toArray()['layout'])
         ->toBe('vertical');
 });

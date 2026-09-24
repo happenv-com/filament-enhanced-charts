@@ -10,13 +10,13 @@ use Happenv\FilamentEnhancedCharts\Option\Style\LineStyle;
 
 covers(MatrixDimension::class);
 
-it('builds bare-label data', function () {
+it('builds bare-label data', function (): void {
     expect(MatrixDimension::make()->data(['Q1', 'Q2', 'Q3'])->toArray())->toEqual([
         'data' => ['Q1', 'Q2', 'Q3'],
     ]);
 });
 
-it('accepts data as any iterable', function () {
+it('accepts data as any iterable', function (): void {
     $generator = (function () {
         yield 'Q1';
         yield 'Q2';
@@ -27,7 +27,7 @@ it('accepts data as any iterable', function () {
     ]);
 });
 
-it('builds grouped/nested header cells with value/size/children', function () {
+it('builds grouped/nested header cells with value/size/children', function (): void {
     expect(
         MatrixDimension::make()->data([
             ['value' => 'Xa0', 'children' => ['Xb0', 'Xb1']],
@@ -41,7 +41,7 @@ it('builds grouped/nested header cells with value/size/children', function () {
     ]);
 });
 
-it('normalizes a BcMath Number inside a cell size to a marker', function () {
+it('normalizes a BcMath Number inside a cell size to a marker', function (): void {
     expect(
         MatrixDimension::make()->data([
             ['value' => 'Xa0', 'size' => new Number('40.0')],
@@ -53,12 +53,12 @@ it('normalizes a BcMath Number inside a cell size to a marker', function () {
     ]);
 });
 
-it('sets levelSize as a pixel int or a percentage string', function () {
+it('sets levelSize as a pixel int or a percentage string', function (): void {
     expect(MatrixDimension::make()->levelSize(40)->toArray())->toEqual(['levelSize' => 40]);
     expect(MatrixDimension::make()->levelSize('20%')->toArray())->toEqual(['levelSize' => '20%']);
 });
 
-it('accepts label as a builder or a plain array', function () {
+it('accepts label as a builder or a plain array', function (): void {
     $viaBuilder = MatrixDimension::make()->label(Label::make()->fontSize(16)->color('#555'))->toArray();
     $viaArray = MatrixDimension::make()->label(['fontSize' => 16, 'color' => '#555'])->toArray();
 
@@ -66,12 +66,12 @@ it('accepts label as a builder or a plain array', function () {
     expect($viaArray)->toEqual($viaBuilder);
 });
 
-it('sets show, defaulting to true', function () {
+it('sets show, defaulting to true', function (): void {
     expect(MatrixDimension::make()->show()->toArray())->toEqual(['show' => true]);
     expect(MatrixDimension::make()->show(false)->toArray())->toEqual(['show' => false]);
 });
 
-it('accepts dividerLineStyle as a builder or a plain array', function () {
+it('accepts dividerLineStyle as a builder or a plain array', function (): void {
     $viaBuilder = MatrixDimension::make()->dividerLineStyle(LineStyle::make()->width(1)->color('#eee'))->toArray();
     $viaArray = MatrixDimension::make()->dividerLineStyle(['width' => 1, 'color' => '#eee'])->toArray();
 
@@ -79,7 +79,7 @@ it('accepts dividerLineStyle as a builder or a plain array', function () {
     expect($viaArray)->toEqual($viaBuilder);
 });
 
-it('combines data, levelSize and label together', function () {
+it('combines data, levelSize and label together', function (): void {
     expect(
         MatrixDimension::make()
             ->data(['Xb0', 'Xb1'])
@@ -95,12 +95,12 @@ it('combines data, levelSize and label together', function () {
     ]);
 });
 
-it('lets raw() override any typed key on a matrix dimension', function () {
+it('lets raw() override any typed key on a matrix dimension', function (): void {
     expect(MatrixDimension::make()->levelSize(40)->raw(['levelSize' => 60, 'show' => true])->toArray())
         ->toEqual(['levelSize' => 60, 'show' => true]);
 });
 
-it('accepts itemStyle as a builder or a plain array', function () {
+it('accepts itemStyle as a builder or a plain array', function (): void {
     $viaBuilder = MatrixDimension::make()->itemStyle(ItemStyle::make()->color('#eee'))->toArray();
     $viaArray = MatrixDimension::make()->itemStyle(['color' => '#eee'])->toArray();
 
@@ -108,7 +108,7 @@ it('accepts itemStyle as a builder or a plain array', function () {
     expect($viaArray)->toEqual($viaBuilder);
 });
 
-it('builds per-level overrides for a nested header', function () {
+it('builds per-level overrides for a nested header', function (): void {
     expect(
         MatrixDimension::make()->levels([
             ['itemStyle' => ['color' => '#f5f5f5']],

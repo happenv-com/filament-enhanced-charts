@@ -1,9 +1,11 @@
 # Apache ECharts for Filament
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/happenv-com/filament-enhanced-charts.svg?style=flat-square)](https://packagist.org/packages/happenv-com/filament-enhanced-charts)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/tests.yml?branch=1.x&label=tests&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3A"Run+Tests"+branch%3A1.x)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/pint.yml?branch=1.x&label=code%20style&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions?query=workflow%3A"Fix+PHP+Code+Styling"+branch%3A1.x)
+[![Latest Version](https://img.shields.io/github/v/release/happenv-com/filament-enhanced-charts?style=flat-square&label=version)](https://github.com/happenv-com/filament-enhanced-charts/releases)
+[![Tests](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/tests.yml?label=tests&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions/workflows/tests.yml)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/phpstan.yml?label=phpstan&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions/workflows/phpstan.yml)
+[![Quality](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-enhanced-charts/quality.yml?label=code%20quality&style=flat-square)](https://github.com/happenv-com/filament-enhanced-charts/actions/workflows/quality.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/happenv-com/filament-enhanced-charts.svg?style=flat-square)](https://packagist.org/packages/happenv-com/filament-enhanced-charts)
+[![License](https://img.shields.io/github/license/happenv-com/filament-enhanced-charts.svg?style=flat-square)](LICENSE.md)
 
 [Apache ECharts](https://echarts.apache.org/) integration for [Filament](https://filamentphp.com/):
 dashboard **widgets** and table **columns** driven by a fully typed, fluent PHP option model.
@@ -22,26 +24,27 @@ class OrdersChart extends EnhancedChartWidget
 }
 ```
 
-- **Typed option model** — the ECharts option tree mirrored as fluent PHP builders. If you know an
-  ECharts option, you know the method. Everything not (yet) modelled stays reachable through a
-  `->raw()` escape hatch on every node.
-- **22 series types** — line, bar, pie, scatter, effectScatter, candlestick, boxplot, heatmap,
-  radar, gauge, funnel, sankey, sunburst, treemap, tree, graph, parallel, themeRiver, pictorialBar,
-  map, lines, and fully custom `renderItem` series.
-- **Every coordinate system** — cartesian grids, polar, radar, geo/maps, calendar, singleAxis,
-  parallel, matrix — plus datasets with transforms, visual maps, data zoom, toolbox, brush and
-  graphic elements.
-- **Filament-native** — panel theming, automatic dark mode, Filament `Color` palettes, `RawJs`
-  for client-side callbacks, Livewire polling, deferred loading, filters.
-- **Table columns** — sparklines, candlesticks and donut pies inside table cells via
-  `EnhancedChartColumn`, or any custom per-record chart.
+## Key features
+
+- **Typed option model.** The ECharts option tree is mirrored as fluent PHP builders — if you know an ECharts option, you know the method — and everything not (yet) modelled stays reachable through a `->raw()` escape hatch on every node ([The option model](#the-option-model)).
+- **22 series types.** Line, bar, pie, scatter, effectScatter, candlestick, boxplot, heatmap, radar, gauge, funnel, sankey, sunburst, treemap, tree, graph, parallel, themeRiver, pictorialBar, map, lines, and fully custom `renderItem` series.
+- **Every coordinate system.** Cartesian grids, polar, radar, geo/maps, calendar, singleAxis, parallel and matrix — plus datasets with transforms, visual maps, data zoom, toolbox, brush and graphic elements.
+- **Filament-native.** Panel theming, automatic [dark mode](#dark-mode), Filament `Color` palettes, `RawJs` for [client-side callbacks](#formatters-and-js-callbacks), Livewire polling, deferred loading and [filters](#filtering-chart-data).
+- **Data straight from Eloquent.** `ChartData::fromPairs()`, `ChartData::fromTimeSeries()` (laravel-trend compatible) and `Dataset::fromModels()` turn query results into chart data, and `HasChartData` builds a whole chart from data and a type ([Feeding data from Eloquent](#feeding-data-from-eloquent)).
+- **Charts in table cells.** Sparklines, candlesticks and donut pies inside table cells via `EnhancedChartColumn`, or any custom per-record chart ([Charts in table cells](#charts-in-table-cells)).
+- **Testable.** Livewire assertions for the resolved chart options in your application's tests ([Testing your application](#testing-your-application)), and the package itself is covered by a Pest suite on every supported version combination.
 
 ## Requirements
 
-- PHP `^8.4`
-- Filament `^4.0` or `^5.0`
+| Package  | Versions  |
+|----------|-----------|
+| PHP      | 8.4 – 8.5 |
+| Laravel  | 12, 13    |
+| Filament | 4, 5      |
 
 ## Installation
+
+Install the package via Composer:
 
 ```bash
 composer require happenv-com/filament-enhanced-charts
@@ -67,9 +70,45 @@ After installing or upgrading, republish the compiled JavaScript assets:
 php artisan filament:assets
 ```
 
-Upgrading from 2.x? See [UPGRADE.md](UPGRADE.md).
+Upgrading from `filament-echarts` 2.x? See [UPGRADING.md](UPGRADING.md).
 
-## Your first widget
+## Configuration
+
+Publish the config file:
+
+```bash
+php artisan vendor:publish --tag="filament-enhanced-charts-config"
+```
+
+It lists the chart types the `make:filament-enhanced-charts` generator offers (see [Generating a widget](#generating-a-widget)):
+
+```php
+return [
+    'chart_options' => [
+        'Line', 'Bar', 'Pie', 'Scatter', 'Candlestick', 'Radar',
+        'Boxplot', 'Sunburst', 'Parallel', 'Sankey', 'Funnel', 'Gauge',
+    ],
+];
+```
+
+Optionally, publish the views and translations:
+
+```bash
+php artisan vendor:publish --tag="filament-enhanced-charts-views"
+php artisan vendor:publish --tag="filament-enhanced-charts-translations"
+```
+
+## Usage
+
+### Generating a widget
+
+The generator asks for the chart type, an optional resource and the panel, and writes a ready-to-edit widget from the matching stub:
+
+```bash
+php artisan make:filament-enhanced-charts BlogPostsChart
+```
+
+### Your first widget
 
 A chart widget is a regular Filament widget: extend `EnhancedChartWidget` and return an `Option` from
 `getOption()`. That is the whole story.
@@ -106,7 +145,7 @@ Two entry points exist on `Option`:
 When an x-axis is set and no y-axis is given, a `ValueAxis` is defaulted for you. Set
 `->yAxis(...)` explicitly when you need something else (e.g. a `CategoryAxis` for a heatmap).
 
-## The option model
+### The option model
 
 Everything under `Happenv\FilamentEnhancedCharts\Option\*` is a fluent builder that serializes to the
 exact [ECharts option](https://echarts.apache.org/en/option.html) shape. This package deliberately
@@ -139,7 +178,7 @@ Conventions that hold across the whole tree:
 - **Per-point configuration.** Wherever a data item can be more than a value, pass a `DataPoint`:
   `DataPoint::make(1048)->name('Search')->itemStyle(ItemStyle::make()->color('#c23531'))`.
 
-### The `raw()` escape hatch
+#### The `raw()` escape hatch
 
 Every node (`Option`, each series, axis, component, `DataPoint`, …) accepts
 `->raw(array $options)`. Raw options are **deep-merged over the typed output, raw wins** — so you
@@ -165,7 +204,7 @@ protected function getOption(): Option
 
 Prefer the typed methods — `raw()` is the last resort, not the default.
 
-## Formatters and JS callbacks
+### Formatters and JS callbacks
 
 Strings passed to `formatter()`-style methods are treated as literal
 [ECharts templates](https://echarts.apache.org/en/option.html#tooltip.formatter) and pass through
@@ -189,12 +228,12 @@ Option::make()
 the `echarts` global is available, so gallery snippets using `echarts.format.addCommas(...)` or
 `echarts.graphic.clipRectByRect(...)` port verbatim.
 
-## Numbers
+### Numbers
 
 Anywhere a number is accepted you may pass a native `\BcMath\Number` instead of
 `int|float|string`; it is serialized as an exact numeric literal rather than a lossy float.
 
-## Feeding data from Eloquent
+### Feeding data from Eloquent
 
 A series' `data()` and an axis' `data()` take any `iterable`, so a `Collection` works — but the
 **shape** matters:
@@ -236,7 +275,7 @@ A series' `data()` and an axis' `data()` take any `iterable`, so a `Collection` 
       ->series(LineSeries::make()->encode(x: 'day', y: 'total'));
   ```
 
-### Time series
+#### Time series
 
 For "per day/week/month" aggregations, [`flowframe/laravel-trend`](https://github.com/flowframe/laravel-trend)
 is the recommended companion: it handles the per-driver date bucketing (Postgres/MySQL/MariaDB/
@@ -269,7 +308,7 @@ Option::cartesian()
 decoupled from the trend package — any `Collection` of rows carrying a label and a value column
 works (pass `labelKey:`/`valueKey:` for different column names).
 
-### Shortcut: a chart from just data + a type
+#### Shortcut: a chart from just data + a type
 
 When the chart is a single series of one of the common types, the `HasChartData` trait writes
 `getOption()` for you — declare the data and (optionally) the type, nothing else:
@@ -304,7 +343,7 @@ class SalesByChannelChart extends EnhancedChartWidget
 want more — a second series, custom styling, marks, a scatter's x/y pairs — implement `getOption()`
 directly with the typed builders; this trait is only the shallow-end shortcut.
 
-## Colors
+### Colors
 
 Color setters (`color()`, `backgroundColor()`, `borderColor()`, `shadowColor()`, …) accept:
 
@@ -325,7 +364,7 @@ LineSeries::make()
     ->data($values);
 ```
 
-## Dark mode
+### Dark mode
 
 Dark mode is automatic. Charts render transparent over the Filament card, and when the panel is in
 dark mode the package overlays a theme layer client-side — axis lines/labels, split lines, legend,
@@ -336,7 +375,7 @@ both modes just work.
 Tip: skip forced `backgroundColor` and hardcoded text colors in your options — inherit the card
 and let the theme adapt.
 
-## Page scrolling
+### Page scrolling
 
 By default the mouse wheel scrolls the **page**, not the chart: `inside` data zoom stops
 wheel-zooming (drag-to-pan is kept) and any `roam` is downgraded to drag-pan. That way a dashboard
@@ -354,7 +393,7 @@ or per option, which wins over the widget default:
 Option::make()->scrollable(false);
 ```
 
-## Widget configuration
+### Widget configuration
 
 ```php
 protected static ?string $heading = 'Revenue';        // or override getHeading()
@@ -369,7 +408,7 @@ protected int | string | array $columnSpan = 'full';
 
 The header disappears entirely when no heading, subheading or filters are set.
 
-### Deferred loading
+#### Deferred loading
 
 Don't hold up the page for a slow query:
 
@@ -386,13 +425,13 @@ protected function getOption(): Option
 }
 ```
 
-### Loading indicator
+#### Loading indicator
 
 ```php
 protected static ?string $loadingIndicator = 'Loading…'; // or getLoadingIndicator() returning a View
 ```
 
-### Live updating (polling)
+#### Live updating (polling)
 
 Widgets poll every 5 seconds by default. Change or disable it with an instance property:
 
@@ -405,9 +444,9 @@ protected ?string $pollingInterval = null; // disable
 Updates are diffed server-side — the chart only re-renders when the resolved options actually
 changed.
 
-## Filtering chart data
+### Filtering chart data
 
-### Single select
+#### Single select
 
 Return options from `getFilters()` and read the active value from `$this->filter`:
 
@@ -437,7 +476,7 @@ protected function getOption(): Option
 
 A select appears in the widget header and the chart updates live on change.
 
-### Filter schema
+#### Filter schema
 
 For a richer filter form, implement the package's `HasFiltersSchema` **contract** and use
 Filament's chart-widget filters trait; filter values arrive in `$this->filters`:
@@ -480,7 +519,7 @@ class BlogPostsChart extends EnhancedChartWidget implements HasFiltersSchemaCont
 
 Implementing the contract is what makes the filter dropdown render — don't skip it.
 
-## Maps (GeoJSON)
+### Maps (GeoJSON)
 
 A `MapSeries` or `geo` component needs its map registered client-side. Return `name => url` pairs
 from `getMaps()`; each is fetched and passed to `echarts.registerMap()` before first paint:
@@ -503,7 +542,7 @@ protected function getOption(): Option
 }
 ```
 
-## Charts in table cells
+### Charts in table cells
 
 `EnhancedChartColumn` renders a small chart per row. Three presets cover the common cases; `chart()`
 takes over for anything else. Return `null`/empty data to render nothing for that row.
@@ -532,15 +571,7 @@ and are disposed cleanly as rows leave the DOM. `->renderer('svg')` is available
 Custom `->chart()` closures can start from the same baseline via
 `EnhancedChartColumn::cellOption()` (optionally passing the tooltip trigger, e.g. `'axis'`).
 
-## Publishing views / translations / config
-
-```bash
-php artisan vendor:publish --tag="filament-enhanced-charts-views"
-php artisan vendor:publish --tag="filament-enhanced-charts-translations"
-php artisan vendor:publish --tag="filament-enhanced-charts-config"
-```
-
-## Testing
+## Testing your application
 
 The package registers a Livewire `Testable` mixin with chart assertions for your app's tests:
 
@@ -553,30 +584,65 @@ livewire(RevenueChart::class)
     ->assertChartOptions(fn (array $options): bool => $options['series'][0]['smooth'] === true);
 ```
 
-To run the package's own test suite:
+`RawJs` and `BcMath\Number` values appear in the resolved options as `['__js__' => '…']` markers — see [UPGRADING.md](UPGRADING.md#6-the-__js__-marker-relevant-for-tests).
+
+## Translations
+
+The package ships English strings (`resources/lang/en`). Publish them to translate or override them:
 
 ```bash
-composer test
+php artisan vendor:publish --tag="filament-enhanced-charts-translations"
 ```
+
+## Development
+
+```bash
+composer test          # the test suite
+composer phpstan       # static analysis
+composer cs            # fix code style: composer normalize, Rector, Pint
+composer ci            # everything CI checks, locally
+```
+
+The package's JavaScript is built by `bin/build.js` into `resources/dist`, which is committed. After changing `resources/js`, rebuild and commit the result — CI refuses outdated assets:
+
+```bash
+npm ci
+npm run build   # or `npm run dev` to rebuild on change
+npm run lint    # Prettier check, as in CI
+```
+
+## Upgrading
+
+Breaking changes and how to migrate are described in [UPGRADING](UPGRADING.md) for every major version.
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+See [CHANGELOG](CHANGELOG.md) and [GitHub releases](https://github.com/happenv-com/filament-enhanced-charts/releases) for what has changed recently.
 
 ## Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+See [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
-## Security Vulnerabilities
+## Security vulnerabilities
 
 Please review [our security policy](.github/SECURITY.md) on how to report security vulnerabilities.
 
 ## Credits
 
+- [Happenv sp. z o.o.](https://happenv.com)
+- [webard](https://github.com/webard)
 - [elemind](https://github.com/elemind)
 - Strongly inspired by [Leandro Ferreira's Apex Charts plugin](https://filamentphp.com/plugins/leandrocfe-apex-charts)
-- [All Contributors](../../contributors)
+- [All contributors](../../contributors)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). See [License File](LICENSE.md) for more information.
+
+---
+
+<p align="center">
+    <a href="https://happenv.com">
+        <img src="art/happenv-logo.png" alt="Happenv" width="400">
+    </a>
+</p>

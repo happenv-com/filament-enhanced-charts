@@ -10,11 +10,11 @@ use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 
 covers(DataPoint::class);
 
-it('builds a minimal data point', function () {
+it('builds a minimal data point', function (): void {
     expect(DataPoint::make(42)->toArray())->toEqual(['value' => 42]);
 });
 
-it('applies selected and itemStyle', function () {
+it('applies selected and itemStyle', function (): void {
     expect(
         DataPoint::make(10)
             ->selected()
@@ -27,16 +27,16 @@ it('applies selected and itemStyle', function () {
     ]);
 });
 
-it('selected defaults to true and accepts an explicit false', function () {
+it('selected defaults to true and accepts an explicit false', function (): void {
     expect(DataPoint::make(1)->selected(false)->toArray()['selected'])->toBeFalse();
 });
 
-it('applies symbol from an enum or a raw string', function () {
+it('applies symbol from an enum or a raw string', function (): void {
     expect(DataPoint::make(1)->symbol(Symbol::Diamond)->toArray()['symbol'])->toBe('diamond');
     expect(DataPoint::make(1)->symbol('image://foo.png')->toArray()['symbol'])->toBe('image://foo.png');
 });
 
-it('applies symbolSize as a fixed size, a pair, or a RawJs callback', function () {
+it('applies symbolSize as a fixed size, a pair, or a RawJs callback', function (): void {
     expect(DataPoint::make(1)->symbolSize(20)->toArray()['symbolSize'])->toBe(20);
     expect(DataPoint::make(1)->symbolSize([10, 20])->toArray()['symbolSize'])->toEqual([10, 20]);
     expect(
@@ -44,7 +44,7 @@ it('applies symbolSize as a fixed size, a pair, or a RawJs callback', function (
     )->toEqual(['__js__' => 'function (v) { return v; }']);
 });
 
-it('applies emphasis from a builder, an array, or a bool', function () {
+it('applies emphasis from a builder, an array, or a bool', function (): void {
     expect(DataPoint::make(1)->emphasis(Emphasis::make()->focus('series'))->toArray()['emphasis'])
         ->toEqual(['focus' => 'series']);
 
@@ -55,7 +55,7 @@ it('applies emphasis from a builder, an array, or a bool', function () {
         ->toEqual(['disabled' => true]);
 });
 
-it('applies tooltip, groupId, title and detail', function () {
+it('applies tooltip, groupId, title and detail', function (): void {
     expect(
         DataPoint::make(1)
             ->tooltip(['formatter' => '{b}: {c}'])
@@ -72,7 +72,7 @@ it('applies tooltip, groupId, title and detail', function () {
     ]);
 });
 
-it('accepts labelLine as a boolean or a full config array', function () {
+it('accepts labelLine as a boolean or a full config array', function (): void {
     expect(DataPoint::make(1)->labelLine(false)->toArray()['labelLine'])
         ->toEqual(['show' => false]);
 
@@ -80,7 +80,7 @@ it('accepts labelLine as a boolean or a full config array', function () {
         ->toEqual(['length' => 20]);
 });
 
-it('lets raw() override a typed data point key', function () {
+it('lets raw() override a typed data point key', function (): void {
     expect(DataPoint::make(1)->selected(true)->raw(['selected' => false])->toArray()['selected'])
         ->toBeFalse();
 });

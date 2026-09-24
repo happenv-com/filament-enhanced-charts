@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Happenv\FilamentEnhancedCharts\Option\Series\FunnelSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\SankeySeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\TreemapSeries;
 
-it('adds rectangular layout edges to a sankey series', function () {
+it('adds rectangular layout edges to a sankey series', function (): void {
     $series = SankeySeries::make()
         ->nodes([['name' => 'A']])
         ->left('1%')->right('9%')->top(6)->bottom('6%')
@@ -13,12 +15,12 @@ it('adds rectangular layout edges to a sankey series', function () {
     expect($series)->toMatchArray(['left' => '1%', 'right' => '9%', 'top' => 6, 'bottom' => '6%']);
 });
 
-it('lets a sankey series set its label config (no ->raw needed)', function () {
+it('lets a sankey series set its label config (no ->raw needed)', function (): void {
     expect(SankeySeries::make()->nodes([['name' => 'A']])->label(['position' => 'left'])->toArray())
         ->toHaveKey('label', ['position' => 'left']);
 });
 
-it('adds layout edges to treemap and funnel series', function () {
+it('adds layout edges to treemap and funnel series', function (): void {
     expect(TreemapSeries::make()->data([['name' => 'A']])->left(8)->right(8)->toArray())
         ->toMatchArray(['left' => 8, 'right' => 8]);
 
@@ -26,7 +28,7 @@ it('adds layout edges to treemap and funnel series', function () {
         ->toMatchArray(['top' => '10%', 'bottom' => '10%']);
 });
 
-it('omits unset layout edges (keeps int 0)', function () {
+it('omits unset layout edges (keeps int 0)', function (): void {
     $series = TreemapSeries::make()->data([['name' => 'A']])->left(0)->toArray();
 
     expect($series)->toHaveKey('left', 0)
@@ -35,7 +37,7 @@ it('omits unset layout edges (keeps int 0)', function () {
         ->and($series)->not->toHaveKey('bottom');
 });
 
-it('lets ->raw() still override a layout edge', function () {
+it('lets ->raw() still override a layout edge', function (): void {
     expect(TreemapSeries::make()->data([['name' => 'A']])->left('5%')->raw(['left' => '1%'])->toArray())
         ->toHaveKey('left', '1%');
 });
