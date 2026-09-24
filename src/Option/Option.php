@@ -48,6 +48,9 @@ final class Option implements Node
     /** @var list<Legend> */
     private array $legend = [];
 
+    /** The legend still is the cartesian() preset's, so an explicit legend() replaces it. */
+    private bool $legendIsPreset = false;
+
     private ?Tooltip $tooltip = null;
 
     private ?Toolbox $toolbox = null;
@@ -119,14 +122,19 @@ final class Option implements Node
 
     /**
      * A batteries-included cartesian preset: an axis-trigger tooltip and a top
-     * legend, ready for an xAxis + series (the value y-axis is defaulted). Use
-     * make() instead when you want a blank slate.
+     * legend, ready for an xAxis + series (the value y-axis is defaulted). The
+     * first legend() call replaces the preset legend instead of adding a second
+     * one. Use make() instead when you want a blank slate.
      */
     public static function cartesian(): self
     {
-        return self::make()
+        $option = self::make()
             ->tooltip(Tooltip::make()->trigger('axis'))
             ->legend(Legend::make()->top(0));
+
+        $option->legendIsPreset = true;
+
+        return $option;
     }
 
     /**
@@ -179,6 +187,11 @@ final class Option implements Node
 
     public function legend(Legend ...$legend): self
     {
+        if ($this->legendIsPreset) {
+            $this->legend = [];
+            $this->legendIsPreset = false;
+        }
+
         $this->legend = array_merge($this->legend, $legend);
 
         return $this;

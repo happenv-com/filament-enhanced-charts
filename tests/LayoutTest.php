@@ -28,3 +28,11 @@ it('auto-tunes the vertical axis title gap from the measured label width', funct
         ->toContain('tuneAxisNames')
         ->toContain('measureText'); // measures real rendered label width
 });
+
+it('reserves room beneath the plot for a horizontal slider data zoom', function (): void {
+    $js = file_get_contents(__DIR__ . '/../resources/js/index.js');
+
+    expect($js)
+        ->toContain("zoom.type === 'slider'")
+        ->toContain('sliderRoom');
+});

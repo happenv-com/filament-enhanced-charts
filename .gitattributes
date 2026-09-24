@@ -21,6 +21,7 @@
 /.vscode                export-ignore
 /art                    export-ignore
 /bin                    export-ignore
+/DEMO.md                export-ignore
 /docs                   export-ignore
 /images                 export-ignore
 /package-lock.json      export-ignore
@@ -30,6 +31,7 @@
 /phpunit.xml.dist       export-ignore
 /pint.json              export-ignore
 /rector.php             export-ignore
+/screens                export-ignore
 /testbench.yaml         export-ignore
 /tests                  export-ignore
 /UPGRADING.md           export-ignore

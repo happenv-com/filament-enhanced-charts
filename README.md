@@ -34,6 +34,32 @@ class OrdersChart extends EnhancedChartWidget
 - **Charts in table cells.** Sparklines, candlesticks and donut pies inside table cells via `EnhancedChartColumn`, or any custom per-record chart ([Charts in table cells](#charts-in-table-cells)).
 - **Testable.** Livewire assertions for the resolved chart options in your application's tests ([Testing your application](#testing-your-application)), and the package itself is covered by a Pest suite on every supported version combination.
 
+## Gallery
+
+A taste of what the typed option model draws — every chart is a regular widget class, and follows your panel's light or dark mode automatically.
+
+<table>
+<tr>
+<td width="33%" align="center"><a href="DEMO.md#horizontal-sankey"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/sankey-dark.png"><img src="screens/sankey-light.png" alt="Sankey"></picture></a><br><sub><b>Sankey</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#three-level-sunburst"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/sunburst-dark.png"><img src="screens/sunburst-light.png" alt="Sunburst"></picture></a><br><sub><b>Sunburst</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#animated-routes-on-a-map"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/lines-dark.gif"><img src="screens/lines-light.gif" alt="Animated routes"></picture></a><br><sub><b>Animated routes</b></sub></td>
+</tr>
+<tr>
+<td width="33%" align="center"><a href="DEMO.md#calendar-heatmap"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/heatmap-calendar-dark.png"><img src="screens/heatmap-calendar-light.png" alt="Calendar heatmap"></picture></a><br><sub><b>Calendar heatmap</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#progress-rings"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/gauge-rings-dark.png"><img src="screens/gauge-rings-light.png" alt="Progress rings"></picture></a><br><sub><b>Progress rings</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#polar-bars"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/bar-polar-dark.png"><img src="screens/bar-polar-light.png" alt="Polar bars"></picture></a><br><sub><b>Polar bars</b></sub></td>
+</tr>
+<tr>
+<td width="33%" align="center"><a href="DEMO.md#hexagonal-tile-map"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/map-dark.png"><img src="screens/map-light.png" alt="GeoJSON map"></picture></a><br><sub><b>GeoJSON map</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#circular-layout"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/graph-dark.png"><img src="screens/graph-light.png" alt="Graph"></picture></a><br><sub><b>Graph</b></sub></td>
+<td width="33%" align="center"><a href="DEMO.md#gantt-chart-via-renderitem"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/custom-dark.png"><img src="screens/custom-light.png" alt="Custom Gantt"></picture></a><br><sub><b>Custom Gantt</b></sub></td>
+</tr>
+</table>
+
+<p align="center">
+    <a href="DEMO.md"><img src="https://img.shields.io/badge/See_all_37_charts-light_%26_dark,_with_code_%E2%86%92-6f5be6?style=for-the-badge" alt="See all 37 charts in light and dark mode, with code"></a>
+</p>
+
 ## Requirements
 
 | Package  | Versions  |

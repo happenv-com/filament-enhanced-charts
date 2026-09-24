@@ -67,12 +67,28 @@ function layoutDefaults(base) {
     const hasXName = hasX && axisHasName(base.xAxis)
     const hasYName = hasY && axisHasName(base.yAxis)
 
+    // A horizontal slider data zoom docks beneath the plot (unless placed with
+    // `top`); reserve its height plus a gap so it never covers the x-axis labels.
+    const bottomSlider = []
+        .concat(base.dataZoom || [])
+        .find(
+            (zoom) =>
+                zoom &&
+                zoom.type === 'slider' &&
+                zoom.orient !== 'vertical' &&
+                zoom.top === undefined,
+        )
+    const sliderRoom = bottomSlider
+        ? (typeof bottomSlider.height === 'number' ? bottomSlider.height : 30) +
+          24
+        : 0
+
     defaults.grid = {
         left: (hasYName ? 28 : 8) + (legendOnLeft ? 80 : 0),
         right: 24 + (legendOnRight ? 80 : 0),
         top: hasTopLegend ? 40 : 16,
-        // Room for the x-axis title and/or a bottom legend, with a gap above it.
-        bottom: (hasXName ? 40 : 8) + (hasBottomLegend ? 34 : 0),
+        // Room for the x-axis title, a bottom legend and/or a slider data zoom.
+        bottom: (hasXName ? 40 : 8) + (hasBottomLegend ? 34 : 0) + sliderRoom,
         containLabel: true,
     }
 

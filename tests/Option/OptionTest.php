@@ -121,6 +121,21 @@ it('cartesian() presets an axis tooltip and a top legend', function (): void {
         ]);
 });
 
+it('replaces the cartesian() preset legend with the first explicit legend', function (): void {
+    expect(Option::cartesian()->legend(Legend::make()->orient('vertical')->right(0))->toArray()['legend'])
+        ->toBe(['orient' => 'vertical', 'right' => 0]);
+});
+
+it('adds further legends after the preset legend was replaced', function (): void {
+    expect(Option::cartesian()->legend(Legend::make()->top(0))->legend(Legend::make()->bottom(0))->toArray()['legend'])
+        ->toBe([['top' => 0], ['bottom' => 0]]);
+});
+
+it('keeps accumulating legends on a blank option', function (): void {
+    expect(Option::make()->legend(Legend::make()->top(0))->legend(Legend::make()->bottom(0))->toArray()['legend'])
+        ->toBe([['top' => 0], ['bottom' => 0]]);
+});
+
 it('resolves a Filament color palette in the option palette', function (): void {
     expect(Option::make()->color([500 => 'base'], '#000')->toArray())
         ->toBe(['color' => ['base', '#000']]);
