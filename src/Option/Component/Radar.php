@@ -41,6 +41,8 @@ final class Radar implements Node
 
     private int | float | null $startAngle = null;
 
+    private ?bool $clockwise = null;
+
     public static function make(): self
     {
         return new self;
@@ -124,6 +126,14 @@ final class Radar implements Node
         return $this;
     }
 
+    /** Whether the indicators run clockwise from the start angle (ECharts 6.1). */
+    public function clockwise(bool $clockwise = true): self
+    {
+        $this->clockwise = $clockwise;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         $radar = ['indicator' => Normalize::value($this->indicator)];
@@ -156,6 +166,9 @@ final class Radar implements Node
         }
         if ($this->startAngle !== null) {
             $radar['startAngle'] = $this->startAngle;
+        }
+        if ($this->clockwise !== null) {
+            $radar['clockwise'] = $this->clockwise;
         }
 
         return $this->mergeRaw(array_merge($radar, $this->radiusLayout()));

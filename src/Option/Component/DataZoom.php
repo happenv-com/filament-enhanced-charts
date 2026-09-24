@@ -58,6 +58,10 @@ final class DataZoom implements Node
 
     private ?bool $zoomLock = null;
 
+    private ?string $cursorGrab = null;
+
+    private ?string $cursorGrabbing = null;
+
     private ?int $throttle = null;
 
     private ?string $handleIcon = null;
@@ -211,6 +215,22 @@ final class DataZoom implements Node
     public function maxValueSpan(mixed $span): self
     {
         $this->maxValueSpan = $span;
+
+        return $this;
+    }
+
+    /** Inside zoom only: the CSS cursor over a pannable chart (ECharts 6.1). */
+    public function cursorGrab(string $cursor): self
+    {
+        $this->cursorGrab = $cursor;
+
+        return $this;
+    }
+
+    /** Inside zoom only: the CSS cursor while panning (ECharts 6.1). */
+    public function cursorGrabbing(string $cursor): self
+    {
+        $this->cursorGrabbing = $cursor;
 
         return $this;
     }
@@ -386,6 +406,12 @@ final class DataZoom implements Node
         }
         if ($this->zoomLock !== null) {
             $zoom['zoomLock'] = $this->zoomLock;
+        }
+        if ($this->cursorGrab !== null) {
+            $zoom['cursorGrab'] = $this->cursorGrab;
+        }
+        if ($this->cursorGrabbing !== null) {
+            $zoom['cursorGrabbing'] = $this->cursorGrabbing;
         }
         if ($this->throttle !== null) {
             $zoom['throttle'] = $this->throttle;

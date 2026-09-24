@@ -27,7 +27,7 @@ class OrdersChart extends EnhancedChartWidget
 ## Key features
 
 - **Typed option model.** The ECharts option tree is mirrored as fluent PHP builders — if you know an ECharts option, you know the method — and everything not (yet) modelled stays reachable through a `->raw()` escape hatch on every node ([The option model](#the-option-model)).
-- **22 series types.** Line, bar, pie, scatter, effectScatter, candlestick, boxplot, heatmap, radar, gauge, funnel, sankey, sunburst, treemap, tree, graph, parallel, themeRiver, pictorialBar, map, lines, and fully custom `renderItem` series.
+- **23 series types.** Line, bar, pie, scatter, effectScatter, candlestick, boxplot, heatmap, radar, gauge, funnel, sankey, chord, sunburst, treemap, tree, graph, parallel, themeRiver, pictorialBar, map, lines, and fully custom `renderItem` series.
 - **Every coordinate system.** Cartesian grids, polar, radar, geo/maps, calendar, singleAxis, parallel and matrix — plus datasets with transforms, visual maps, data zoom, toolbox, brush and graphic elements.
 - **Filament-native.** Panel theming, automatic [dark mode](#dark-mode), Filament `Color` palettes, `RawJs` for [client-side callbacks](#formatters-and-js-callbacks), Livewire polling, deferred loading and [filters](#filtering-chart-data).
 - **Data straight from Eloquent.** `ChartData::fromPairs()`, `ChartData::fromTimeSeries()` (laravel-trend compatible) and `Dataset::fromModels()` turn query results into chart data, and `HasChartData` builds a whole chart from data and a type ([Feeding data from Eloquent](#feeding-data-from-eloquent)).
@@ -57,7 +57,7 @@ A taste of what the typed option model draws — every chart is a regular widget
 </table>
 
 <p align="center">
-    <a href="DEMO.md"><img src="https://img.shields.io/badge/See_all_37_charts-light_%26_dark,_with_code_%E2%86%92-6f5be6?style=for-the-badge" alt="See all 37 charts in light and dark mode, with code"></a>
+    <a href="DEMO.md"><img src="https://img.shields.io/badge/See_all_38_charts-light_%26_dark,_with_code_%E2%86%92-6f5be6?style=for-the-badge" alt="See all 38 charts in light and dark mode, with code"></a>
 </p>
 
 ## Requirements
@@ -183,7 +183,7 @@ them method-for-method.
 |---|---|
 | Root | `Option` |
 | Axes | `Axis\CategoryAxis`, `Axis\ValueAxis`, `Axis\TimeAxis`, `Axis\LogAxis` |
-| Series | `Series\LineSeries`, `BarSeries`, `PieSeries`, `ScatterSeries`, `EffectScatterSeries`, `CandlestickSeries`, `BoxplotSeries`, `HeatmapSeries`, `RadarSeries`, `GaugeSeries`, `FunnelSeries`, `SankeySeries`, `SunburstSeries`, `TreemapSeries`, `TreeSeries`, `GraphSeries`, `ParallelSeries`, `ThemeRiverSeries`, `PictorialBarSeries`, `MapSeries`, `LinesSeries`, `CustomSeries` |
+| Series | `Series\LineSeries`, `BarSeries`, `PieSeries`, `ScatterSeries`, `EffectScatterSeries`, `CandlestickSeries`, `BoxplotSeries`, `HeatmapSeries`, `RadarSeries`, `GaugeSeries`, `FunnelSeries`, `SankeySeries`, `ChordSeries`, `SunburstSeries`, `TreemapSeries`, `TreeSeries`, `GraphSeries`, `ParallelSeries`, `ThemeRiverSeries`, `PictorialBarSeries`, `MapSeries`, `LinesSeries`, `CustomSeries` |
 | Components | `Component\Legend`, `Tooltip`, `Title`, `Grid`, `DataZoom`, `VisualMap`, `Toolbox` (+ `Toolbox\*` features), `AxisPointer`, `Brush`, `Polar`, `AngleAxis`, `RadiusAxis`, `Radar`, `Geo`, `Calendar`, `SingleAxis`, `Parallel`, `ParallelAxis`, `Matrix`, `Dataset`, `Transform`, `Graphic` (+ `Graphic\*` elements) |
 | Styles | `Style\ItemStyle`, `LineStyle`, `AreaStyle`, `Label`, `Emphasis` |
 | Marks | `Mark\MarkLine`, `MarkPoint`, `MarkArea` |
