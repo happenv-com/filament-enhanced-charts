@@ -53,3 +53,12 @@ it('dark mode restyles slider data zooms', function (): void {
         ->toContain('overrides.dataZoom')
         ->toContain("zoom && zoom.type === 'slider'");
 });
+
+it('gives the gauge anchor and uncoloured cut ticks the panel background', function (): void {
+    $shared = file_get_contents(__DIR__ . '/../resources/js/shared.js');
+
+    expect($shared)
+        ->toContain('function gaugePanelStyle(series, panelBg)')
+        ->toContain('style.anchor = { itemStyle: { color: panelBg } }')
+        ->toContain('part.distance < 0');
+});

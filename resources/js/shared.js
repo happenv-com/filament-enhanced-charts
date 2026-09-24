@@ -56,6 +56,26 @@ export function useLocale(locale) {
     return locale.name
 }
 
+// Calls onResize when the element's size really changes. ResizeObserver also
+// reports every element once right after observe(); answering that with
+// chart.resize() re-renders without animation and cuts the initial animation
+// short — a gauge pointer jumped straight to its value while the number
+// still counted up.
+export function observeResize(el, onResize) {
+    let size = [el.clientWidth, el.clientHeight]
+
+    const observer = new ResizeObserver(() => {
+        const next = [el.clientWidth, el.clientHeight]
+        if (next[0] !== size[0] || next[1] !== size[1]) {
+            size = next
+            onResize()
+        }
+    })
+    observer.observe(el)
+
+    return observer
+}
+
 export function isDarkMode() {
     return document.documentElement.classList.contains('dark')
 }
@@ -224,16 +244,52 @@ export function panelBackground(selectorOrElement) {
 // segments — a glaring white frame on a dark panel.
 const PANEL_BORDER_SERIES = ['treemap', 'sunburst', 'pie', 'funnel']
 
+// Gauge parts meant to read as holes: the anchor (filled white by default)
+// and ticks drawn across the colour band (a negative `distance`). Without a
+// colour of their own they take the panel background, so they stay holes on
+// a dark panel instead of glaring white.
+function gaugePanelStyle(series, panelBg) {
+    const style = {}
+
+    const anchor = series.anchor
+    if (
+        anchor &&
+        anchor.show &&
+        !(anchor.itemStyle && anchor.itemStyle.color)
+    ) {
+        style.anchor = { itemStyle: { color: panelBg } }
+    }
+
+    for (const key of ['axisTick', 'splitLine']) {
+        const part = series[key]
+        if (
+            part &&
+            typeof part === 'object' &&
+            part.distance < 0 &&
+            !(part.lineStyle && part.lineStyle.color)
+        ) {
+            style[key] = { lineStyle: { color: panelBg } }
+        }
+    }
+
+    return style
+}
+
 export function applyTheme(base, panelBg) {
     let overrides = {}
 
     // Heatmaps draw white gaps between cells by default; recolour the cell borders
     // to the panel background so they blend in both light and dark mode. Treemap,
-    // sunburst and pie gaps get the same treatment unless a border colour is set.
+    // sunburst, pie and funnel gaps get the same treatment unless a border colour
+    // is set, and so do the gauge's anchor and cut ticks (gaugePanelStyle).
     if (panelBg && Array.isArray(base.series)) {
         const series = base.series.map((s) => {
             if (!s) {
                 return {}
+            }
+
+            if (s.type === 'gauge') {
+                return gaugePanelStyle(s, panelBg)
             }
 
             const ownBorder = s.itemStyle && s.itemStyle.borderColor

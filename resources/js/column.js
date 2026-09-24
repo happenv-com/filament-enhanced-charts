@@ -1,6 +1,12 @@
 import * as ApacheECharts from 'echarts'
 import merge from 'lodash.merge'
-import { reviveJs, applyTheme, panelBackground, useLocale } from './shared.js'
+import {
+    reviveJs,
+    applyTheme,
+    panelBackground,
+    useLocale,
+    observeResize,
+} from './shared.js'
 
 // Minimal per-cell defaults: a body-appended tooltip so it escapes the
 // overflow:hidden <td>. Deliberately NOT the widget's layoutDefaults
@@ -56,12 +62,11 @@ export default function echartsColumn({
             })
             chart.setOption(reviveJs(applyTheme(base, panelBackground(el))))
 
-            resizeObserver = new ResizeObserver(() => {
+            resizeObserver = observeResize(el, () => {
                 if (chart) {
                     chart.resize()
                 }
             })
-            resizeObserver.observe(el)
 
             themeObserver = new MutationObserver(() => {
                 if (chart) {

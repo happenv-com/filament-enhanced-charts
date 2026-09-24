@@ -36,3 +36,25 @@ it('reserves room beneath the plot for a horizontal slider data zoom', function 
         ->toContain("zoom.type === 'slider'")
         ->toContain('sliderRoom');
 });
+
+it('hides overlapping time-axis labels', function (): void {
+    $js = file_get_contents(__DIR__ . '/../resources/js/index.js');
+
+    expect($js)
+        ->toContain("for (const key of ['xAxis', 'yAxis', 'singleAxis'])")
+        ->toContain('axisLabel: { hideOverlap: true }');
+});
+
+it('resizes the chart only when its size really changes, so the initial animation runs', function (): void {
+    $shared = file_get_contents(__DIR__ . '/../resources/js/shared.js');
+
+    expect($shared)
+        ->toContain('export function observeResize(el, onResize)')
+        ->toContain('if (next[0] !== size[0] || next[1] !== size[1])');
+
+    foreach (['index.js', 'column.js'] as $file) {
+        expect(file_get_contents(__DIR__ . '/../resources/js/' . $file))
+            ->toContain('observeResize(')
+            ->not->toContain('new ResizeObserver(');
+    }
+});
