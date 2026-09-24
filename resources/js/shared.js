@@ -58,13 +58,31 @@ export function darkOverrides(base) {
 
     const overrides = {
         textStyle: { color: text },
-        legend: { textStyle: { color: text } },
-        title: { textStyle: { color: text }, subtextStyle: { color: axis } },
         tooltip: {
             backgroundColor: '#1f2937', // gray-800
             borderColor: '#374151', // gray-700
             textStyle: { color: text },
         },
+    }
+
+    // Style the legend and title only when the chart has them: merging a bare
+    // `legend` override into an option without one CREATES a legend (listing every
+    // funnel step or map region, and switching on map legend symbols).
+    const legendStyle = { textStyle: { color: text } }
+    if (Array.isArray(base.legend)) {
+        overrides.legend = base.legend.map(() => legendStyle)
+    } else if (base.legend) {
+        overrides.legend = legendStyle
+    }
+
+    const titleStyle = {
+        textStyle: { color: text },
+        subtextStyle: { color: axis },
+    }
+    if (Array.isArray(base.title)) {
+        overrides.title = base.title.map(() => titleStyle)
+    } else if (base.title) {
+        overrides.title = titleStyle
     }
 
     // Only touch axes when the chart actually has them (pie/treemap/gauge have none),
@@ -109,6 +127,25 @@ export function darkOverrides(base) {
         overrides.parallel = { parallelAxisDefault: parallelAxisStyle }
     }
 
+    // Slider data zooms: the frame, handle labels and the data shadow default to
+    // light greys that glare on a dark panel. Inside zooms have no chrome.
+    if (base.dataZoom) {
+        const zoomStyle = (zoom) =>
+            zoom && zoom.type === 'slider'
+                ? {
+                      borderColor: split,
+                      textStyle: { color: axis },
+                      dataBackground: {
+                          lineStyle: { color: axis },
+                          areaStyle: { color: split },
+                      },
+                  }
+                : {}
+        overrides.dataZoom = Array.isArray(base.dataZoom)
+            ? base.dataZoom.map(zoomStyle)
+            : zoomStyle(base.dataZoom)
+    }
+
     // visualMap piece/range labels also sit on the panel.
     if (base.visualMap) {
         const visualMapStyle = { textStyle: { color: text } }
@@ -125,17 +162,23 @@ export function darkOverrides(base) {
     // (a coloured arc/slice) AND the dark panel, without the ugly white glow.
     // Only color + text-border are set — position/formatter/rich/etc. untouched,
     // and this merges by index with any per-series override above (e.g. heatmap).
+    // A colour the developer set explicitly is kept, and treemap labels are left
+    // alone entirely: they always sit inside their (coloured) tile, never on the panel.
     if (Array.isArray(base.series)) {
-        const labelStyle = {
-            color: text,
-            textBorderColor: 'rgba(0, 0, 0, 0.55)',
-        }
-        overrides.series = base.series.map((series, i) =>
-            merge({}, (overrides.series && overrides.series[i]) || {}, {
-                label: { ...labelStyle },
+        overrides.series = base.series.map((series, i) => {
+            if (series && series.type === 'treemap') {
+                return (overrides.series && overrides.series[i]) || {}
+            }
+
+            const ownColor = series && series.label && series.label.color
+
+            return merge({}, (overrides.series && overrides.series[i]) || {}, {
+                label: ownColor
+                    ? {}
+                    : { color: text, textBorderColor: 'rgba(0, 0, 0, 0.55)' },
                 labelLine: { lineStyle: { color: axis } },
-            }),
-        )
+            })
+        })
     }
 
     return overrides
@@ -160,24 +203,33 @@ export function panelBackground(selectorOrElement) {
     return null
 }
 
-export function hasHeatmap(base) {
-    return (
-        Array.isArray(base.series) &&
-        base.series.some((s) => s && s.type === 'heatmap')
-    )
-}
+// Series whose default border is white (`#fff`), drawn as the gap between
+// segments — a glaring white frame on a dark panel.
+const PANEL_BORDER_SERIES = ['treemap', 'sunburst', 'pie', 'funnel']
 
 export function applyTheme(base, panelBg) {
     let overrides = {}
 
     // Heatmaps draw white gaps between cells by default; recolour the cell borders
-    // to the panel background so they blend in both light and dark mode.
-    if (panelBg && hasHeatmap(base)) {
-        overrides.series = base.series.map((s) =>
-            s && s.type === 'heatmap'
+    // to the panel background so they blend in both light and dark mode. Treemap,
+    // sunburst and pie gaps get the same treatment unless a border colour is set.
+    if (panelBg && Array.isArray(base.series)) {
+        const series = base.series.map((s) => {
+            if (!s) {
+                return {}
+            }
+
+            const ownBorder = s.itemStyle && s.itemStyle.borderColor
+
+            return s.type === 'heatmap' ||
+                (PANEL_BORDER_SERIES.includes(s.type) && !ownBorder)
                 ? { itemStyle: { borderColor: panelBg } }
-                : {},
-        )
+                : {}
+        })
+
+        if (series.some((s) => Object.keys(s).length)) {
+            overrides.series = series
+        }
     }
 
     if (isDarkMode()) {
