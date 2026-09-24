@@ -37,6 +37,7 @@ class OrdersChart extends EnhancedChartWidget
 - **Every coordinate system.** Cartesian grids, polar, radar, geo/maps, calendar, singleAxis, parallel and matrix — plus datasets with transforms, visual maps, data zoom, toolbox, brush and graphic elements.
 - **Filament-native.** Panel theming, automatic [dark mode](#dark-mode), Filament `Color` palettes, `RawJs` for [client-side callbacks](#formatters-and-js-callbacks), Livewire polling, deferred loading and [filters](#filtering-chart-data).
 - **Data straight from Eloquent.** `ChartData::fromPairs()`, `ChartData::fromTimeSeries()` (laravel-trend compatible) and `Dataset::fromModels()` turn query results into chart data, and `HasChartData` builds a whole chart from data and a type ([Feeding data from Eloquent](#feeding-data-from-eloquent)).
+- **64 languages.** Month and day names, toolbox and aria strings follow the app locale in every language Filament ships ([Translations](#translations)).
 - **Charts in table cells.** Sparklines, candlesticks and donut pies inside table cells via `EnhancedChartColumn`, or any custom per-record chart ([Charts in table cells](#charts-in-table-cells)).
 - **Testable.** Livewire assertions for the resolved chart options in your application's tests ([Testing your application](#testing-your-application)), and the package itself is covered by a Pest suite on every supported version combination.
 
@@ -620,7 +621,13 @@ livewire(RevenueChart::class)
 
 ## Translations
 
-The package ships English strings (`resources/lang/en`). Publish them to translate or override them:
+Charts speak your app's locale. Month and day names on time axes and calendars, the toolbox, legend selector and the screen-reader (aria) description all follow `app()->getLocale()` — in every language Filament ships:
+
+`am` `ar` `az` `bg` `bn` `bs` `ca` `ckb` `cs` `da` `de` `el` `en` `es` `et` `eu` `fa` `fi` `fil` `fr` `he` `hi` `hr` `hu` `hy` `id` `it` `ja` `ka` `km` `ko` `ku` `lt` `lus` `lv` `mk` `mn` `ms` `my` `nb` `ne` `nl` `pl` `pt` `pt_BR` `ro` `ru` `sk` `sl` `sq` `sr_Cyrl` `sr_Latn` `sv` `sw` `tg` `th` `tr` `uk` `ur` `uz` `vi` `zh_CN` `zh_HK` `zh_TW`
+
+Each language is an ECharts locale object in `resources/lang/{locale}/locale.php`. Where ECharts has its own translation it is used as is (`npm run locales` regenerates those files); for the others the month and day names come from CLDR and the rest is translated in the package. A missing key falls back to English.
+
+Publish the files to change a string or add a language:
 
 ```bash
 php artisan vendor:publish --tag="filament-enhanced-charts-translations"
