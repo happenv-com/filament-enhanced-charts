@@ -4,6 +4,7 @@ namespace Happenv\FilamentEnhancedCharts\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
+use ErrorException;
 use Filament\Actions\ActionsServiceProvider;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
@@ -35,6 +36,26 @@ class TestCase extends Orchestra
         // resolve different WeakMaps — which makes `getErrorBag()` return null
         // and every component render throw. Pin one shared DataStore per test.
         $this->app->instance(DataStore::class, new DataStore);
+
+        // Laravel only logs deprecations. Fail the test when the package's OWN
+        // code triggers one, so it is fixed before the next PHP / Laravel /
+        // Filament release turns it into an error.
+        $sourcePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+
+        $previousHandler = set_error_handler(function (int $level, string $message, string $file = '', int $line = 0) use (&$previousHandler, $sourcePath): bool {
+            if (in_array($level, [E_DEPRECATED, E_USER_DEPRECATED], true) && str_starts_with($file, $sourcePath)) {
+                throw new ErrorException($message, 0, $level, $file, $line);
+            }
+
+            return $previousHandler && (bool) $previousHandler($level, $message, $file, $line);
+        });
+    }
+
+    protected function tearDown(): void
+    {
+        restore_error_handler();
+
+        parent::tearDown();
     }
 
     /** @return array<class-string> */
