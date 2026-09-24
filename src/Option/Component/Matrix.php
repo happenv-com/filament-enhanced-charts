@@ -41,6 +41,8 @@ final class Matrix implements Node
     /** @var string|array<mixed>|null */
     private string | array | null $backgroundColor = null;
 
+    private ?bool $triggerEvent = null;
+
     public static function make(): self
     {
         return new self;
@@ -114,6 +116,14 @@ final class Matrix implements Node
         return $this;
     }
 
+    /** Emit mouse events (click, mouseover, …) on the matrix cells (ECharts 6.1). */
+    public function triggerEvent(bool $triggerEvent = true): self
+    {
+        $this->triggerEvent = $triggerEvent;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         $matrix = [];
@@ -132,6 +142,9 @@ final class Matrix implements Node
         }
         if ($this->backgroundColor !== null) {
             $matrix['backgroundStyle'] = ['color' => $this->backgroundColor];
+        }
+        if ($this->triggerEvent !== null) {
+            $matrix['triggerEvent'] = $this->triggerEvent;
         }
 
         $matrix = array_merge($matrix, $this->boxLayoutArray());

@@ -35,6 +35,8 @@ abstract class Axis implements Node
 
     protected int | float | null $jitterMargin = null;
 
+    protected ?bool $containShape = null;
+
     abstract protected function type(): string;
 
     public static function make(): static
@@ -112,6 +114,17 @@ abstract class Axis implements Node
         return $this;
     }
 
+    /**
+     * Whether the axis extent grows to contain whole bar/candlestick/boxplot shapes
+     * at its ends instead of clipping them (ECharts 6.1).
+     */
+    public function containShape(bool $containShape = true): static
+    {
+        $this->containShape = $containShape;
+
+        return $this;
+    }
+
     final public function toArray(): array
     {
         return $this->mergeRaw($this->build());
@@ -151,6 +164,9 @@ abstract class Axis implements Node
         }
         if ($this->jitterMargin !== null) {
             $axis['jitterMargin'] = $this->jitterMargin;
+        }
+        if ($this->containShape !== null) {
+            $axis['containShape'] = $this->containShape;
         }
 
         // The shared axis decorations (show/z/axisLine/ticks/name*/…).

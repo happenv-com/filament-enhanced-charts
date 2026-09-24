@@ -31,6 +31,8 @@ final class MatrixDimension implements Node
 
     private ?bool $show = null;
 
+    private ?int $length = null;
+
     /** @var array<string, mixed>|null */
     private ?array $dividerLineStyle = null;
 
@@ -109,6 +111,14 @@ final class MatrixDimension implements Node
         return $this;
     }
 
+    /** The number of cells, for a headless dimension without data() (ECharts 6.1). */
+    public function length(int $length): self
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         $dim = [];
@@ -118,6 +128,9 @@ final class MatrixDimension implements Node
         }
         if ($this->data !== null) {
             $dim['data'] = Normalize::value($this->data);
+        }
+        if ($this->length !== null) {
+            $dim['length'] = $this->length;
         }
         if ($this->levelSize !== null) {
             $dim['levelSize'] = $this->levelSize;

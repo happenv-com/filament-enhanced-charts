@@ -28,6 +28,8 @@ final class LineSeries extends Series
 
     private bool | string | null $step = null;
 
+    private bool | string | null $triggerEvent = null;
+
     protected function type(): string
     {
         return 'line';
@@ -102,6 +104,17 @@ final class LineSeries extends Series
         return $this;
     }
 
+    /**
+     * Mouse events on the line and its area (ECharts 6.1): `true` for both,
+     * `'line'` or `'area'` for one of them.
+     */
+    public function triggerEvent(bool | string $triggerEvent = true): static
+    {
+        $this->triggerEvent = $triggerEvent;
+
+        return $this;
+    }
+
     #[\Override]
     protected function build(): array
     {
@@ -115,6 +128,9 @@ final class LineSeries extends Series
         }
         if ($this->step !== null) {
             $series['step'] = $this->step;
+        }
+        if ($this->triggerEvent !== null) {
+            $series['triggerEvent'] = $this->triggerEvent;
         }
         if ($this->smooth !== null) {
             $series['smooth'] = $this->smooth;

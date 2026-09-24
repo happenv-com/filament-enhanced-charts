@@ -69,6 +69,9 @@ final class VisualMap implements Node
 
     private ?bool $realtime = null;
 
+    /** @var list<array<string, int|string>>|null */
+    private ?array $seriesTargets = null;
+
     /** @var array<string, mixed>|null */
     private ?array $controller = null;
 
@@ -264,6 +267,19 @@ final class VisualMap implements Node
         return $this;
     }
 
+    /**
+     * Maps several series, each on its own dimension (ECharts 6.1). Replaces
+     * seriesIndex()/dimension() when set.
+     *
+     * @param  list<array{seriesIndex?: int, seriesId?: string, dimension: int}>  $targets
+     */
+    public function seriesTargets(array $targets): self
+    {
+        $this->seriesTargets = $targets;
+
+        return $this;
+    }
+
     /** Continuously update the chart while dragging the visual map handle, instead of on drop. */
     public function realtime(bool $realtime = true): self
     {
@@ -377,6 +393,9 @@ final class VisualMap implements Node
         $map = array_merge($map, $this->boxLayoutArray());
         if ($this->realtime !== null) {
             $map['realtime'] = $this->realtime;
+        }
+        if ($this->seriesTargets !== null) {
+            $map['seriesTargets'] = $this->seriesTargets;
         }
         if ($this->controller !== null) {
             $map['controller'] = Normalize::value($this->controller);
