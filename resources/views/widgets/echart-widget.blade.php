@@ -14,6 +14,7 @@
     $readyToLoad = $this->readyToLoad;
     $chartOptions = $readyToLoad ? $this->resolveOptions() : null;
     $maps = $this->getMaps();
+    $locale = \Happenv\FilamentEnhancedCharts\Support\ChartLocale::current();
 @endphp
 <x-filament-widgets::widget class="fi-wi-chart filament-widgets-chart-widget filament-enhanced-charts-widget">
     <x-filament::section
@@ -73,6 +74,7 @@
                 :$deferLoading
                 :$readyToLoad
                 :$maps
+                :$locale
             />
 
             @if ($footer)

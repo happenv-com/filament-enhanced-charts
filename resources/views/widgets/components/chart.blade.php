@@ -8,6 +8,7 @@
     'deferLoading',
     'readyToLoad',
     'maps' => [],
+    'locale' => null,
 ])
 
 <div
@@ -20,6 +21,7 @@
                 chartId: '#{{ $chartId }}',
                 renderer: '{{ $chartRenderer }}',
                 maps: @js($maps),
+                locale: @js($locale),
             })">
         </div>
         <div wire:ignore class="w-full filament-enhanced-charts-chart-container">
