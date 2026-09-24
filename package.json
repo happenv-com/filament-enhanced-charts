@@ -14,11 +14,11 @@
     "author": "happenv",
     "license": "MIT",
     "devDependencies": {
-        "esbuild": "^0.25.5",
-        "prettier": "^3.5.3"
+        "esbuild": "^0.28.2",
+        "prettier": "^3.9.7"
     },
     "dependencies": {
-        "echarts": "^6.0.0",
+        "echarts": "^6.1.0",
         "lodash.merge": "^4.6.2"
     }
 }
