@@ -73,7 +73,13 @@ export function darkOverrides(base) {
     // axis ARRAY by index.
     // Cartesian + polar + single axes all carry labels that need lightening on
     // a dark panel. Each may be a single object or (multi-axis) an array.
-    for (const key of ['xAxis', 'yAxis', 'angleAxis', 'radiusAxis', 'singleAxis']) {
+    for (const key of [
+        'xAxis',
+        'yAxis',
+        'angleAxis',
+        'radiusAxis',
+        'singleAxis',
+    ]) {
         const axis = base[key]
         if (Array.isArray(axis)) {
             overrides[key] = axis.map(() => axisStyle)
@@ -120,7 +126,10 @@ export function darkOverrides(base) {
     // Only color + text-border are set — position/formatter/rich/etc. untouched,
     // and this merges by index with any per-series override above (e.g. heatmap).
     if (Array.isArray(base.series)) {
-        const labelStyle = { color: text, textBorderColor: 'rgba(0, 0, 0, 0.55)' }
+        const labelStyle = {
+            color: text,
+            textBorderColor: 'rgba(0, 0, 0, 0.55)',
+        }
         overrides.series = base.series.map((series, i) =>
             merge({}, (overrides.series && overrides.series[i]) || {}, {
                 label: { ...labelStyle },
@@ -137,9 +146,10 @@ export function darkOverrides(base) {
 // Accepts either a CSS selector (widget passes its chartId) or a DOM element
 // (the column passes the cell element directly).
 export function panelBackground(selectorOrElement) {
-    let node = typeof selectorOrElement === 'string'
-        ? document.querySelector(selectorOrElement)
-        : selectorOrElement
+    let node =
+        typeof selectorOrElement === 'string'
+            ? document.querySelector(selectorOrElement)
+            : selectorOrElement
     while (node) {
         const bg = getComputedStyle(node).backgroundColor
         if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
@@ -151,7 +161,10 @@ export function panelBackground(selectorOrElement) {
 }
 
 export function hasHeatmap(base) {
-    return Array.isArray(base.series) && base.series.some((s) => s && s.type === 'heatmap')
+    return (
+        Array.isArray(base.series) &&
+        base.series.some((s) => s && s.type === 'heatmap')
+    )
 }
 
 export function applyTheme(base, panelBg) {
@@ -161,7 +174,9 @@ export function applyTheme(base, panelBg) {
     // to the panel background so they blend in both light and dark mode.
     if (panelBg && hasHeatmap(base)) {
         overrides.series = base.series.map((s) =>
-            s && s.type === 'heatmap' ? { itemStyle: { borderColor: panelBg } } : {},
+            s && s.type === 'heatmap'
+                ? { itemStyle: { borderColor: panelBg } }
+                : {},
         )
     }
 
