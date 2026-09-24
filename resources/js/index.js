@@ -1,6 +1,12 @@
 import * as ApacheECharts from 'echarts'
 import merge from 'lodash.merge'
-import { reviveJs, applyTheme, panelBackground, useLocale } from './shared.js'
+import {
+    reviveJs,
+    applyTheme,
+    panelBackground,
+    useLocale,
+    observeResize,
+} from './shared.js'
 
 // A cartesian axis config is either a single object or, for multi-axis charts
 // (dual-Y etc.), a list of them. These two helpers normalize that shape so the
@@ -24,6 +30,23 @@ function layoutDefaults(base) {
     // The chart container is overflow:hidden, so an edge tooltip gets clipped —
     // confine keeps it inside the box. Applies to every chart type.
     const defaults = { tooltip: { confine: true } }
+
+    // ECharts 6.1 adds ticks at month and year boundaries beside the regular
+    // ones, so time-axis labels can collide ("Feb 1" next to "Feb 12"): hide
+    // the overlapping ones. A multi-axis chart gets one entry per axis —
+    // lodash's merge matches an array to the axis array by index.
+    const timeAxisStyle = (axis) =>
+        axis && axis.type === 'time' ? { axisLabel: { hideOverlap: true } } : {}
+    for (const key of ['xAxis', 'yAxis', 'singleAxis']) {
+        const axis = base[key]
+        if (Array.isArray(axis)) {
+            if (axis.some((a) => a && a.type === 'time')) {
+                defaults[key] = axis.map(timeAxisStyle)
+            }
+        } else if (axis && axis.type === 'time') {
+            defaults[key] = timeAxisStyle(axis)
+        }
+    }
 
     const hasX = hasAxis(base.xAxis)
     const hasY = hasAxis(base.yAxis)
@@ -97,13 +120,22 @@ function layoutDefaults(base) {
     // ARRAY unpredictably, and each axis usually wants its own placement anyway
     // (set explicitly via ValueAxis::make()->name(...) etc.).
     if (hasYName && !Array.isArray(base.yAxis)) {
-        defaults.yAxis = { nameLocation: 'middle', nameRotate: 90, nameGap: 40 }
+        defaults.yAxis = {
+            ...defaults.yAxis,
+            nameLocation: 'middle',
+            nameRotate: 90,
+            nameGap: 40,
+        }
     }
 
     // Category-axis title: centred beneath the axis (not floating at the end).
     // Same single-axis caveat as above.
     if (hasXName && !Array.isArray(base.xAxis)) {
-        defaults.xAxis = { nameLocation: 'middle', nameGap: 26 }
+        defaults.xAxis = {
+            ...defaults.xAxis,
+            nameLocation: 'middle',
+            nameGap: 26,
+        }
     }
 
     return defaults
@@ -262,14 +294,14 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                 this.tuneAxisNames()
             })
 
-            resizeObserver = new ResizeObserver((entries) => {
-                if (chart) {
-                    for (const entry of entries) {
+            resizeObserver = observeResize(
+                document.querySelector(this.chartId),
+                () => {
+                    if (chart) {
                         chart.resize()
                     }
-                }
-            })
-            resizeObserver.observe(document.querySelector(this.chartId))
+                },
+            )
         },
 
         // Alpine calls this when the component element is removed (SPA
