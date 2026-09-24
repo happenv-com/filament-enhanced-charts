@@ -2,7 +2,7 @@
 
 <div class="filament-hidden">
 
-![Filament Enhanced Charts](https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/art/banner.png)
+![Filament Enhanced Charts](art/banner.png)
 
 </div>
 
@@ -47,19 +47,19 @@ A taste of what the typed option model draws — every chart is a regular widget
 
 <table>
 <tr>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#horizontal-sankey"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/sankey-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/sankey-light.png" alt="Sankey"></picture></a><br><sub><b>Sankey</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#three-level-sunburst"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/sunburst-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/sunburst-light.png" alt="Sunburst"></picture></a><br><sub><b>Sunburst</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#animated-routes-on-a-map"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/lines-dark.gif"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/lines-light.gif" alt="Animated routes"></picture></a><br><sub><b>Animated routes</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#horizontal-sankey"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/sankey-dark.png"><img src="screens/sankey-light.png" alt="Sankey"></picture></a><br><sub><b>Sankey</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#three-level-sunburst"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/sunburst-dark.png"><img src="screens/sunburst-light.png" alt="Sunburst"></picture></a><br><sub><b>Sunburst</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#animated-routes-on-a-map"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/lines-dark.gif"><img src="screens/lines-light.gif" alt="Animated routes"></picture></a><br><sub><b>Animated routes</b></sub></td>
 </tr>
 <tr>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#calendar-heatmap"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/heatmap-calendar-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/heatmap-calendar-light.png" alt="Calendar heatmap"></picture></a><br><sub><b>Calendar heatmap</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#progress-rings"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/gauge-rings-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/gauge-rings-light.png" alt="Progress rings"></picture></a><br><sub><b>Progress rings</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#polar-bars"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/bar-polar-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/bar-polar-light.png" alt="Polar bars"></picture></a><br><sub><b>Polar bars</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#calendar-heatmap"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/heatmap-calendar-dark.png"><img src="screens/heatmap-calendar-light.png" alt="Calendar heatmap"></picture></a><br><sub><b>Calendar heatmap</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#progress-rings"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/gauge-rings-dark.png"><img src="screens/gauge-rings-light.png" alt="Progress rings"></picture></a><br><sub><b>Progress rings</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#polar-bars"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/bar-polar-dark.png"><img src="screens/bar-polar-light.png" alt="Polar bars"></picture></a><br><sub><b>Polar bars</b></sub></td>
 </tr>
 <tr>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#hexagonal-tile-map"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/map-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/map-light.png" alt="GeoJSON map"></picture></a><br><sub><b>GeoJSON map</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#circular-layout"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/graph-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/graph-light.png" alt="Graph"></picture></a><br><sub><b>Graph</b></sub></td>
-<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#gantt-chart-via-renderitem"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/custom-dark.png"><img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/screens/custom-light.png" alt="Custom Gantt"></picture></a><br><sub><b>Custom Gantt</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#hexagonal-tile-map"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/map-dark.png"><img src="screens/map-light.png" alt="GeoJSON map"></picture></a><br><sub><b>GeoJSON map</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#circular-layout"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/graph-dark.png"><img src="screens/graph-light.png" alt="Graph"></picture></a><br><sub><b>Graph</b></sub></td>
+<td width="33%" align="center"><a href="https://github.com/happenv-com/filament-enhanced-charts/blob/1.x/DEMO.md#gantt-chart-via-renderitem"><picture><source media="(prefers-color-scheme: dark)" srcset="screens/custom-dark.png"><img src="screens/custom-light.png" alt="Custom Gantt"></picture></a><br><sub><b>Custom Gantt</b></sub></td>
 </tr>
 </table>
 
@@ -682,6 +682,6 @@ The MIT License (MIT). See [License File](https://github.com/happenv-com/filamen
 
 <p align="center">
     <a href="https://happenv.com">
-        <img src="https://raw.githubusercontent.com/happenv-com/filament-enhanced-charts/1.x/art/happenv-logo.png" alt="Happenv" width="400">
+        <img src="art/happenv-logo.png" alt="Happenv" width="400">
     </a>
 </p>
