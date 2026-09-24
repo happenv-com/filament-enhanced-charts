@@ -33,11 +33,18 @@ function layoutDefaults(base) {
 
     // ECharts 6.1 adds ticks at month and year boundaries beside the regular
     // ones, so time-axis labels can collide ("Feb 1" next to "Feb 12"): hide
-    // the overlapping ones. Single axes only, like the axis-name defaults below.
+    // the overlapping ones. A multi-axis chart gets one entry per axis —
+    // lodash's merge matches an array to the axis array by index.
+    const timeAxisStyle = (axis) =>
+        axis && axis.type === 'time' ? { axisLabel: { hideOverlap: true } } : {}
     for (const key of ['xAxis', 'yAxis', 'singleAxis']) {
         const axis = base[key]
-        if (axis && !Array.isArray(axis) && axis.type === 'time') {
-            defaults[key] = { axisLabel: { hideOverlap: true } }
+        if (Array.isArray(axis)) {
+            if (axis.some((a) => a && a.type === 'time')) {
+                defaults[key] = axis.map(timeAxisStyle)
+            }
+        } else if (axis && axis.type === 'time') {
+            defaults[key] = timeAxisStyle(axis)
         }
     }
 

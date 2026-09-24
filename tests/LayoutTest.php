@@ -42,7 +42,8 @@ it('hides overlapping time-axis labels', function (): void {
 
     expect($js)
         ->toContain("for (const key of ['xAxis', 'yAxis', 'singleAxis'])")
-        ->toContain('axisLabel: { hideOverlap: true }');
+        ->toContain('axisLabel: { hideOverlap: true }')
+        ->toContain('defaults[key] = axis.map(timeAxisStyle)'); // multi-axis charts too
 });
 
 it('resizes the chart only when its size really changes, so the initial animation runs', function (): void {
