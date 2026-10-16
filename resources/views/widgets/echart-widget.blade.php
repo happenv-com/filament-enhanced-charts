@@ -1,6 +1,8 @@
 @php
     $heading = $this->getHeading();
     $subheading = $this->getSubheading();
+    $headingIcon = $this->getHeadingIcon();
+    $afterHeader = $this->getAfterHeader();
     $filters = $this->getFilters();
     $isCollapsible = $this->isCollapsible();
     $width = $this->getFilterFormWidth();
@@ -21,11 +23,14 @@
         class="filament-enhanced-charts-section"
         :description="$subheading"
         :heading="$heading"
+        :icon="$headingIcon"
         :collapsible="$isCollapsible"
     >
         <div x-data="{ dropdownOpen: false }" @echarts-dropdown.window="dropdownOpen = $event.detail.open">
-            @if ($filters || $this instanceof \Happenv\FilamentEnhancedCharts\Contracts\HasFiltersSchema)
+            @if ($afterHeader || $filters || $this instanceof \Happenv\FilamentEnhancedCharts\Contracts\HasFiltersSchema)
                 <x-slot name="afterHeader">
+                    {{ $afterHeader }}
+
                     @if ($filters)
                         <x-filament::input.wrapper
                             inline-prefix
