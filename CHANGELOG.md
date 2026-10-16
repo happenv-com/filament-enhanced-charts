@@ -2,6 +2,27 @@
 
 All notable changes to `filament-enhanced-charts` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.2.0 - 2026-10-16
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Dependencies
+
+* chore(deps): bump trufflesecurity/trufflehog from 3.97.5 to 3.97.8 in the github-actions group by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/10
+* chore(deps-dev): bump prettier from 3.9.7 to 3.9.8 in the npm group by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/11
+* chore(deps): bump trufflesecurity/trufflehog from 3.97.8 to 3.97.9 in the github-actions group by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/12
+* chore(deps-dev): bump prettier from 3.9.8 to 3.9.9 in the npm group by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/13
+* chore(deps): bump the github-actions group with 2 updates by @dependabot[bot] in https://github.com/happenv-com/filament-enhanced-charts/pull/16
+
+#### Other
+
+* ci: run Copilot code review on GitHub-hosted runners by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/14
+* chore: configure Laravel Moat by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/15
+* feat: heading icon and after-header slot on chart widgets by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/17
+
+**Full Changelog**: https://github.com/happenv-com/filament-enhanced-charts/compare/v1.1.0...v1.2.0
+
 ## v1.1.0 - 2026-09-24
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
