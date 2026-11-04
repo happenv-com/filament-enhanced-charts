@@ -2,6 +2,15 @@
 
 All notable changes to `filament-enhanced-charts` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.3.0 - 2026-11-04
+
+- chore(deps): bump the github-actions group with 2 updates (#18)
+- chore(deps-dev): bump prettier from 3.9.9 to 3.9.10 in the npm group (#19)
+- chore(deps): bump the github-actions group with 2 updates (#20)
+- chore(deps): bump the github-actions group with 3 updates (#21)
+- feat: Sinhala (si) chart locale (#23)
+- fix: keep the chart alive when a filter changes its options (#22)
+
 ## v1.2.0 - 2026-10-16
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
