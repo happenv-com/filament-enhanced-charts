@@ -267,6 +267,16 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
         },
 
         initChart: function () {
+            // An `updateOptions` that arrived while this script was still loading
+            // never reached the listener in `init()`; the widget's view kept it
+            // on the chart element, and it is newer than `x-data`'s options.
+            const latest = document.querySelector(
+                this.chartId,
+            )?.__enhancedChartsLatestOptions
+            if (latest) {
+                this.options = latest
+            }
+
             this.baseOptions = merge(
                 {},
                 layoutDefaults(this.options),

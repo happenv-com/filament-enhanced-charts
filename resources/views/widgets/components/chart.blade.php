@@ -32,8 +32,12 @@
             <div class="filament-enhanced-charts-chart-object" x-ref="{{ $chartId }}" id="{{ $chartId }}"
                  style="position: relative; overflow:hidden;{{ 'height: '.$contentHeight.'px;' }}">
             </div>
+            {{-- Initialised with the page, unlike the chart (which loads its script
+                 asynchronously): an `updateOptions` that arrives before the chart
+                 exists is kept on the chart element, and `initChart()` paints it
+                 instead of the older options in `x-data`. --}}
             <div {!! $pollingInterval ? 'wire:poll.' . $pollingInterval . '="updateOptions"' : '' !!} x-data="{}"
-                 x-init="$watch('dropdownOpen', value => $wire.dropdownOpen = value)">
+                 x-init="$watch('dropdownOpen', value => $wire.dropdownOpen = value); $wire.$on('updateOptions', ({ options }) => { const host = document.getElementById(@js($chartId)); if (host) { host.__enhancedChartsLatestOptions = options } })">
             </div>
         </div>
     @else

@@ -67,6 +67,14 @@ it('keeps the chart host out of the Livewire morph', function (): void {
         ->assertSeeHtml('<div wire:ignore x-ignore x-load');
 });
 
+it('keeps an update that arrives before the chart script has loaded', function (): void {
+    // The chart's script loads asynchronously (`x-load`); an `updateOptions`
+    // landing before it would otherwise be lost and the chart would paint the
+    // older options from `x-data`.
+    livewire(PollableTestWidget::class)
+        ->assertSeeHtml('__enhancedChartsLatestOptions = options');
+});
+
 it('defers loading until loadWidget is called', function (): void {
     livewire(DeferredTestWidget::class)
         ->assertSet('readyToLoad', false)
