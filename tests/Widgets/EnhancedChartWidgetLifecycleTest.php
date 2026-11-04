@@ -22,23 +22,57 @@ it('hashes the resolved options on mount', function (): void {
         ->assertSet('optionsHash', fn (?string $hash): bool => filled($hash));
 });
 
-it('dispatches updateOptions only when the resolved options actually change', function (): void {
-    livewire(PollableTestWidget::class)
-        // Nothing changed since mount → the poll dirty-check short-circuits.
-        ->call('updateOptions')
-        ->assertNotDispatched('updateOptions')
-        // The data point changed → a real update is pushed to the client.
-        ->set('value', 99)
-        ->call('updateOptions')
-        ->assertDispatched('updateOptions');
+afterEach(function (): void {
+    PollableTestWidget::$outside = 0;
 });
 
-it('suppresses updateOptions while the filter dropdown is open', function (): void {
-    livewire(PollableTestWidget::class)
-        ->set('dropdownOpen', true)
-        ->set('value', 99)
+it('dispatches updateOptions from a poll only when the resolved options actually change', function (): void {
+    $widget = livewire(PollableTestWidget::class)
+        // Nothing changed since mount → the poll dirty-check short-circuits.
         ->call('updateOptions')
         ->assertNotDispatched('updateOptions');
+
+    // The data behind the chart changed → the next poll pushes it.
+    PollableTestWidget::$outside = 10;
+
+    $widget->call('updateOptions')
+        ->assertDispatched('updateOptions', fn (string $name, array $params): bool => $params['options']['series'][0]['data'] === [11]);
+});
+
+it('pushes the options a re-render changed, once', function (): void {
+    livewire(PollableTestWidget::class)
+        ->set('value', 99)
+        ->assertDispatched('updateOptions', fn (string $name, array $params): bool => $params['options']['series'][0]['data'] === [99])
+        // The poll right after has nothing new to say.
+        ->call('updateOptions')
+        ->assertNotDispatched('updateOptions');
+});
+
+it('suppresses updateOptions while the filter dropdown is open, and delivers it once the dropdown closes', function (): void {
+    $widget = livewire(PollableTestWidget::class)
+        ->set('dropdownOpen', true);
+
+    PollableTestWidget::$outside = 10;
+
+    $widget->call('updateOptions')
+        ->assertNotDispatched('updateOptions')
+        ->set('dropdownOpen', false)
+        ->assertDispatched('updateOptions', fn (string $name, array $params): bool => $params['options']['series'][0]['data'] === [11]);
+});
+
+it('keeps the chart host out of the Livewire morph', function (): void {
+    // A morph that rewrote the options in `x-data` would make Alpine tear the
+    // chart down, and the restored `x-ignore` would keep it from coming back.
+    livewire(PollableTestWidget::class)
+        ->assertSeeHtml('<div wire:ignore x-ignore x-load');
+});
+
+it('keeps an update that arrives before the chart script has loaded', function (): void {
+    // The chart's script loads asynchronously (`x-load`); an `updateOptions`
+    // landing before it would otherwise be lost and the chart would paint the
+    // older options from `x-data`.
+    livewire(PollableTestWidget::class)
+        ->assertSeeHtml('__enhancedChartsLatestOptions = options');
 });
 
 it('defers loading until loadWidget is called', function (): void {
