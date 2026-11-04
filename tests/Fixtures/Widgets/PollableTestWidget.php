@@ -9,9 +9,10 @@ use Happenv\FilamentEnhancedCharts\Option\Series\BarSeries;
 use Happenv\FilamentEnhancedCharts\Widgets\EnhancedChartWidget;
 
 /**
- * A trivial widget whose single data point is a public Livewire property, so a
- * test can mutate it between `updateOptions()` calls to exercise the poll
- * dirty-check.
+ * A trivial widget whose single data point is a public Livewire property plus a
+ * value from outside the component (`$outside`, standing in for the database a
+ * poll re-reads), so a test can change the options with or without a Livewire
+ * update.
  */
 class PollableTestWidget extends EnhancedChartWidget
 {
@@ -19,10 +20,12 @@ class PollableTestWidget extends EnhancedChartWidget
 
     public int $value = 1;
 
+    public static int $outside = 0;
+
     protected ?string $pollingInterval = '5s';
 
     protected function getOption(): Option
     {
-        return Option::make()->series(BarSeries::make()->data([$this->value]));
+        return Option::make()->series(BarSeries::make()->data([$this->value + static::$outside]));
     }
 }

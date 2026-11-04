@@ -14,7 +14,11 @@
 <div
     {!! $deferLoading ? ' wire:init="loadWidget" ' : '' !!} class="flex items-center justify-center filament-enhanced-charts-chart">
     @if ($readyToLoad)
-        <div x-ignore x-load
+        {{-- `wire:ignore`: the options live in this element's `x-data`, so a morph that
+             rewrote them would make Alpine tear the chart down and the restored
+             `x-ignore` would keep it from coming back. New options reach the chart
+             through the `updateOptions` event instead. --}}
+        <div wire:ignore x-ignore x-load
              x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('filament-enhanced-charts', 'happenv/filament-enhanced-charts') }}"
              x-data="echarts({
                 options: @js($chartOptions),

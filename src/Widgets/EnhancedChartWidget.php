@@ -59,6 +59,12 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
      */
     public ?string $optionsHash = null;
 
+    /**
+     * Set for one request when a poll held the update back (dropdown open), so
+     * the render that follows does not push it after all.
+     */
+    protected bool $optionsUpdateHeldBack = false;
+
     public function mount(): void
     {
         if ($this instanceof HasFiltersSchema) {
@@ -91,7 +97,36 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
     #[\Override]
     public function render(): View
     {
+        $this->pushChangedOptions();
+
         return view($this->view, []);
+    }
+
+    /**
+     * The chart's host element is `wire:ignore`d, so re-rendering never repaints
+     * it. A render whose options differ from the ones the chart was last given
+     * (a filter, a reactive page filter, any property the options read) hands
+     * them over through `updateOptions` — except when a poll deliberately held
+     * the update back while the filter dropdown is open.
+     */
+    protected function pushChangedOptions(): void
+    {
+        if (! $this->readyToLoad || $this->optionsUpdateHeldBack) {
+            return;
+        }
+
+        $options = $this->resolveOptions();
+        $hash = $this->hashOptions($options);
+
+        if ($hash === $this->optionsHash) {
+            return;
+        }
+
+        $this->optionsHash = $hash;
+
+        $this
+            ->dispatch('updateOptions', options: $options)
+            ->self();
     }
 
     protected function getChartId(): ?string
@@ -142,6 +177,10 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
 
     public function updateOptions(): void
     {
+        // Held back while the filter dropdown is open; the render that follows
+        // must not push what the poll just decided to hold.
+        $this->optionsUpdateHeldBack = $this->dropdownOpen;
+
         // Prime the per-request memo so the subsequent re-render doesn't
         // compute (and query) the options a second time.
         $options = $this->resolvedOptions = $this->getOptions();

@@ -367,10 +367,14 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
             }
 
             this.baseOptions = merge({}, layoutDefaults(options), options)
+            // `replaceMerge` swaps the series list wholesale: a plain merge
+            // matches series by index, so going from six series to two left
+            // the four extra ones drawn (and in the legend) from the old data.
             chart.setOption(
                 reviveJs(
                     applyTheme(this.baseOptions, panelBackground(this.chartId)),
                 ),
+                { replaceMerge: ['series'] },
             )
             this.tuneAxisNames()
         },
