@@ -85,16 +85,16 @@ Other widget statics/hooks: `$headingIcon` / `getHeadingIcon()`, `getAfterHeader
 | Styles | `Style\ItemStyle`, `LineStyle`, `AreaStyle`, `Label`, `Emphasis` |
 | Marks | `Mark\MarkLine` (`average()`, `min()`, `max()`, `at($y)`), `MarkPoint`, `MarkArea` (`band($from, $to)`) |
 | Data | `DataPoint`, `SankeyNode::make($name)`, `SankeyLink::make($source, $target, $value)` |
-| Enums | `Enums\TooltipTrigger`, `Symbol`, `Orient`, `RoseType`, `CoordinateSystem`, `Focus`, ... (setters take the enum or the ECharts string) |
+| Enums | Not under `Option`: `Happenv\FilamentEnhancedCharts\Enums\TooltipTrigger`, `Symbol`, `Orient`, `RoseType`, `CoordinateSystem`, `Focus`, ... (setters take the enum or the ECharts string) |
 
 Conventions:
 
 - Every builder: `::make()` and chained setters. All use `Conditionable` (`->when($cond, fn ($o) => ...)`).
-- Slots ECharts allows as "object or array" are **variadic and additive** on `Option`: `->series(a, b)`, `->xAxis(...)`, `->yAxis(...)`, `->grid(...)`, `->legend(...)`, `->dataZoom(...)`, `->visualMap(...)`, `->title(...)`. Calling `->series()` twice appends; one item emits as an object, several as a list. The first `->legend()` on a `cartesian()` option replaces the preset legend.
+- Slots ECharts allows as "object or array" are **variadic and additive** on `Option`: `->series(a, b)`, `->xAxis(...)`, `->yAxis(...)`, `->grid(...)`, `->legend(...)`, `->dataZoom(...)`, `->visualMap(...)`, `->title(...)`. Calling `->series()` twice appends. Components and axes emit one item as an object and several as a list, but `series` and `dataset` are **always lists**, even with one entry (`$options['series'][0]`). The first `->legend()` on a `cartesian()` option replaces the preset legend.
 - `Option::tooltip()`, `toolbox()`, `parallel()` take one builder (not an array). Sub-configs on series/axes (`itemStyle()`, `label()`, `emphasis()`, `tooltip()`, `markLine()`, ...) take the builder **or** a plain array.
 - If only one of `xAxis`/`yAxis` is set, the other defaults to a `ValueAxis`. A heatmap or horizontal bar needs both set explicitly (`yAxis(CategoryAxis::make()->data(...))`).
 - Per-point config: `DataPoint::make(1048)->name('Search')->itemStyle(ItemStyle::make()->color('#c23531'))`.
-- Exact numbers: pass `\BcMath\Number` anywhere a number is accepted.
+- Exact numbers: a `\BcMath\Number` works in data values (`data()`, `DataPoint::make()`, dataset rows) and in setters whose signature lists `Number` (axis `min()`/`max()`, `ValueAxis::dataMin()/dataMax()`, `GaugeSeries::min()/max()`, `VisualMap::min()/max()`, `MarkLine::at()`, `SankeyNode`/`SankeyLink` values, ...). Other numeric setters (e.g. `opacity()`, `borderWidth()`) are `int|float` only and throw a `TypeError`.
 
 ### raw() and RawJs
 
@@ -109,7 +109,8 @@ Option::make()
 ```
 
 - `raw()` merges associative arrays recursively; a **list** in raw replaces the typed list wholesale. Prefer typed methods; `raw()` is the escape hatch. `Option::make()->raw($wholeEChartsArray)` is a valid way to port an existing option.
-- `RawJs` works anywhere (formatters, `renderItem`, `symbolSize`, `animationDelay`, `labelLayout`); the `echarts` global is available inside. It is serialized as `['__js__' => '...']` and revived in the browser, so **never build RawJs from user input** (it is executed).
+- `RawJs` works in typed setters whose signature accepts it (`formatter()`, `axisLabel()`, `valueFormatter()`, `renderItem()`, `symbolSize()`, `animationDelay()` and friends, `labelLayout()`, `interval()`, `Tooltip::position()`) and in data values; the `echarts` global is available inside. It is serialized as `['__js__' => '...']` and revived in the browser, so **never build JS from user input** (it is executed).
+- Values passed to `raw()` are merged as given, **not** normalized: a `RawJs` inside `raw([...])` is not turned into a marker and will not run. Write the marker yourself: `->raw(['tooltip' => ['formatter' => ['__js__' => '(p) => p.name']]])`.
 
 ## Feeding data
 
@@ -282,4 +283,4 @@ livewire(OrdersChart::class)
     ->assertChartOptions(fn (array $options): bool => count($options['xAxis']['data']) === 12);
 ```
 
-The assertions read the fully resolved array (the same one the browser gets). `RawJs` and `BcMath\Number` values appear as `['__js__' => '...']`, e.g. `isset($options['yAxis']['axisLabel']['formatter']['__js__'])`. A single axis or legend is an object, several are a list. For a deferred widget, `->call('loadWidget')` first.
+The assertions read the fully resolved array (the same one the browser gets). `RawJs` and `BcMath\Number` values appear as `['__js__' => '...']`, e.g. `isset($options['yAxis']['axisLabel']['formatter']['__js__'])`. A single axis or legend is an object, several are a list; `series` is always a list. For a deferred widget, `->call('loadWidget')` first.
