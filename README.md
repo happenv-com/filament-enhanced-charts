@@ -633,6 +633,10 @@ Publish the files to change a string or add a language:
 php artisan vendor:publish --tag="filament-enhanced-charts-translations"
 ```
 
+## AI assistants (Laravel Boost)
+
+The package ships a [Laravel Boost](https://laravel.com/docs/boost) skill, `filament-enhanced-charts-development`, in `resources/boost/skills/`. `php artisan boost:install` (or `boost:update`) offers it to your coding agent: how to write a chart widget with the typed option model, shape Eloquent data, use `raw()` and `RawJs`, add filters, polling and table-cell charts, and test the resolved options, with the pitfalls that come with them.
+
 ## Development
 
 ```bash
