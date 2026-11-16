@@ -22,6 +22,9 @@ final class MapSeries extends Series
 
     private ?string $nameProperty = null;
 
+    /** @var array<string, string>|null */
+    private ?array $nameMap = null;
+
     private int | float | null $zoom = null;
 
     /** @var array<int, string|int>|null */
@@ -53,6 +56,19 @@ final class MapSeries extends Series
     }
 
     /** Current zoom level of the map. Default is 1. */
+    /**
+     * Renames the map's regions, `region name => display name`; data is matched
+     * by the display name, so e.g. `['PL' => 'Polska']` with `nameProperty('iso')`.
+     *
+     * @param  array<string, string>  $nameMap
+     */
+    public function nameMap(array $nameMap): static
+    {
+        $this->nameMap = $nameMap;
+
+        return $this;
+    }
+
     public function zoom(int | float $zoom): static
     {
         $this->zoom = $zoom;
@@ -79,6 +95,9 @@ final class MapSeries extends Series
         $series = array_merge($series, $this->roamArray());
         if ($this->nameProperty !== null) {
             $series['nameProperty'] = $this->nameProperty;
+        }
+        if ($this->nameMap !== null) {
+            $series['nameMap'] = $this->nameMap;
         }
         if ($this->zoom !== null) {
             $series['zoom'] = $this->zoom;

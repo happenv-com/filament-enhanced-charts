@@ -36,7 +36,7 @@ final class SankeyPreset extends AbstractChartPreset
 
     public function requirement(): string
     {
-        return '2 dimensions (category or time; the first is the source, the second the target) and 1 measure';
+        return '2 dimensions (category, time or region; the first is the source, the second the target) and 1 measure';
     }
 
     public function accepts(DatasetShape $shape): bool

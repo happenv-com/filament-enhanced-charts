@@ -5,6 +5,7 @@ namespace Happenv\FilamentEnhancedCharts\Concerns;
 use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
+use Happenv\FilamentEnhancedCharts\Support\ChartMaps;
 
 /**
  * Draw an `EnhancedChartWidget` from a tabular dataset and a preset name — no
@@ -39,5 +40,16 @@ trait HasChartPreset /** @phpstan-ignore trait.unused (consumer-facing API — u
     protected function getOption(): Option
     {
         return app(ChartPresets::class)->option($this->chartPreset(), $this->getDataset());
+    }
+
+    /**
+     * The world map of the `world-map` / `flow-lines` presets, and only when the
+     * drawn chart uses it; a widget that needs other maps overrides this.
+     *
+     * @return array<string, string>
+     */
+    public function getMaps(): array
+    {
+        return $this->readyToLoad ? ChartMaps::for($this->resolveOptions()) : [];
     }
 }

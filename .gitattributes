@@ -75,3 +75,4 @@
 # Asset sources - the service provider registers resources/dist
 /resources/css          export-ignore
 /resources/js           export-ignore
+/resources/geo/world-countries.json export-ignore

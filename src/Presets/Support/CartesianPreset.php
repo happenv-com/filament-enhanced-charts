@@ -17,8 +17,12 @@ use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
  */
 abstract class CartesianPreset extends AbstractChartPreset
 {
-    /** @param  list<int|float|null>  $values */
-    abstract protected function series(string $name, array $values): Series;
+    /**
+     * @param  list<int|float|null>  $values
+     * @param  int  $axis  the index of the value axis (one per unit) the series is drawn on — a stacked series
+     *                     stacks only with the others on the same axis, so measures of different units never add up
+     */
+    abstract protected function series(string $name, array $values, int $axis = 0): Series;
 
     protected function horizontal(): bool
     {
@@ -33,11 +37,26 @@ abstract class CartesianPreset extends AbstractChartPreset
     final protected function build(ChartDataset $dataset): Option
     {
         $breakdown = $this->breakdown($dataset);
+        $units = $this->unitGroups($breakdown['series']);
+        $multiAxis = count($units) > 1;
+
+        $series = [];
+        foreach ($breakdown['series'] as $index => $item) {
+            $axis = $multiAxis ? (int) array_search($item['unit'], $units, true) : 0;
+            $drawn = $this->series($item['name'], $item['values'], $axis);
+
+            if ($multiAxis) {
+                $drawn = ($this->horizontal() ? $drawn->xAxisIndex($axis) : $drawn->yAxisIndex($axis))->color($this->seriesColor($index));
+            }
+
+            $series[] = $drawn;
+        }
 
         return $this->cartesianOption(
             $this->categoryAxis()->data($breakdown['categories']),
-            array_map(fn (array $series): Series => $this->series($series['name'], $series['values']), $breakdown['series']),
+            $series,
             $this->horizontal(),
+            $this->unitAxes($units, array_column($breakdown['series'], 'unit'), $this->horizontal()),
         );
     }
 }

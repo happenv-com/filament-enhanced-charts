@@ -139,6 +139,17 @@ final class ChartPresets
             new Builtin\ThemeRiverPreset,
             new Builtin\CalendarHeatmapPreset,
             new Builtin\ScatterPreset,
+            new Builtin\GraphPreset,
+            new Builtin\ChordPreset,
+            new Builtin\TreePreset,
+            new Builtin\ParallelPreset,
+            new Builtin\PictorialBarPreset,
+            new Builtin\EffectScatterPreset,
+            new Builtin\BoxplotPreset,
+            new Builtin\CandlestickPreset,
+            new Builtin\BarLinePreset,
+            new Builtin\WorldMapPreset,
+            new Builtin\FlowLinesPreset,
         ];
     }
 }

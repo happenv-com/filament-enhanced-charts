@@ -26,7 +26,7 @@ final class ThemeRiverPreset extends AbstractChartPreset
 
     public function requirement(): string
     {
-        return '2 dimensions (1 time and 1 category, in either order) and 1 measure';
+        return '2 dimensions (1 time and 1 category or region, in either order) and 1 measure';
     }
 
     public function accepts(DatasetShape $shape): bool
@@ -34,7 +34,7 @@ final class ThemeRiverPreset extends AbstractChartPreset
         return $shape->dimensionCount() === 2
             && $shape->measures === 1
             && $shape->hasKind(DimensionKind::Time)
-            && $shape->hasKind(DimensionKind::Category);
+            && ($shape->hasKind(DimensionKind::Category) || $shape->hasKind(DimensionKind::Region));
     }
 
     protected function build(ChartDataset $dataset): Option

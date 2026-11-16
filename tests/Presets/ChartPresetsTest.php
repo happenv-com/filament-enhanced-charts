@@ -56,7 +56,8 @@ it('registers every built-in preset by default, in a stable order, with unique n
         'pie', 'donut', 'rose', 'funnel', 'bar', 'horizontal-bar', 'line', 'smooth-line', 'area',
         'grouped-bar', 'stacked-bar', 'stacked-horizontal-bar', 'multi-line', 'stacked-area',
         'heatmap', 'sankey', 'treemap', 'sunburst', 'radar', 'polar-bar', 'gauge', 'theme-river',
-        'calendar-heatmap', 'scatter',
+        'calendar-heatmap', 'scatter', 'graph', 'chord', 'tree', 'parallel', 'pictorial-bar', 'effect-scatter',
+        'boxplot', 'candlestick', 'bar-line', 'world-map', 'flow-lines',
     ])->and(array_unique($names))->toHaveCount(count($names));
 });
 
@@ -123,7 +124,7 @@ it('describes the presets as plain data for a chooser', function (): void {
     expect($catalog)->toHaveCount(1)
         ->and($catalog[0])->toHaveKeys(['name', 'description', 'requirement'])
         ->and($catalog[0]['name'])->toBe('gauge')
-        ->and($registry->catalog())->toHaveCount(24);
+        ->and($registry->catalog())->toHaveCount(35);
 });
 
 it('builds an option by preset name and refuses a dataset the preset does not accept', function (): void {
@@ -131,5 +132,5 @@ it('builds an option by preset name and refuses a dataset the preset does not ac
 
     expect($registry->option('pie', ChartDatasets::perChannel())->toArray()['series'][0]['type'])->toBe('pie')
         ->and(fn (): Option => $registry->option('pie', ChartDatasets::total()))
-        ->toThrow(ChartPresetException::class, 'Chart preset [pie] needs 1 dimension (category or time) and 1 measure, but the dataset has no dimensions and 1 measure');
+        ->toThrow(ChartPresetException::class, 'Chart preset [pie] needs 1 dimension (category, time or region) and 1 measure, but the dataset has no dimensions and 1 measure');
 });

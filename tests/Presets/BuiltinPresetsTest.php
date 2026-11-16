@@ -54,6 +54,17 @@ function builtInPresetCases(): array
         'theme-river' => ['theme-river', D::perMonthPerChannel(...), D::channelToCountry(...)],
         'calendar-heatmap' => ['calendar-heatmap', D::perDay(...), D::perChannel(...)],
         'scatter' => ['scatter', D::perMonthTwoMeasures(...), D::perChannel(...)],
+        'graph' => ['graph', D::channelToCountry(...), D::perChannel(...)],
+        'chord' => ['chord', D::channelToCountry(...), D::perChannel(...)],
+        'tree' => ['tree', D::channelToCountry(...), D::total(...)],
+        'parallel' => ['parallel', D::perChannelThreeMeasures(...), D::perMonthTwoMeasures(...)],
+        'pictorial-bar' => ['pictorial-bar', D::perChannel(...), D::perMonthTwoMeasures(...)],
+        'effect-scatter' => ['effect-scatter', D::perMonthTwoMeasures(...), D::perChannel(...)],
+        'boxplot' => ['boxplot', D::boxplot(...), D::perChannelThreeMeasures(...)],
+        'candlestick' => ['candlestick', D::candles(...), D::boxplot(...)],
+        'bar-line' => ['bar-line', D::perMonthTwoMeasures(...), D::perChannel(...)],
+        'world-map' => ['world-map', D::perCountry(...), D::perChannel(...)],
+        'flow-lines' => ['flow-lines', D::countryFlows(...), D::channelToCountry(...)],
     ];
 }
 
