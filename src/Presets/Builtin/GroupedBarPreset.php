@@ -25,7 +25,7 @@ final class GroupedBarPreset extends CartesianPreset
         return self::BREAKDOWN;
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->acceptsBreakdown($shape);
     }

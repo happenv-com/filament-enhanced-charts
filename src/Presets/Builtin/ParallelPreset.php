@@ -32,7 +32,7 @@ final class ParallelPreset extends AbstractChartPreset
         return '1 dimension (category, time or region; every value is one line) and 3 or more measures (one parallel axis per measure)';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 3);
     }

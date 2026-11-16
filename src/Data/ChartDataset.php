@@ -152,17 +152,27 @@ final readonly class ChartDataset
         foreach (self::listAt($data, 'dimensions') as $index => $item) {
             $path = "dimensions[{$index}]";
             $item = self::arrayAt($item, $path);
-            self::assertKeys($item, ['name', 'label', 'kind'], $path);
+            self::assertKeys($item, ['name', 'label', 'kind'], $path, ['multiValued']);
 
             $kind = is_string($item['kind']) ? DimensionKind::tryFrom($item['kind']) : null;
             if (! $kind instanceof DimensionKind) {
                 throw InvalidChartDataset::at("{$path}.kind", 'must be one of [' . implode(', ', array_column(DimensionKind::cases(), 'value')) . ']');
             }
 
+            $multiValued = false;
+            if (array_key_exists('multiValued', $item)) {
+                if (! is_bool($item['multiValued'])) {
+                    throw InvalidChartDataset::at("{$path}.multiValued", 'must be a boolean');
+                }
+
+                $multiValued = $item['multiValued'];
+            }
+
             $dimensions[] = new DatasetDimension(
                 self::stringAt($item, 'name', $path),
                 self::stringAt($item, 'label', $path),
                 $kind,
+                $multiValued,
             );
         }
 
@@ -204,7 +214,7 @@ final readonly class ChartDataset
 
     /**
      * @return array{
-     *     dimensions: list<array{name: string, label: string, kind: string}>,
+     *     dimensions: list<array{name: string, label: string, kind: string, multiValued?: true}>,
      *     measures: list<array{name: string, label: string, role?: string, unit?: string}>,
      *     rows: list<Row>,
      * }
@@ -224,6 +234,7 @@ final readonly class ChartDataset
             array_map(static fn (DatasetDimension $dimension): DimensionKind => $dimension->kind, $this->dimensions),
             count($this->measures),
             array_values(array_filter(array_map(static fn (DatasetMeasure $measure): ?MeasureRole => $measure->role, $this->measures))),
+            array_keys(array_filter(array_map(static fn (DatasetDimension $dimension): bool => $dimension->multiValued, $this->dimensions))),
         );
     }
 

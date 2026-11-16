@@ -132,5 +132,5 @@ it('builds an option by preset name and refuses a dataset the preset does not ac
 
     expect($registry->option('pie', ChartDatasets::perChannel())->toArray()['series'][0]['type'])->toBe('pie')
         ->and(fn (): Option => $registry->option('pie', ChartDatasets::total()))
-        ->toThrow(ChartPresetException::class, 'Chart preset [pie] needs 1 dimension (category, time or region) and 1 measure, but the dataset has no dimensions and 1 measure');
+        ->toThrow(ChartPresetException::class, 'Chart preset [pie] needs 1 dimension (category, time or region) and 1 measure; the dimension must be single-valued, but the dataset has no dimensions and 1 measure');
 });

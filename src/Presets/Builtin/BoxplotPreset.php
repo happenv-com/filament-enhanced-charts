@@ -34,7 +34,7 @@ final class BoxplotPreset extends AbstractChartPreset
         return '1 dimension (category, time or region; every value is one box) and exactly 5 measures carrying the roles min, q1, median, q3 and max, in any order';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 5, 5) && $shape->hasExactlyRoles(...self::ROLES);
     }

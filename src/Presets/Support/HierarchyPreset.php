@@ -22,10 +22,16 @@ abstract class HierarchyPreset extends AbstractChartPreset
 
     final public function requirement(): string
     {
-        return '1 or 2 dimensions (category, time or region; the second is nested inside the first) and 1 measure';
+        return '1 or 2 dimensions (category, time or region; the second is nested inside the first) and 1 measure' . self::SINGLE_VALUED_DIMENSIONS;
     }
 
-    final public function accepts(DatasetShape $shape): bool
+    /** Every level nests inside its parent and a parent is the sum of its children, so all dimensions partition. */
+    final public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return array_keys($shape->dimensions);
+    }
+
+    final protected function acceptsStructure(DatasetShape $shape): bool
     {
         return in_array($shape->dimensionCount(), [1, 2], true) && $shape->measures === 1;
     }

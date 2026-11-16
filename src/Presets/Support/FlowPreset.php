@@ -15,7 +15,7 @@ use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
  */
 abstract class FlowPreset extends AbstractChartPreset
 {
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 2 && $shape->measures === 1;
     }

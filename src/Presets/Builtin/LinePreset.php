@@ -25,7 +25,7 @@ final class LinePreset extends CartesianPreset
         return self::ONE_DIMENSION_MEASURES;
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape);
     }

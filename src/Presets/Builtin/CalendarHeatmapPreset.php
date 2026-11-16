@@ -31,7 +31,7 @@ final class CalendarHeatmapPreset extends AbstractChartPreset
         return '1 time dimension with one value per day, written as YYYY-MM-DD, and 1 measure';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 1
             && $shape->kindAt(0) === DimensionKind::Time

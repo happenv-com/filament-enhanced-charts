@@ -31,7 +31,7 @@ final class WorldMapPreset extends AbstractChartPreset
         return '1 region dimension (ISO 3166-1 alpha-2 country codes, e.g. PL) and 1 measure';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 1 && $shape->kindAt(0) === DimensionKind::Region && $shape->measures === 1;
     }

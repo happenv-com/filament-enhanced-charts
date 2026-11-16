@@ -36,10 +36,16 @@ final class SankeyPreset extends AbstractChartPreset
 
     public function requirement(): string
     {
-        return '2 dimensions (category, time or region; the first is the source, the second the target) and 1 measure';
+        return '2 dimensions (category, time or region; the first is the source, the second the target) and 1 measure' . self::SINGLE_VALUED_DIMENSIONS;
     }
 
-    public function accepts(DatasetShape $shape): bool
+    /** A node is as tall as the flow through it and flow is conserved, so a row counted under two values of either end breaks the balance. */
+    public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return [0, 1];
+    }
+
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 2 && $shape->measures === 1;
     }

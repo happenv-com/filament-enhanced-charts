@@ -29,7 +29,7 @@ final class GaugePreset extends AbstractChartPreset
         return 'no dimensions and 1 measure (a single value)';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 0 && $shape->measures === 1;
     }

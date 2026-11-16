@@ -26,10 +26,16 @@ final class ThemeRiverPreset extends AbstractChartPreset
 
     public function requirement(): string
     {
-        return '2 dimensions (1 time and 1 category or region, in either order) and 1 measure';
+        return '2 dimensions (1 time and 1 category or region, in either order) and 1 measure; the category or region must be single-valued';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    /** The stream is the share of each category at each period, so the non-time dimension must add up. */
+    public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return array_keys(array_filter($shape->dimensions, static fn (DimensionKind $kind): bool => $kind !== DimensionKind::Time));
+    }
+
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 2
             && $shape->measures === 1

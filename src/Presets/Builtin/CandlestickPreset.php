@@ -36,7 +36,7 @@ final class CandlestickPreset extends AbstractChartPreset
         return '1 time dimension (every value is one candle) and exactly 4 measures carrying the roles open, close, low and high, in any order';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 4, 4)
             && $shape->kindAt(0) === DimensionKind::Time
