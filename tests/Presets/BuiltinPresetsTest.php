@@ -242,6 +242,19 @@ it('draws a sankey from source to target and drops flows without a positive size
         ->and($series['data'])->toBe([['name' => 'A'], ['name' => "B\u{200B}"], ['name' => "A\u{200B}"]]);
 });
 
+it('keeps sankey stages apart even when a label already ends in the stage marker', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('from', 'From'), DatasetDimension::category('to', 'To')],
+        [new DatasetMeasure('n', 'N')],
+        [['from' => "A\u{200B}", 'to' => 'A', 'n' => 3]],
+    );
+
+    $series = presetOptionArray('sankey', $dataset)['series'][0];
+
+    expect($series['data'])->toHaveCount(2)
+        ->and($series['links'][0]['source'])->not->toBe($series['links'][0]['target']);
+});
+
 it('gives a sankey node a separate identity per stage so opposite flows are not a cycle', function (): void {
     $dataset = new ChartDataset(
         [DatasetDimension::category('from', 'From'), DatasetDimension::category('to', 'To')],

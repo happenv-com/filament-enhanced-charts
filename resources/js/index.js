@@ -221,7 +221,11 @@ function structureSignature(options) {
         keys: Object.keys(options)
             .filter((key) => options[key] != null && key !== 'series')
             .sort(),
-        series: [].concat(options.series || []).map((s) => s && s.type),
+        // A set, not a list: a channel added to or dropped from a stacked bar
+        // changes the series count, which `replaceMerge` already handles.
+        series: [
+            ...new Set([].concat(options.series || []).map((s) => s && s.type)),
+        ].sort(),
     }
     for (const key of axisKeys) {
         parts[key] = []
@@ -398,11 +402,14 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                 return
             }
 
+            // Compare like with like: the painted option includes the layout
+            // defaults, so the incoming one must as well.
+            const nextBase = merge({}, layoutDefaults(options), options)
             const restructured =
                 this.baseOptions !== null &&
                 structureSignature(this.baseOptions) !==
-                    structureSignature(options)
-            this.baseOptions = merge({}, layoutDefaults(options), options)
+                    structureSignature(nextBase)
+            this.baseOptions = nextBase
             // `replaceMerge` swaps the series list wholesale: a plain merge
             // matches series by index, so going from six series to two left
             // the four extra ones drawn (and in the legend) from the old data.
