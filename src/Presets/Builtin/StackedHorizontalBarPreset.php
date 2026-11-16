@@ -22,10 +22,16 @@ final class StackedHorizontalBarPreset extends CartesianPreset
 
     public function requirement(): string
     {
-        return self::BREAKDOWN;
+        return self::BREAKDOWN . '; with 2 dimensions the second one (the stacked series) must be single-valued';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    /** The stack on top of each x is the total of the second dimension (the series), so that one must add up. */
+    public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return $shape->dimensionCount() === 2 ? [1] : [];
+    }
+
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->acceptsBreakdown($shape);
     }

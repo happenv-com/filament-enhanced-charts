@@ -30,7 +30,7 @@ final class PolarBarPreset extends AbstractChartPreset
         return self::ONE_DIMENSION_ONE_MEASURE;
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 1, 1);
     }

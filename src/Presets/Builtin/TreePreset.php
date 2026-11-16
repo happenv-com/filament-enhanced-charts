@@ -29,10 +29,16 @@ final class TreePreset extends AbstractChartPreset
 
     public function requirement(): string
     {
-        return '1 to 3 dimensions (category, time or region; each nested inside the previous one, the first nearest the root) and 1 measure (the value of a leaf; a parent is the sum of its leaves)';
+        return '1 to 3 dimensions (category, time or region; each nested inside the previous one, the first nearest the root) and 1 measure (the value of a leaf; a parent is the sum of its leaves)' . self::SINGLE_VALUED_DIMENSIONS;
     }
 
-    public function accepts(DatasetShape $shape): bool
+    /** A parent node is the sum of its leaves, so every level partitions a total. */
+    public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return array_keys($shape->dimensions);
+    }
+
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() >= 1 && $shape->dimensionCount() <= 3 && $shape->measures === 1;
     }

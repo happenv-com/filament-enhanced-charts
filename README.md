@@ -407,6 +407,8 @@ $option = $presets->option('stacked-bar', $dataset); // an Option, ready for get
   Every preset that takes a category takes a region too (it is just a label there); only
   `world-map` and `flow-lines` need regions. **Measures** are the numbers (`int|float|null`). A row is
   keyed by dimension and measure names.
+- **Multi-valued dimensions.** A dimension may be marked `multiValued()`; presets that encode
+  part-of-whole then refuse it — see [Data semantics](#data-semantics-grain-and-multi-valued-dimensions).
 - **Measure roles.** A measure may carry a `MeasureRole` — `Min`, `Q1`, `Median`, `Q3`, `Max`, `Open`,
   `Close`, `Low`, `High` — naming the statistic it holds (`DatasetMeasure::withRole(MeasureRole::Median,
   'median', 'Median')`). `boxplot` needs exactly the five measures with the roles min, q1, median, q3,
@@ -455,26 +457,78 @@ class OrdersPerChannelChart extends EnhancedChartWidget
 }
 ```
 
+#### Data semantics: grain and multi-valued dimensions
+
+A `ChartDataset` is an aggregate: its rows are the measures summed per combination of dimension values.
+The **grain** is what one source record is — an order, an order line, a product. A dimension is
+**multi-valued** when one record of that grain carries *several* of its values: a product in several
+categories, an order with several tags. Grouping by such a dimension counts the record once per value,
+so the measure over that dimension is correct *per value* ("orders tagged `gift`") but the values
+**do not add up to the whole** (an order with two tags is in two rows). A chart that draws the rows as
+shares of a total — a pie, a stack — would show a total larger than the truth, so it would lie.
+
+Mark such a dimension where you build the dataset; nothing else changes:
+
+```php
+DatasetDimension::category('tag', 'Tag')->multiValued();   // fluent, on any dimension
+DatasetDimension::category('tag', 'Tag', multiValued: true); // or as an argument (also on region())
+new DatasetDimension('tag', 'Tag', multiValued: true);
+```
+
+The flag survives `toArray()` / `fromArray()` (it is written only when true, so a v1.5 array reads
+unchanged) and reaches the shape: `DatasetShape::hasMultiValuedDimension()`, `isMultiValuedAt($index)`,
+`$shape->multiValued` (the positions), `withMultiValued(...$indexes)`; `describe()` and `toArray()`
+mention it. `ChartPresets::accepting($shape)` and `catalog($shape)` then leave out every preset that
+**encodes part-of-whole along a multi-valued dimension**, and `option()` throws `ChartPresetException`
+for it, naming the dimension. A preset that merely compares values — `bar`, `grouped-bar`, `line`,
+`heatmap`, `radar`, … — keeps accepting it: each value is read on its own, nothing is summed across them.
+Only the dimension a chart *partitions by* matters: in `stacked-bar` the x axis may be multi-valued, the
+stacked dimension may not. Marking is the consumer's responsibility — the package cannot see your joins.
+
+| Preset | Partitions by | Why |
+| --- | --- | --- |
+| `pie`, `donut`, `rose` | the dimension | slices are the parts of one circle |
+| `funnel` | the dimension | steps are read as proportions of the top step |
+| `treemap`, `sunburst` | every dimension | a parent is the sum of its children, areas fill the whole |
+| `tree` | every dimension | each node carries the sum of the leaves below it |
+| `stacked-bar`, `stacked-horizontal-bar`, `stacked-area` | the second dimension (with 2 dimensions) | the stack height is the total of the series; the x axis is not summed |
+| `theme-river` | the category or region (not the time) | the stream is each category's share at a period |
+| `sankey` | both dimensions | node height is the flow through it and flow is conserved |
+| `chord` | both dimensions | an arc is as long as its ribbons sum to |
+| `graph` | both dimensions | a node is as large as its links sum to |
+
+Not part-of-whole, so never refused: every cartesian comparison (`bar`, `horizontal-bar`, `line`,
+`smooth-line`, `area`, `grouped-bar`, `multi-line`, `bar-line`, `pictorial-bar`, `polar-bar`), `heatmap`,
+`calendar-heatmap`, `radar`, `parallel`, `scatter`, `effect-scatter`, `boxplot`, `candlestick`,
+`gauge`, `world-map` and `flow-lines` (each cell, point or country is read alone). Stacking several
+*measures* of one dimension is a different thing from partitioning by a dimension and is not refused.
+
+A custom preset extending `AbstractChartPreset` encodes no part-of-whole unless it overrides
+`partitioningDimensions(DatasetShape): array` (the positions it adds up by); the registry and
+`option()` then refuse a multi-valued one for it too, even if it overrides `accepts()` itself. This is
+a separate `EncodesPartOfWhole` interface rather than a new method on `ChartPreset`, so an existing
+`ChartPreset` implementation keeps compiling and behaves as before.
+
 **Built-in presets**
 
 | Preset | Requirement |
 | --- | --- |
-| `pie`, `donut`, `rose`, `funnel` | 1 dimension (category, time or region) and 1 measure — a named slice per dimension value |
+| `pie`, `donut`, `rose`, `funnel` | 1 single-valued dimension (category, time or region) and 1 measure — a named slice per dimension value |
 | `polar-bar` | 1 dimension and 1 measure — bars around a circle |
 | `pictorial-bar` | 1 dimension and 1 measure — a bar chart whose bars are stacks of rounded pills (a built-in symbol, no image) |
 | `bar`, `horizontal-bar`, `line`, `smooth-line`, `area` | 1 dimension and 1 or more measures — one series per measure; a value axis per unit |
 | `bar-line` | 1 dimension and 2 or more measures — the first measure (or, with several units, the first unit's measures) as bars, the rest as lines; a value axis per unit |
-| `grouped-bar`, `stacked-bar`, `stacked-horizontal-bar`, `multi-line`, `stacked-area` | 2 dimensions (first on the x axis, second splits it into series) and 1 measure, or 1 dimension and 2 or more measures (a value axis per unit; stacks never mix units) |
+| `grouped-bar`, `stacked-bar`, `stacked-horizontal-bar`, `multi-line`, `stacked-area` | 2 dimensions (first on the x axis, second splits it into series; for the `stacked-*` ones the second must be single-valued) and 1 measure, or 1 dimension and 2 or more measures (a value axis per unit; stacks never mix units) |
 | `heatmap` | 2 dimensions (x, y) and 1 measure, with a visual map |
-| `sankey` | 2 dimensions (source, target) and 1 measure |
-| `graph` | 2 dimensions (source, target) and 1 measure — a force-directed network; link width is the measure, a node is as large as its links sum to |
-| `chord` | 2 dimensions (source, target) and 1 measure — ribbons between arcs around a circle |
-| `treemap`, `sunburst` | 1 or 2 dimensions (the second nested in the first) and 1 measure |
-| `tree` | 1 to 3 dimensions (each nested in the previous) and 1 measure — a tree under a root labelled by the measure; parents are the sum of their leaves |
+| `sankey` | 2 single-valued dimensions (source, target) and 1 measure |
+| `graph` | 2 single-valued dimensions (source, target) and 1 measure — a force-directed network; link width is the measure, a node is as large as its links sum to |
+| `chord` | 2 single-valued dimensions (source, target) and 1 measure — ribbons between arcs around a circle |
+| `treemap`, `sunburst` | 1 or 2 single-valued dimensions (the second nested in the first) and 1 measure |
+| `tree` | 1 to 3 single-valued dimensions (each nested in the previous) and 1 measure — a tree under a root labelled by the measure; parents are the sum of their leaves |
 | `radar` | 2 dimensions (axes, entities) and 1 measure, or 1 dimension (entities) and 3 or more measures (axes) |
 | `parallel` | 1 dimension (every value is a line) and 3 or more measures (one parallel axis per measure) |
 | `gauge` | no dimensions and 1 measure — a single value |
-| `theme-river` | 2 dimensions (1 time, 1 category or region) and 1 measure |
+| `theme-river` | 2 dimensions (1 time, 1 single-valued category or region) and 1 measure |
 | `calendar-heatmap` | 1 time dimension of days written `YYYY-MM-DD`, and 1 measure |
 | `scatter`, `effect-scatter` | 1 dimension (every row is a point named by it) and exactly 2 measures (x, y); the effect variant ripples |
 | `boxplot` | 1 dimension and exactly 5 measures with the roles `min`, `q1`, `median`, `q3`, `max` |
@@ -502,7 +556,9 @@ for borders, and takes no position on disputed ones. Map presets are not availab
 **Registering your own preset**
 
 Implement `ChartPreset` (or extend `AbstractChartPreset`, which checks `accepts()` for you) and
-register it from a service provider. A name registered twice replaces the earlier preset, so an app
+register it from a service provider. A preset that encodes part-of-whole also implements
+`EncodesPartOfWhole` (see [Data semantics](#data-semantics-grain-and-multi-valued-dimensions)); one that
+does not needs to know nothing of it. A name registered twice replaces the earlier preset, so an app
 can also override a built-in.
 
 ```php

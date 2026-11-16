@@ -30,7 +30,7 @@ final class HeatmapPreset extends AbstractChartPreset
         return '2 dimensions (category, time or region; the first on the x axis, the second on the y axis) and 1 measure';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 2 && $shape->measures === 1;
     }

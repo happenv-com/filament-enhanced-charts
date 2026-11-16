@@ -30,7 +30,7 @@ final class RadarPreset extends AbstractChartPreset
         return '2 dimensions (the first gives the axes, the second the compared entities) and 1 measure, or 1 dimension (the compared entities) and 3 or more measures (the axes)';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return ($shape->dimensionCount() === 2 && $shape->measures === 1)
             || $this->oneDimensionMeasures($shape, 3);

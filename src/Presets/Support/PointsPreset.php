@@ -27,7 +27,7 @@ abstract class PointsPreset extends AbstractChartPreset
         return '1 dimension (category, time or region; every row is a point named by it) and exactly 2 measures (x and y)';
     }
 
-    final public function accepts(DatasetShape $shape): bool
+    final protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 2, 2);
     }

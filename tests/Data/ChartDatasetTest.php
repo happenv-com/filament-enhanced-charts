@@ -206,3 +206,63 @@ it('upper-cases and trims region codes read leniently from rows', function (): v
 
     expect($dataset->labels('c'))->toBe(['PL', 'DE', ChartDataset::NULL_LABEL]);
 });
+
+it('round-trips a multi-valued dimension and writes the flag only when it is set', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('tag', 'Tag')->multiValued(), DatasetDimension::time('month', 'Month')],
+        [new DatasetMeasure('orders', 'Orders')],
+        [['tag' => 'gift', 'month' => 'Jan 2026', 'orders' => 3]],
+    );
+
+    $array = $dataset->toArray();
+    $restored = ChartDataset::fromArray(json_decode(json_encode($array, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR));
+
+    expect($array['dimensions'][0])->toBe(['name' => 'tag', 'label' => 'Tag', 'kind' => 'category', 'multiValued' => true])
+        ->and($array['dimensions'][1])->toBe(['name' => 'month', 'label' => 'Month', 'kind' => 'time'])
+        ->and($restored->toArray())->toBe($array)
+        ->and($restored->dimensions[0]->multiValued)->toBeTrue()
+        ->and($restored->dimensions[1]->multiValued)->toBeFalse()
+        ->and($restored->shape()->multiValued)->toBe([0])
+        ->and($restored->shape()->toArray()['multiValued'])->toBe([0]);
+});
+
+it('still reads a v1.5 dataset array that has no multiValued key', function (): void {
+    $restored = ChartDataset::fromArray([
+        'dimensions' => [['name' => 'channel', 'label' => 'Channel', 'kind' => 'category']],
+        'measures' => [['name' => 'orders', 'label' => 'Orders']],
+        'rows' => [['channel' => 'Allegro', 'orders' => 1]],
+    ]);
+
+    expect($restored->dimensions[0]->multiValued)->toBeFalse()
+        ->and($restored->shape()->hasMultiValuedDimension())->toBeFalse()
+        ->and($restored->shape()->toArray())->not->toHaveKey('multiValued');
+});
+
+it('rejects a multiValued flag that is not a boolean', function (): void {
+    expect(fn (): ChartDataset => ChartDataset::fromArray([
+        'dimensions' => [['name' => 'channel', 'label' => 'Channel', 'kind' => 'category', 'multiValued' => 'yes']],
+        'measures' => [['name' => 'orders', 'label' => 'Orders']],
+        'rows' => [],
+    ]))->toThrow(InvalidChartDataset::class, 'dimensions[0].multiValued');
+});
+
+it('marks a dimension multi-valued through the constructor, the named constructors and the fluent method', function (): void {
+    expect(new DatasetDimension('tag', 'Tag', multiValued: true)->multiValued)->toBeTrue()
+        ->and(DatasetDimension::category('tag', 'Tag', multiValued: true)->multiValued)->toBeTrue()
+        ->and(DatasetDimension::region('country', 'Country', multiValued: true)->multiValued)->toBeTrue()
+        ->and(DatasetDimension::category('tag', 'Tag')->multiValued)->toBeFalse()
+        ->and(DatasetDimension::category('tag', 'Tag')->multiValued()->multiValued)->toBeTrue()
+        ->and(DatasetDimension::category('tag', 'Tag', true)->multiValued(false)->multiValued)->toBeFalse();
+});
+
+it('exposes multi-valued dimensions on the shape per position and in its description', function (): void {
+    $shape = DatasetShape::of(1, DimensionKind::Time, DimensionKind::Category)->withMultiValued(1, 7);
+
+    expect($shape->hasMultiValuedDimension())->toBeTrue()
+        ->and($shape->isMultiValuedAt(0))->toBeFalse()
+        ->and($shape->isMultiValuedAt(1))->toBeTrue()
+        ->and($shape->multiValued)->toBe([1])
+        ->and($shape->withRoles(MeasureRole::Median)->multiValued)->toBe([1])
+        ->and($shape->describe())->toBe('2 dimensions (time, category (multi-valued)) and 1 measure')
+        ->and($shape->toArray())->toBe(['dimensions' => ['time', 'category'], 'measures' => 1, 'roles' => [], 'multiValued' => [1]]);
+});

@@ -16,13 +16,14 @@ use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
+use Happenv\FilamentEnhancedCharts\Presets\Support\PartOfWholeGuard;
 
 /**
  * Base for presets: guards `option()` with `accepts()` and carries the layout
  * defaults the built-ins share (scrolling legend, tooltips, a roomy cartesian
  * grid) so every chart looks right at ~400px in a narrow panel.
  */
-abstract class AbstractChartPreset implements ChartPreset
+abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole
 {
     protected const string ONE_DIMENSION_ONE_MEASURE = '1 dimension (category, time or region) and 1 measure';
 
@@ -30,17 +31,50 @@ abstract class AbstractChartPreset implements ChartPreset
 
     protected const string BREAKDOWN = '2 dimensions (the first on the x axis, the second splitting it into series) and 1 measure, or 1 dimension and 2 or more measures (measures with different units each get their own value axis and never stack together)';
 
+    /** Appended to a `requirement()` whose chart encodes part-of-whole; the dimension(s) it partitions by must not be multi-valued. */
+    protected const string SINGLE_VALUED = '; the dimension must be single-valued';
+
+    protected const string SINGLE_VALUED_DIMENSIONS = '; every dimension must be single-valued';
+
     /** The colours the series of a multi-axis chart are given explicitly, so an axis can match its series. */
     private const array PALETTE = ['#5070dd', '#b6d634', '#505372', '#ff994d', '#0ca8df', '#ffd10a', '#fb628b', '#785db0', '#3fbfb2'];
 
     /** Pixels between two value axes on the same side of a multi-axis chart. */
     private const int AXIS_STEP = 60;
 
+    /**
+     * Whether the shape is drawable: `acceptsStructure()` (the dimension kinds,
+     * measure count and roles) and, for a preset that encodes part-of-whole, no
+     * multi-valued dimension among `partitioningDimensions()`. A preset that
+     * overrides this itself still gets the second check in `option()` and in
+     * `ChartPresets::accepting()`.
+     */
+    public function accepts(DatasetShape $shape): bool
+    {
+        return $this->acceptsStructure($shape) && ! PartOfWholeGuard::refuses($this, $shape);
+    }
+
+    /**
+     * The shape check proper, apart from the multi-valued rule. Built-ins implement
+     * this; a preset that overrides `accepts()` instead may leave the default,
+     * which accepts nothing.
+     */
+    protected function acceptsStructure(DatasetShape $shape): bool
+    {
+        return false;
+    }
+
+    /** No part-of-whole by default; a preset that encodes one names the dimensions it partitions by. */
+    public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return [];
+    }
+
     final public function option(ChartDataset $dataset): Option
     {
         $shape = $dataset->shape();
 
-        if (! $this->accepts($shape)) {
+        if (! $this->accepts($shape) || PartOfWholeGuard::refuses($this, $shape)) {
             throw ChartPresetException::notAccepted($this, $shape);
         }
 

@@ -29,7 +29,7 @@ final class BarLinePreset extends AbstractChartPreset
         return '1 dimension (category, time or region) and 2 or more measures: the first measure is drawn as bars and the rest as lines; when the measures carry different units, the measures of the first unit are bars, those of every other unit lines, and each unit gets its own value axis';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 2);
     }

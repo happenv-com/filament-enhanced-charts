@@ -35,7 +35,7 @@ final class FlowLinesPreset extends FlowPreset
         return '2 region dimensions (ISO 3166-1 alpha-2 country codes; the first is the origin, the second the destination) and 1 measure';
     }
 
-    public function accepts(DatasetShape $shape): bool
+    protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $shape->dimensionCount() === 2
             && $shape->kindAt(0) === DimensionKind::Region

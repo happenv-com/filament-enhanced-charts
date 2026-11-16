@@ -8,6 +8,7 @@ use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
 use Happenv\FilamentEnhancedCharts\Data\DatasetShape;
 use Happenv\FilamentEnhancedCharts\Exceptions\ChartPresetException;
 use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Presets\Support\PartOfWholeGuard;
 
 /**
  * The registry of chart presets: the built-ins, plus whatever an app or plugin
@@ -73,6 +74,8 @@ final class ChartPresets
 
     /**
      * The presets that can draw a dataset of this shape, in registration order.
+     * A preset that encodes part-of-whole is left out when a dimension it
+     * partitions by is multi-valued, whatever its own `accepts()` says.
      *
      * @return list<ChartPreset>
      */
@@ -80,7 +83,7 @@ final class ChartPresets
     {
         return array_values(array_filter(
             $this->presets,
-            static fn (ChartPreset $preset): bool => $preset->accepts($shape),
+            static fn (ChartPreset $preset): bool => $preset->accepts($shape) && ! PartOfWholeGuard::refuses($preset, $shape),
         ));
     }
 

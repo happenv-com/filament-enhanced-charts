@@ -27,10 +27,16 @@ abstract class NamedSlicesPreset extends AbstractChartPreset
 
     final public function requirement(): string
     {
-        return self::ONE_DIMENSION_ONE_MEASURE;
+        return self::ONE_DIMENSION_ONE_MEASURE . self::SINGLE_VALUED;
     }
 
-    final public function accepts(DatasetShape $shape): bool
+    /** Slices are the parts of one whole, so the dimension that names them must add up to it. */
+    final public function partitioningDimensions(DatasetShape $shape): array
+    {
+        return [0];
+    }
+
+    final protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->oneDimensionMeasures($shape, 1, 1);
     }
