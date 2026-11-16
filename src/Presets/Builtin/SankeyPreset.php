@@ -14,6 +14,16 @@ use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
 
 final class SankeyPreset extends AbstractChartPreset
 {
+    /**
+     * Appended (invisibly) to a target-stage node name. The two dimensions are
+     * two stages, so "A" before and "A" after are different nodes; ECharts
+     * identifies a node by its name alone, and one shared node would turn
+     * A→B plus B→A into a cycle it cannot lay out. A marker already in a
+     * label is doubled first, so a source name always carries an even number
+     * of them and a target name an odd one — the two can never collide.
+     */
+    private const string TARGET_STAGE_MARK = "\u{200B}";
+
     public function name(): string
     {
         return 'sankey';
@@ -21,7 +31,7 @@ final class SankeyPreset extends AbstractChartPreset
 
     public function description(): string
     {
-        return 'Shows how a quantity flows from the values of one dimension (source) to the values of another (target), with link width proportional to the flow.';
+        return 'Shows how a quantity flows from the values of one dimension (source stage) to the values of another (target stage), with link width proportional to the flow.';
     }
 
     public function requirement(): string
@@ -42,8 +52,7 @@ final class SankeyPreset extends AbstractChartPreset
 
         $flows = [];
         foreach ($values as $row => $value) {
-            // A flow needs a positive size and two distinct ends: a node linked to itself is a cycle ECharts cannot lay out.
-            if ($value === null || $value <= 0 || $sources[$row] === $targets[$row]) {
+            if ($value === null || $value <= 0) {
                 continue;
             }
 
@@ -53,7 +62,8 @@ final class SankeyPreset extends AbstractChartPreset
         $links = [];
         foreach ($flows as $source => $targetFlows) {
             foreach ($targetFlows as $target => $value) {
-                $links[] = SankeyLink::make((string) $source, (string) $target, $value);
+                $target = (string) $target;
+                $links[] = SankeyLink::make($this->stageName((string) $source), $this->stageName($target) . self::TARGET_STAGE_MARK, $value);
             }
         }
 
@@ -68,5 +78,10 @@ final class SankeyPreset extends AbstractChartPreset
                     ->bottom(16)
                     ->emphasis(Emphasis::make()->focus('adjacency')),
             );
+    }
+
+    private function stageName(string $label): string
+    {
+        return str_replace(self::TARGET_STAGE_MARK, self::TARGET_STAGE_MARK . self::TARGET_STAGE_MARK, $label);
     }
 }
