@@ -2,6 +2,17 @@
 
 All notable changes to `filament-enhanced-charts` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.6.0 - 2026-11-16
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Other
+
+* feat: part-of-whole semantics for multi-valued dimensions by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/30
+
+**Full Changelog**: https://github.com/happenv-com/filament-enhanced-charts/compare/v1.5.0...v1.6.0
+
 ## v1.5.0 - 2026-11-16
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
