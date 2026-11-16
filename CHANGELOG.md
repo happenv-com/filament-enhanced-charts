@@ -2,6 +2,17 @@
 
 All notable changes to `filament-enhanced-charts` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.4.1 - 2026-11-16
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Other
+
+* fix(presets): preset switch on a mounted widget, negative gauge, sankey cycles by @webard in https://github.com/happenv-com/filament-enhanced-charts/pull/29
+
+**Full Changelog**: https://github.com/happenv-com/filament-enhanced-charts/compare/v1.4.0...v1.4.1
+
 ## v1.4.0 - 2026-11-16
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
