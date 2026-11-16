@@ -241,3 +241,45 @@ it('keeps a custom preset that overrides accepts() without opting in working on 
 
     expect($plain->option($dataset)->toArray()['series'][0]['type'])->toBe('pie');
 });
+
+it('refuses a multi-valued dataset in the registry for a preset implementing both interfaces directly', function (): void {
+    $direct = new class implements ChartPreset, EncodesPartOfWhole
+    {
+        public function name(): string
+        {
+            return 'direct-share';
+        }
+
+        public function description(): string
+        {
+            return 'Implements the contracts without the abstract base.';
+        }
+
+        public function requirement(): string
+        {
+            return '1 dimension and 1 measure; the dimension must be single-valued';
+        }
+
+        public function accepts(DatasetShape $shape): bool
+        {
+            return $shape->dimensionCount() === 1;
+        }
+
+        public function partitioningDimensions(DatasetShape $shape): array
+        {
+            return [0];
+        }
+
+        public function option(ChartDataset $dataset): Option
+        {
+            return Option::make()->series(PieSeries::make());
+        }
+    };
+    $registry = (new ChartPresets)->register($direct);
+    $rows = [['tag' => 'gift', 'orders' => 1]];
+    $single = new ChartDataset([DatasetDimension::category('tag', 'Tag')], [new DatasetMeasure('orders', 'Orders')], $rows);
+    $multi = new ChartDataset([DatasetDimension::category('tag', 'Tag', multiValued: true)], [new DatasetMeasure('orders', 'Orders')], $rows);
+
+    expect($registry->option('direct-share', $single)->toArray()['series'][0]['type'])->toBe('pie')
+        ->and(fn (): Option => $registry->option('direct-share', $multi))->toThrow(ChartPresetException::class, 'direct-share');
+});

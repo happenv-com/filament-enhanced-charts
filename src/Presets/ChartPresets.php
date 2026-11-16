@@ -111,7 +111,15 @@ final class ChartPresets
      */
     public function option(string $name, ChartDataset $dataset): Option
     {
-        return $this->get($name)->option($dataset);
+        $preset = $this->get($name);
+        $shape = $dataset->shape();
+
+        // A preset implementing the interfaces directly has no guard of its own; refuse here what accepting() leaves out.
+        if (PartOfWholeGuard::refuses($preset, $shape)) {
+            throw ChartPresetException::notAccepted($preset, $shape);
+        }
+
+        return $preset->option($dataset);
     }
 
     /** @return list<ChartPreset> */
