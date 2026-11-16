@@ -30,8 +30,8 @@ final class StackedBarPreset extends CartesianPreset
         return $this->acceptsBreakdown($shape);
     }
 
-    protected function series(string $name, array $values): BarSeries
+    protected function series(string $name, array $values, int $axis = 0): BarSeries
     {
-        return BarSeries::make()->name($name)->stack('total')->data($values);
+        return BarSeries::make()->name($name)->stack($axis === 0 ? 'total' : 'total-' . $axis)->data($values);
     }
 }

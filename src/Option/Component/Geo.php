@@ -46,6 +46,9 @@ final class Geo implements Node
 
     private ?string $nameProperty = null;
 
+    /** @var array<string, string>|null */
+    private ?array $nameMap = null;
+
     /** @var array<int, string|int>|null */
     private ?array $layoutCenter = null;
 
@@ -127,6 +130,18 @@ final class Geo implements Node
         return $this;
     }
 
+    /**
+     * Renames the map's regions, `region name => display name`.
+     *
+     * @param  array<string, string>  $nameMap
+     */
+    public function nameMap(array $nameMap): self
+    {
+        $this->nameMap = $nameMap;
+
+        return $this;
+    }
+
     /** The data-item key that names a region when matching the registered map's GeoJSON features. */
     public function nameProperty(string $nameProperty): self
     {
@@ -199,6 +214,9 @@ final class Geo implements Node
         }
         if ($this->nameProperty !== null) {
             $geo['nameProperty'] = $this->nameProperty;
+        }
+        if ($this->nameMap !== null) {
+            $geo['nameMap'] = $this->nameMap;
         }
         if ($this->silent !== null) {
             $geo['silent'] = $this->silent;

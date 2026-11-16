@@ -23,9 +23,15 @@ class PresetChartTestWidget extends EnhancedChartWidget
 
     public bool $totalOnly = false;
 
+    public bool $perCountry = false;
+
     protected function getDataset(): ChartDataset
     {
-        return $this->totalOnly ? ChartDatasets::total() : ChartDatasets::perMonthPerChannel();
+        return match (true) {
+            $this->totalOnly => ChartDatasets::total(),
+            $this->perCountry => ChartDatasets::perCountry(),
+            default => ChartDatasets::perMonthPerChannel(),
+        };
     }
 
     protected function chartPreset(): string

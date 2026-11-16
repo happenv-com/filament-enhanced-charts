@@ -401,13 +401,33 @@ $presets->catalog($dataset->shape()); // [['name' => 'stacked-bar', 'description
 $option = $presets->option('stacked-bar', $dataset); // an Option, ready for getOption()
 ```
 
-- **Dimensions** split the rows (`category` labels, or `time` buckets — an *already formatted*
-  label such as `Jan 2026`; the cartesian presets never parse it as a date). **Measures** are the
-  numbers (`int|float|null`). A row is keyed by dimension and measure names.
+- **Dimensions** split the rows. A dimension has a *kind*: `category` labels, `time` buckets (an
+  *already formatted* label such as `Jan 2026`; the cartesian presets never parse it as a date) or
+  `region` — ISO 3166-1 alpha-2 country codes in uppercase (`PL`, `DE`; `DatasetDimension::region()`).
+  Every preset that takes a category takes a region too (it is just a label there); only
+  `world-map` and `flow-lines` need regions. **Measures** are the numbers (`int|float|null`). A row is
+  keyed by dimension and measure names.
+- **Measure roles.** A measure may carry a `MeasureRole` — `Min`, `Q1`, `Median`, `Q3`, `Max`, `Open`,
+  `Close`, `Low`, `High` — naming the statistic it holds (`DatasetMeasure::withRole(MeasureRole::Median,
+  'median', 'Median')`). `boxplot` needs exactly the five measures with the roles min, q1, median, q3,
+  max, and `candlestick` the four with open, close, low, high, in any order; the preset puts them in
+  the order ECharts reads. `DatasetShape` carries the roles (`roles`, `hasRole()`, `hasExactlyRoles()`),
+  so `accepting()` and `catalog()` stay truthful. A role is a description, not a restriction: every
+  other preset ignores roles and draws the measures as plain values, so a candlestick dataset still
+  draws as a `line`. A dataset uses each role at most once.
+- **Measure units.** A measure may carry a free-text `unit` (`new DatasetMeasure('revenue', 'Revenue',
+  unit: 'PLN')`; `PLN`, `pcs`, `%`, `views` — the package never interprets it). On the presets that
+  draw one series per measure, each *distinct* unit gets its own value axis: the first on the left,
+  the second on the right, further ones alternating sides with a growing offset (60&nbsp;px steps) and
+  more room in the grid. Each axis is named by its unit and takes the colour of its series when it
+  carries just one; the series carry the matching `yAxisIndex` (`xAxisIndex` for the horizontal
+  variants). Stacked variants stack within a unit only, never across units. A measure without a unit
+  counts as a scale of its own when others have one. The number of units never changes which presets
+  accept a dataset.
 - `ChartDataset::fromRows()` coerces query results (numeric strings, ints as labels); the
   constructor and `fromArray()` are strict. `toArray()` / `fromArray()` round-trip through JSON, so a
   dataset can be stored; `fromArray()` throws `InvalidChartDataset` on anything malformed.
-- `$dataset->shape()` is just the dimension kinds and the measure count; `ChartPresets::accepting($shape)`
+- `$dataset->shape()` is just the dimension kinds, the measure count and the measure roles; `ChartPresets::accepting($shape)`
   returns the presets that accept it, and `catalog()` the same as `name` / `description` /
   `requirement` data — what an AI needs to choose. A preset registered later shows up there with no
   change on the consumer's side.
@@ -439,22 +459,45 @@ class OrdersPerChannelChart extends EnhancedChartWidget
 
 | Preset | Requirement |
 | --- | --- |
-| `pie`, `donut`, `rose`, `funnel` | 1 dimension (category or time) and 1 measure — a named slice per dimension value |
+| `pie`, `donut`, `rose`, `funnel` | 1 dimension (category, time or region) and 1 measure — a named slice per dimension value |
 | `polar-bar` | 1 dimension and 1 measure — bars around a circle |
-| `bar`, `horizontal-bar`, `line`, `smooth-line`, `area` | 1 dimension and 1 or more measures — one series per measure |
-| `grouped-bar`, `stacked-bar`, `stacked-horizontal-bar`, `multi-line`, `stacked-area` | 2 dimensions (first on the x axis, second splits it into series) and 1 measure, or 1 dimension and 2 or more measures |
+| `pictorial-bar` | 1 dimension and 1 measure — a bar chart whose bars are stacks of rounded pills (a built-in symbol, no image) |
+| `bar`, `horizontal-bar`, `line`, `smooth-line`, `area` | 1 dimension and 1 or more measures — one series per measure; a value axis per unit |
+| `bar-line` | 1 dimension and 2 or more measures — the first measure (or, with several units, the first unit's measures) as bars, the rest as lines; a value axis per unit |
+| `grouped-bar`, `stacked-bar`, `stacked-horizontal-bar`, `multi-line`, `stacked-area` | 2 dimensions (first on the x axis, second splits it into series) and 1 measure, or 1 dimension and 2 or more measures (a value axis per unit; stacks never mix units) |
 | `heatmap` | 2 dimensions (x, y) and 1 measure, with a visual map |
 | `sankey` | 2 dimensions (source, target) and 1 measure |
+| `graph` | 2 dimensions (source, target) and 1 measure — a force-directed network; link width is the measure, a node is as large as its links sum to |
+| `chord` | 2 dimensions (source, target) and 1 measure — ribbons between arcs around a circle |
 | `treemap`, `sunburst` | 1 or 2 dimensions (the second nested in the first) and 1 measure |
+| `tree` | 1 to 3 dimensions (each nested in the previous) and 1 measure — a tree under a root labelled by the measure; parents are the sum of their leaves |
 | `radar` | 2 dimensions (axes, entities) and 1 measure, or 1 dimension (entities) and 3 or more measures (axes) |
+| `parallel` | 1 dimension (every value is a line) and 3 or more measures (one parallel axis per measure) |
 | `gauge` | no dimensions and 1 measure — a single value |
-| `theme-river` | 2 dimensions (1 time, 1 category) and 1 measure |
+| `theme-river` | 2 dimensions (1 time, 1 category or region) and 1 measure |
 | `calendar-heatmap` | 1 time dimension of days written `YYYY-MM-DD`, and 1 measure |
-| `scatter` | 1 dimension (every row is a point named by it) and exactly 2 measures (x, y) |
+| `scatter`, `effect-scatter` | 1 dimension (every row is a point named by it) and exactly 2 measures (x, y); the effect variant ripples |
+| `boxplot` | 1 dimension and exactly 5 measures with the roles `min`, `q1`, `median`, `q3`, `max` |
+| `candlestick` | 1 time dimension and exactly 4 measures with the roles `open`, `close`, `low`, `high` |
+| `world-map` | 1 region dimension and 1 measure — a choropleth of countries with a visual map |
+| `flow-lines` | 2 region dimensions (from, to) and 1 measure — animated lines between countries on the world map |
 
-Series that need data an aggregation cannot produce — candlestick, boxplot, graph, tree with
-explicit links, lines, map, parallel, custom, pictorialBar, effectScatter, chord — have no preset;
-build them with `getOption()` and the typed series builders.
+The flow presets (`sankey`, `graph`, `chord`, `flow-lines`) drop a null, zero or negative flow and a
+flow from a node to itself, and sum repeated pairs. `boxplot`, `candlestick` and `parallel` leave out
+a row that lacks one of its values rather than draw it wrongly. `custom` has no preset on purpose:
+its `renderItem` is JavaScript code, not data, and an option an AI wrote must never carry
+executable code — use `getOption()` and the typed `CustomSeries` for it.
+
+**The world map.** `world-map` and `flow-lines` draw on a simplified world map shipped with the
+package (about 160&nbsp;KB, built from [Natural Earth](https://www.naturalearthdata.com/) 1:110m
+countries, public domain — see `NOTICE`; regions are keyed by ISO alpha-2 code and named in the app
+locale through `intl`, in English where it has no name). It is a Filament asset
+(`filament-enhanced-charts-map-world`) that a page requests only when a chart's option uses the map:
+`HasChartPreset` supplies it through `getMaps()` by itself, and anything else can ask
+`ChartMaps::for($option)` for the `name => URL` pairs (an empty array for a chart that draws no map)
+and pass them as `maps` to the chart component. Run `php artisan filament:assets` after upgrading, as
+for any Filament asset. Codes the map lacks (small states) are skipped; the map is for orientation, not
+for borders, and takes no position on disputed ones. Map presets are not available in table-cell charts.
 
 **Registering your own preset**
 

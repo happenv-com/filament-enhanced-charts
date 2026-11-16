@@ -22,7 +22,7 @@ abstract class HierarchyPreset extends AbstractChartPreset
 
     final public function requirement(): string
     {
-        return '1 or 2 dimensions (category or time; the second is nested inside the first) and 1 measure';
+        return '1 or 2 dimensions (category, time or region; the second is nested inside the first) and 1 measure';
     }
 
     final public function accepts(DatasetShape $shape): bool

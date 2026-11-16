@@ -36,8 +36,8 @@ final class StackedAreaPreset extends CartesianPreset
         return CategoryAxis::make()->boundaryGap(false);
     }
 
-    protected function series(string $name, array $values): LineSeries
+    protected function series(string $name, array $values, int $axis = 0): LineSeries
     {
-        return LineSeries::make()->name($name)->stack('total')->areaStyle()->data($values);
+        return LineSeries::make()->name($name)->stack($axis === 0 ? 'total' : 'total-' . $axis)->areaStyle()->data($values);
     }
 }

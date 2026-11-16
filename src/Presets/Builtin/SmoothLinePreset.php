@@ -30,7 +30,7 @@ final class SmoothLinePreset extends CartesianPreset
         return $this->oneDimensionMeasures($shape);
     }
 
-    protected function series(string $name, array $values): LineSeries
+    protected function series(string $name, array $values, int $axis = 0): LineSeries
     {
         return LineSeries::make()->name($name)->smooth()->data($values);
     }

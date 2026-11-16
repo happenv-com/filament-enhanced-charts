@@ -6,6 +6,7 @@ namespace Happenv\FilamentEnhancedCharts\Data;
 
 use BcMath\Number;
 use Happenv\FilamentEnhancedCharts\Enums\DimensionKind;
+use Happenv\FilamentEnhancedCharts\Enums\MeasureRole;
 use Happenv\FilamentEnhancedCharts\Exceptions\InvalidChartDataset;
 use Stringable;
 
@@ -28,7 +29,11 @@ use Stringable;
  *
  * The constructor and `fromArray()` are strict (consumers persist the dataset
  * as JSON and must get the same value back); `fromRows()` is the lenient entry
- * point for query results (numeric strings, ints as labels).
+ * point for query results (numeric strings, ints as labels, region codes in
+ * any case).
+ *
+ * A measure may carry a `MeasureRole` (a boxplot's `median`, a candlestick's
+ * `close`) and a free-text `unit` (`PLN`, `pcs`); a `Region` dimension holds uppercase ISO 3166-1 alpha-2 codes.
  *
  * @phpstan-type Row array<string, string|int|float|null>
  * @phpstan-type Series array{name: string, values: list<int|float|null>}
@@ -39,6 +44,8 @@ final readonly class ChartDataset
     public const string NULL_LABEL = '—';
 
     private const string NAME_PATTERN = '/^[A-Za-z_][A-Za-z0-9_\-]*$/';
+
+    private const string REGION_PATTERN = '/^[A-Z]{2}$/';
 
     /** @var list<DatasetDimension> */
     public array $dimensions;
@@ -71,6 +78,18 @@ final readonly class ChartDataset
             $names[$column->name] = true;
         }
 
+        $roles = [];
+        foreach ($measures as $measure) {
+            if (! $measure->role instanceof MeasureRole) {
+                continue;
+            }
+
+            if (isset($roles[$measure->role->value])) {
+                throw InvalidChartDataset::at('measures', "the role [{$measure->role->value}] is carried by more than one measure");
+            }
+            $roles[$measure->role->value] = true;
+        }
+
         $this->dimensions = $dimensions;
         $this->measures = $measures;
         $this->rows = $this->validatedRows(array_values($rows));
@@ -94,11 +113,13 @@ final readonly class ChartDataset
 
             foreach ($dimensions as $dimension) {
                 $value = data_get($row, $dimension->name);
-                $item[$dimension->name] = match (true) {
+                $value = match (true) {
                     $value === null, is_string($value) => $value,
                     is_int($value), is_float($value), $value instanceof Stringable => (string) $value,
                     default => throw InvalidChartDataset::at("rows[{$index}].{$dimension->name}", 'a dimension value must be a string or null'),
                 };
+
+                $item[$dimension->name] = $value !== null && $dimension->kind === DimensionKind::Region ? strtoupper(trim($value)) : $value;
             }
 
             foreach ($measures as $measure) {
@@ -135,7 +156,7 @@ final readonly class ChartDataset
 
             $kind = is_string($item['kind']) ? DimensionKind::tryFrom($item['kind']) : null;
             if (! $kind instanceof DimensionKind) {
-                throw InvalidChartDataset::at("{$path}.kind", 'must be one of [category, time]');
+                throw InvalidChartDataset::at("{$path}.kind", 'must be one of [' . implode(', ', array_column(DimensionKind::cases(), 'value')) . ']');
             }
 
             $dimensions[] = new DatasetDimension(
@@ -149,11 +170,26 @@ final readonly class ChartDataset
         foreach (self::listAt($data, 'measures') as $index => $item) {
             $path = "measures[{$index}]";
             $item = self::arrayAt($item, $path);
-            self::assertKeys($item, ['name', 'label'], $path);
+            self::assertKeys($item, ['name', 'label'], $path, ['role', 'unit']);
+
+            $role = null;
+            if (array_key_exists('role', $item)) {
+                $role = is_string($item['role']) ? MeasureRole::tryFrom($item['role']) : null;
+                if (! $role instanceof MeasureRole) {
+                    throw InvalidChartDataset::at("{$path}.role", 'must be one of [' . implode(', ', array_column(MeasureRole::cases(), 'value')) . ']');
+                }
+            }
+
+            $unit = null;
+            if (array_key_exists('unit', $item)) {
+                $unit = self::stringAt($item, 'unit', $path);
+            }
 
             $measures[] = new DatasetMeasure(
                 self::stringAt($item, 'name', $path),
                 self::stringAt($item, 'label', $path),
+                $role,
+                $unit,
             );
         }
 
@@ -169,7 +205,7 @@ final readonly class ChartDataset
     /**
      * @return array{
      *     dimensions: list<array{name: string, label: string, kind: string}>,
-     *     measures: list<array{name: string, label: string}>,
+     *     measures: list<array{name: string, label: string, role?: string, unit?: string}>,
      *     rows: list<Row>,
      * }
      */
@@ -187,6 +223,7 @@ final readonly class ChartDataset
         return new DatasetShape(
             array_map(static fn (DatasetDimension $dimension): DimensionKind => $dimension->kind, $this->dimensions),
             count($this->measures),
+            array_values(array_filter(array_map(static fn (DatasetMeasure $measure): ?MeasureRole => $measure->role, $this->measures))),
         );
     }
 
@@ -215,6 +252,30 @@ final readonly class ChartDataset
         }
 
         throw InvalidChartDataset::at('measures', "there is no measure [{$name}]");
+    }
+
+    /** The measure carrying a role, or `null` when no measure does. */
+    public function measureWithRole(MeasureRole $role): ?DatasetMeasure
+    {
+        foreach ($this->measures as $measure) {
+            if ($measure->role === $role) {
+                return $measure;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The values of the measure carrying a role, in row order.
+     *
+     * @return list<int|float|null>
+     */
+    public function valuesOfRole(MeasureRole $role): array
+    {
+        $measure = $this->measureWithRole($role) ?? throw InvalidChartDataset::at('measures', "no measure carries the role [{$role->value}]");
+
+        return $this->values($measure->name);
     }
 
     /**
@@ -353,6 +414,10 @@ final readonly class ChartDataset
             ...array_map(static fn (DatasetMeasure $measure): string => $measure->name, $this->measures),
         ];
         $dimensionNames = array_map(static fn (DatasetDimension $dimension): string => $dimension->name, $this->dimensions);
+        $regionNames = array_map(
+            static fn (DatasetDimension $dimension): string => $dimension->name,
+            array_filter($this->dimensions, static fn (DatasetDimension $dimension): bool => $dimension->kind === DimensionKind::Region),
+        );
 
         $validated = [];
         foreach ($rows as $index => $row) {
@@ -382,6 +447,10 @@ final readonly class ChartDataset
                     if ($value !== null && ! is_string($value)) {
                         throw InvalidChartDataset::at("{$path}.{$name}", 'a dimension value must be a string or null');
                     }
+
+                    if ($value !== null && in_array($name, $regionNames, true) && preg_match(self::REGION_PATTERN, $value) !== 1) {
+                        throw InvalidChartDataset::at("{$path}.{$name}", "a region value must be an uppercase ISO 3166-1 alpha-2 country code such as [PL], got [{$value}]");
+                    }
                 } elseif ($value !== null && ! is_int($value) && (! is_float($value) || ! is_finite($value))) {
                     throw InvalidChartDataset::at("{$path}.{$name}", 'a measure value must be a finite int, float or null');
                 }
@@ -398,12 +467,13 @@ final readonly class ChartDataset
     /**
      * @param  array<mixed>  $data
      * @param  list<string>  $keys
+     * @param  list<string>  $optional
      */
-    private static function assertKeys(array $data, array $keys, string $path): void
+    private static function assertKeys(array $data, array $keys, string $path, array $optional = []): void
     {
         $actual = array_map(strval(...), array_keys($data));
         $missing = array_diff($keys, $actual);
-        $unknown = array_diff($actual, $keys);
+        $unknown = array_diff($actual, $keys, $optional);
 
         if ($missing !== [] || $unknown !== []) {
             throw InvalidChartDataset::at($path, sprintf(

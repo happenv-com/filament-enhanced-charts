@@ -16,6 +16,13 @@ const entries = [
     { in: 'resources/js/index.js', out: 'filament-enhanced-charts' },
     // The table column's Alpine component (charts inside table cells).
     { in: 'resources/js/column.js', out: 'filament-enhanced-charts-column' },
+    // The simplified world map (GeoJSON) for the world-map and flow-lines
+    // presets. Registered as an Alpine component asset only so Filament
+    // publishes it; it is imported on demand by a chart that uses it.
+    {
+        in: 'resources/js/maps/world.js',
+        out: 'filament-enhanced-charts-map-world',
+    },
 ]
 
 const isDev = process.argv.includes('--dev')

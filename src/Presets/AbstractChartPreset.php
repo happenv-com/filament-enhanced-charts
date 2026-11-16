@@ -15,6 +15,7 @@ use Happenv\FilamentEnhancedCharts\Option\Component\Legend;
 use Happenv\FilamentEnhancedCharts\Option\Component\Tooltip;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
+use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 
 /**
  * Base for presets: guards `option()` with `accepts()` and carries the layout
@@ -23,11 +24,17 @@ use Happenv\FilamentEnhancedCharts\Option\Series\Series;
  */
 abstract class AbstractChartPreset implements ChartPreset
 {
-    protected const string ONE_DIMENSION_ONE_MEASURE = '1 dimension (category or time) and 1 measure';
+    protected const string ONE_DIMENSION_ONE_MEASURE = '1 dimension (category, time or region) and 1 measure';
 
-    protected const string ONE_DIMENSION_MEASURES = '1 dimension (category or time) and 1 or more measures (one series per measure)';
+    protected const string ONE_DIMENSION_MEASURES = '1 dimension (category, time or region) and 1 or more measures (one series per measure; measures with different units each get their own value axis)';
 
-    protected const string BREAKDOWN = '2 dimensions (the first on the x axis, the second splitting it into series) and 1 measure, or 1 dimension and 2 or more measures';
+    protected const string BREAKDOWN = '2 dimensions (the first on the x axis, the second splitting it into series) and 1 measure, or 1 dimension and 2 or more measures (measures with different units each get their own value axis and never stack together)';
+
+    /** The colours the series of a multi-axis chart are given explicitly, so an axis can match its series. */
+    private const array PALETTE = ['#5070dd', '#b6d634', '#505372', '#ff994d', '#0ca8df', '#ffd10a', '#fb628b', '#785db0', '#3fbfb2'];
+
+    /** Pixels between two value axes on the same side of a multi-axis chart. */
+    private const int AXIS_STEP = 60;
 
     final public function option(ChartDataset $dataset): Option
     {
@@ -64,12 +71,28 @@ abstract class AbstractChartPreset implements ChartPreset
      * tooltip, and a scrolling legend when it carries more than one series.
      *
      * @param  list<Series>  $series
+     * @param  list<ValueAxis>  $valueAxes  from `unitAxes()`; empty for the single default value axis
      */
-    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false): Option
+    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false, array $valueAxes = []): Option
     {
+        $axes = count($valueAxes) > 1 ? $valueAxes : [ValueAxis::make()];
+
+        // Axes alternate between the two sides, the third and later ones stepping further out; give the plot room for them.
+        $near = (int) ceil(count($axes) / 2);
+        $far = intdiv(count($axes), 2);
+        $extraNear = max(0, $near - 1) * self::AXIS_STEP;
+        $extraFar = max(0, $far - 1) * self::AXIS_STEP;
+
+        $grid = Grid::make()->containLabel()->left(8)->right(16)->bottom(8)->top(count($series) > 1 ? 44 : 16);
+        if (count($axes) > 1) {
+            $horizontal
+                ? $grid->bottom(8 + (int) ($extraNear / 2))->top(44 + (int) ($extraFar / 2) + 16)
+                : $grid->left(8 + $extraNear)->right(16 + $extraFar + 8);
+        }
+
         $option = Option::make()
             ->tooltip($this->axisTooltip())
-            ->grid(Grid::make()->containLabel()->left(8)->right(16)->bottom(8)->top(count($series) > 1 ? 44 : 16))
+            ->grid($grid)
             ->series(...$series);
 
         if (count($series) > 1) {
@@ -77,8 +100,74 @@ abstract class AbstractChartPreset implements ChartPreset
         }
 
         return $horizontal
-            ? $option->xAxis(ValueAxis::make())->yAxis($categories->inverse())
-            : $option->xAxis($categories)->yAxis(ValueAxis::make());
+            ? $option->xAxis(...$axes)->yAxis($categories->inverse())
+            : $option->xAxis($categories)->yAxis(...$axes);
+    }
+
+    /**
+     * The distinct units of a set of series, in order of first appearance.
+     *
+     * @param  list<array{unit: string|null}>  $series
+     * @return list<string|null>
+     */
+    protected function unitGroups(array $series): array
+    {
+        $units = [];
+        foreach ($series as $item) {
+            if (! in_array($item['unit'], $units, true)) {
+                $units[] = $item['unit'];
+            }
+        }
+
+        return $units;
+    }
+
+    /** The colour a series of a multi-axis chart is drawn in. */
+    protected function seriesColor(int $index): string
+    {
+        return self::PALETTE[$index % count(self::PALETTE)];
+    }
+
+    /**
+     * One value axis per unit: the first on the left (below, when horizontal),
+     * the second on the right (above), the next ones alternating with a growing
+     * `offset`. Each is named by its unit and takes the colour of its series
+     * when it carries just one. Returns `[]` for a single unit, which keeps the
+     * one plain value axis.
+     *
+     * @param  list<string|null>  $units  from `unitGroups()`
+     * @param  list<string|null>  $seriesUnits  the unit of every series, in series order
+     * @return list<ValueAxis>
+     */
+    protected function unitAxes(array $units, array $seriesUnits, bool $horizontal): array
+    {
+        if (count($units) < 2) {
+            return [];
+        }
+
+        $axes = [];
+        foreach ($units as $index => $unit) {
+            $axis = ValueAxis::make()
+                ->position($horizontal ? ($index % 2 === 0 ? 'bottom' : 'top') : ($index % 2 === 0 ? 'left' : 'right'))
+                ->offset(intdiv($index, 2) * self::AXIS_STEP)
+                ->alignTicks();
+
+            if ($unit !== null) {
+                $axis->name($unit);
+            }
+
+            $carried = array_keys($seriesUnits, $unit, true);
+            if (count($carried) === 1) {
+                $color = $this->seriesColor($carried[0]);
+                $axis->axisLine(['show' => true, 'lineStyle' => ['color' => $color]])
+                    ->axisLabel(Label::make()->color($color))
+                    ->nameTextStyle(Label::make()->color($color));
+            }
+
+            $axes[] = $index > 0 ? $axis->splitLine(false) : $axis;
+        }
+
+        return $axes;
     }
 
     /**
@@ -126,7 +215,7 @@ abstract class AbstractChartPreset implements ChartPreset
      * the x axis; the second dimension (with one measure) or the measures (with
      * one dimension) become the series.
      *
-     * @return array{categories: list<string>, series: list<array{name: string, values: list<int|float|null>}>}
+     * @return array{categories: list<string>, series: list<array{name: string, values: list<int|float|null>, unit: string|null}>}
      */
     protected function breakdown(ChartDataset $dataset): array
     {
@@ -135,14 +224,17 @@ abstract class AbstractChartPreset implements ChartPreset
         if (count($dataset->dimensions) === 2) {
             return [
                 'categories' => $dataset->distinct($x),
-                'series' => $dataset->breakdown($x, $dataset->dimensions[1]->name, $dataset->measures[0]->name),
+                'series' => array_map(
+                    static fn (array $series): array => $series + ['unit' => null],
+                    $dataset->breakdown($x, $dataset->dimensions[1]->name, $dataset->measures[0]->name),
+                ),
             ];
         }
 
         return [
             'categories' => $dataset->labels($x),
             'series' => array_map(
-                static fn (DatasetMeasure $measure): array => ['name' => $measure->label, 'values' => $dataset->values($measure->name)],
+                static fn (DatasetMeasure $measure): array => ['name' => $measure->label, 'values' => $dataset->values($measure->name), 'unit' => $measure->unit],
                 $dataset->measures,
             ),
         ];

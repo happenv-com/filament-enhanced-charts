@@ -9,6 +9,7 @@ use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Happenv\FilamentEnhancedCharts\Commands\FilamentEnhancedChartsCommand;
 use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
+use Happenv\FilamentEnhancedCharts\Support\ChartMaps;
 use Happenv\FilamentEnhancedCharts\Testing\TestsFilamentEnhancedCharts;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
@@ -83,6 +84,9 @@ class FilamentEnhancedChartsServiceProvider extends PackageServiceProvider
         return [
             AlpineComponent::make('filament-enhanced-charts', __DIR__ . '/../resources/dist/filament-enhanced-charts.js'),
             AlpineComponent::make('filament-enhanced-charts-column', __DIR__ . '/../resources/dist/filament-enhanced-charts-column.js'),
+            // The world map (GeoJSON) of the world-map and flow-lines presets: never requested by a page unless a
+            // chart's option uses it (see Support\ChartMaps), so it costs nothing elsewhere.
+            AlpineComponent::make(ChartMaps::WORLD_ASSET, __DIR__ . '/../resources/dist/' . ChartMaps::WORLD_ASSET . '.js'),
             // Css::make('filament-enhanced-charts-styles', __DIR__ . '/../resources/dist/filament-enhanced-charts.css'),
             // Js::make('filament-enhanced-charts-scripts', __DIR__ . '/../resources/dist/filament-enhanced-charts.js'),
         ];

@@ -27,6 +27,12 @@ final readonly class DatasetDimension
         return new self($name, $label, DimensionKind::Time);
     }
 
+    /** Values are ISO 3166-1 alpha-2 country codes in uppercase (`PL`, `DE`). */
+    public static function region(string $name, string $label): self
+    {
+        return new self($name, $label, DimensionKind::Region);
+    }
+
     /** @return array{name: string, label: string, kind: string} */
     public function toArray(): array
     {

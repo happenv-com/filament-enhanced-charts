@@ -239,6 +239,18 @@ function structureSignature(options) {
 // which we've already fetched+registered so re-renders/polling don't refetch.
 const registeredMaps = new Set()
 
+// A map is either a GeoJSON file (`*.json` / `*.geojson`, fetched) or an ES
+// module whose default export is the GeoJSON — what the bundled world map
+// (`filament-enhanced-charts-map-world`) is, so it ships through Filament's
+// asset pipeline and loads only for a chart that uses it.
+async function loadMap(url) {
+    if (/\.(geo)?json(\?|#|$)/i.test(url)) {
+        const response = await fetch(url)
+        return response.json()
+    }
+    return (await import(/* webpackIgnore: true */ url)).default
+}
+
 export default function echarts({ options, chartId, renderer, maps, locale }) {
     let chart = null
     let resizeObserver = null
@@ -380,8 +392,10 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                     continue
                 }
                 try {
-                    const response = await fetch(this.maps[name])
-                    ApacheECharts.registerMap(name, await response.json())
+                    ApacheECharts.registerMap(
+                        name,
+                        await loadMap(this.maps[name]),
+                    )
                     registeredMaps.add(name)
                 } catch (e) {
                     // Soft-fail: the chart still renders, just without the geometry.

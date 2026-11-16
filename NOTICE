@@ -1,0 +1,24 @@
+filament-enhanced-charts
+Copyright (c) Happenv sp. z o.o. — MIT, see LICENSE.md
+
+This package bundles the following third-party material.
+
+World map (resources/geo/world-countries.json, resources/geo/countries.php,
+resources/dist/filament-enhanced-charts-map-world.js)
+  Derived from Natural Earth, "Admin 0 - Countries", 1:110m scale
+  (ne_110m_admin_0_countries, https://www.naturalearthdata.com/,
+  https://github.com/nvkelso/natural-earth-vector).
+  Licence: public domain — "All versions of Natural Earth raster + vector map
+  data ... are in the public domain. You may use the maps in any manner,
+  including modifying the content and design, electronic dissemination, and
+  offset printing." (https://www.naturalearthdata.com/about/terms-of-use/)
+  Changes: properties reduced to the ISO 3166-1 alpha-2 code (`iso`) and the
+  English name (`name`); coordinates rounded to two decimals; Northern Cyprus
+  merged into Cyprus and Somaliland into Somalia (they have no ISO code of
+  their own); Antarctica left out; label points kept as country centroids.
+  Natural Earth marks some borders as disputed; the map takes no position on
+  them.
+
+Apache ECharts (bundled into resources/dist)
+  Copyright 2017-present The Apache Software Foundation.
+  Licensed under the Apache License, Version 2.0.
