@@ -219,7 +219,7 @@ it('keeps a heatmap visual map valid when every cell is equal or there are no ce
         ->and(presetOptionArray('heatmap', $empty)['series'][0]['data'])->toBe([]);
 });
 
-it('draws a sankey from source to target and drops flows that cannot be drawn', function (): void {
+it('draws a sankey from source to target and drops flows without a positive size', function (): void {
     $dataset = new ChartDataset(
         [DatasetDimension::category('from', 'From'), DatasetDimension::category('to', 'To')],
         [new DatasetMeasure('n', 'N')],
@@ -235,8 +235,28 @@ it('draws a sankey from source to target and drops flows that cannot be drawn', 
     $series = presetOptionArray('sankey', $dataset)['series'][0];
 
     expect($series['type'])->toBe('sankey')
-        ->and($series['links'])->toBe([['source' => 'A', 'target' => 'B', 'value' => 5]])
-        ->and($series['data'])->toBe([['name' => 'A'], ['name' => 'B']]);
+        ->and($series['links'])->toBe([
+            ['source' => 'A', 'target' => "B\u{200B}", 'value' => 5],
+            ['source' => 'A', 'target' => "A\u{200B}", 'value' => 9],
+        ])
+        ->and($series['data'])->toBe([['name' => 'A'], ['name' => "B\u{200B}"], ['name' => "A\u{200B}"]]);
+});
+
+it('gives a sankey node a separate identity per stage so opposite flows are not a cycle', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('from', 'From'), DatasetDimension::category('to', 'To')],
+        [new DatasetMeasure('n', 'N')],
+        [['from' => 'A', 'to' => 'B', 'n' => 3], ['from' => 'B', 'to' => 'A', 'n' => 4]],
+    );
+
+    $series = presetOptionArray('sankey', $dataset)['series'][0];
+    $names = array_column($series['data'], 'name');
+    $displayed = array_map(fn (string $name): string => str_replace("\u{200B}", '', $name), $names);
+
+    expect($names)->toHaveCount(4)
+        ->and(array_unique($names))->toHaveCount(4)
+        ->and($displayed)->toBe(['A', 'B', 'B', 'A'])
+        ->and(array_intersect(array_column($series['links'], 'source'), array_column($series['links'], 'target')))->toBe([]);
 });
 
 it('nests the second dimension inside the first for treemap and sunburst', function (string $name): void {
@@ -304,6 +324,22 @@ it('shows a gauge with headroom above the value', function (int | float $value, 
     'hundreds' => [120, 200],
     'fraction' => [0.4, 0.5],
     'zero' => [0, 1],
+    'below one' => [0.3, 0.5],
+    'thousands' => [1234, 2000],
+]);
+
+it('shows a gauge of a negative value on a scale that contains it', function (int | float $value, int | float $min): void {
+    $dataset = new ChartDataset([], [new DatasetMeasure('n', 'Orders')], [['n' => $value]]);
+
+    $series = presetOptionArray('gauge', $dataset)['series'][0];
+
+    expect($series['min'])->toEqual($min)
+        ->and($series['max'])->toBe(0);
+})->with([
+    'tens' => [-50, -50],
+    'between' => [-73, -100],
+    'fraction' => [-0.3, -0.5],
+    'thousands' => [-1234, -2000],
 ]);
 
 it('shows a gauge of an empty dataset as zero and refuses more than one row', function (): void {

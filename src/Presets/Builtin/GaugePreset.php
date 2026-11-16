@@ -21,7 +21,7 @@ final class GaugePreset extends AbstractChartPreset
 
     public function description(): string
     {
-        return 'Shows a single number as a dial, with a scale that leaves headroom above the value.';
+        return 'Shows a single number as a dial, with a scale that leaves headroom beyond the value (above it, or below it for a negative one).';
     }
 
     public function requirement(): string
@@ -43,14 +43,20 @@ final class GaugePreset extends AbstractChartPreset
         $measure = $dataset->measures[0];
         $value = $dataset->values($measure->name)[0] ?? 0;
 
+        // The dial always contains the value: a negative one runs from a nice
+        // negative minimum up to 0, a non-negative one from 0 up to a nice maximum.
+        [$min, $max] = $value < 0
+            ? [-$this->niceCeiling(-$value), 0]
+            : [0, $this->niceCeiling($value)];
+
         return Option::make()
             ->tooltip($this->itemTooltip())
             ->series(
                 GaugeSeries::make()
                     ->radius('88%')
                     ->center(['50%', '58%'])
-                    ->min(0)
-                    ->max($this->niceCeiling($value))
+                    ->min($min)
+                    ->max($max)
                     ->progress(['show' => true, 'width' => 14])
                     ->axisLineWidth(14)
                     ->detail(['fontSize' => 28, 'offsetCenter' => [0, '62%'], 'valueAnimation' => true])

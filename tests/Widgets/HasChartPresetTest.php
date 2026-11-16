@@ -50,3 +50,32 @@ it('renders a HasChartPreset widget under Livewire', function (): void {
         ->assertChartSeriesCount(2)
         ->assertChartHasSeries('bar');
 });
+
+it('hands a mounted widget the whole new structure when its preset changes', function (): void {
+    $dispatched = [];
+
+    livewire(PresetChartTestWidget::class)
+        ->set('preset', 'heatmap')
+        ->assertDispatched('updateOptions', function (string $name, array $params) use (&$dispatched): bool {
+            $dispatched[] = $params['options'];
+
+            return true;
+        })
+        ->set('preset', 'stacked-bar')
+        ->assertDispatched('updateOptions', function (string $name, array $params) use (&$dispatched): bool {
+            $dispatched[] = $params['options'];
+
+            return true;
+        });
+
+    $heatmap = $dispatched[0];
+    $stackedBar = end($dispatched);
+
+    // The client replaces the painted option when this structure changes, so the
+    // option sent for the new preset must itself be complete and free of the old one's parts.
+    expect($heatmap)->toHaveKey('visualMap')
+        ->and($heatmap['series'][0]['type'])->toBe('heatmap')
+        ->and($stackedBar)->not->toHaveKey('visualMap')
+        ->and($stackedBar['series'][0]['type'])->toBe('bar')
+        ->and($stackedBar['yAxis'])->not->toHaveKey('inverse');
+});

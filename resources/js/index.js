@@ -209,6 +209,28 @@ function valueAxisLabelWidth(chart, axisIndex, axisConfig) {
     }
 }
 
+// What a chart is made of, as opposed to what it shows: the component keys
+// present, the series types and each axis's type and direction. A refresh of the
+// same chart keeps this signature and is merged into the painted one (animated,
+// legend and zoom state kept); a different one — a preset switched on a mounted
+// widget — has to replace the whole option, or components the new chart does not
+// declare (a visualMap, an inverted axis, an old category list) would linger.
+function structureSignature(options) {
+    const axisKeys = ['xAxis', 'yAxis', 'angleAxis', 'radiusAxis', 'singleAxis']
+    const parts = {
+        keys: Object.keys(options)
+            .filter((key) => options[key] != null && key !== 'series')
+            .sort(),
+        series: [].concat(options.series || []).map((s) => s && s.type),
+    }
+    for (const key of axisKeys) {
+        parts[key] = []
+            .concat(options[key] || [])
+            .map((axis) => [axis && axis.type, axis && axis.inverse === true])
+    }
+    return JSON.stringify(parts)
+}
+
 // ECharts maps are registered globally by name via echarts.registerMap; track
 // which we've already fetched+registered so re-renders/polling don't refetch.
 const registeredMaps = new Set()
@@ -376,15 +398,22 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                 return
             }
 
+            const restructured =
+                this.baseOptions !== null &&
+                structureSignature(this.baseOptions) !==
+                    structureSignature(options)
             this.baseOptions = merge({}, layoutDefaults(options), options)
             // `replaceMerge` swaps the series list wholesale: a plain merge
             // matches series by index, so going from six series to two left
             // the four extra ones drawn (and in the legend) from the old data.
+            // A changed structure (another preset) replaces everything instead.
             chart.setOption(
                 reviveJs(
                     applyTheme(this.baseOptions, panelBackground(this.chartId)),
                 ),
-                { replaceMerge: ['series'] },
+                restructured
+                    ? { notMerge: true }
+                    : { replaceMerge: ['series'] },
             )
             this.tuneAxisNames()
         },
