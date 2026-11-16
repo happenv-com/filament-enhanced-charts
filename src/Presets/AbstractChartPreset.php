@@ -22,7 +22,7 @@ use Happenv\FilamentEnhancedCharts\Presets\Support\PartOfWholeGuard;
  * defaults the built-ins share (scrolling legend, tooltips, a roomy cartesian
  * grid) so every chart looks right at ~400px in a narrow panel.
  */
-abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole
+abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, StacksMeasures
 {
     protected const string ONE_DIMENSION_ONE_MEASURE = '1 dimension (category, time or region) and 1 measure';
 
@@ -67,6 +67,12 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole
     public function partitioningDimensions(DatasetShape $shape): array
     {
         return [];
+    }
+
+    /** No stacked measures by default; a preset that stacks them says for which shapes. */
+    public function stacksMeasures(DatasetShape $shape): bool
+    {
+        return false;
     }
 
     final public function option(ChartDataset $dataset): Option

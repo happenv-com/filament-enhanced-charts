@@ -344,7 +344,9 @@ final readonly class ChartDataset
      * A measure summed per distinct label of a dimension, in order of first
      * appearance (`null` when every contributing value is null). A non-additive
      * measure (a ratio, an average) is never summed: it throws when two rows share
-     * a label, so a total of it is never computed.
+     * a label, so a total of it is never computed. A semi-additive one (a stock
+     * level) is summed across categories only: it throws when the rows of a label
+     * differ in a time dimension.
      *
      * @return list<array{name: string, value: int|float|null}>
      */
@@ -355,6 +357,10 @@ final readonly class ChartDataset
 
         if ($this->measure($measure)->additivity === Additivity::NonAdditive && count(array_unique($labels)) < count($labels)) {
             throw InvalidChartDataset::at('measures', "the measure [{$measure}] is non-additive and cannot be summed per [{$dimension}]");
+        }
+
+        if ($this->measure($measure)->additivity === Additivity::SemiAdditive) {
+            $this->assertNotSummedAcrossTime($labels, $dimension, $measure);
         }
 
         $totals = [];
@@ -423,6 +429,29 @@ final readonly class ChartDataset
     {
         if (preg_match(self::NAME_PATTERN, $name) !== 1) {
             throw InvalidChartDataset::at($what . 's', "the {$what} name [{$name}] must start with a letter or underscore and contain only letters, digits, [_] and [-]");
+        }
+    }
+
+    /**
+     * @param  list<string>  $labels  the label of every row for `$dimension`
+     *
+     * @throws InvalidChartDataset when two rows with the same label carry different values of a time dimension
+     */
+    private function assertNotSummedAcrossTime(array $labels, string $dimension, string $measure): void
+    {
+        foreach ($this->dimensions as $time) {
+            if ($time->kind !== DimensionKind::Time || $time->name === $dimension) {
+                continue;
+            }
+
+            $seen = [];
+            foreach ($this->labels($time->name) as $index => $moment) {
+                if (($seen[$labels[$index]] ?? $moment) !== $moment) {
+                    throw InvalidChartDataset::at('measures', "the measure [{$measure}] is semi-additive and cannot be summed per [{$dimension}] across the time dimension [{$time->name}]");
+                }
+
+                $seen[$labels[$index]] = $moment;
+            }
         }
     }
 

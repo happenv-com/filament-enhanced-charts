@@ -12,6 +12,7 @@ use Happenv\FilamentEnhancedCharts\Exceptions\ChartPresetException;
 use Happenv\FilamentEnhancedCharts\Presets\ChartPreset;
 use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
 use Happenv\FilamentEnhancedCharts\Presets\EncodesPartOfWhole;
+use Happenv\FilamentEnhancedCharts\Presets\StacksMeasures;
 
 /**
  * The one place that decides whether a preset's part-of-whole encoding collides with the data: a multi-valued
@@ -25,28 +26,35 @@ final class PartOfWholeGuard
     /** Whether the preset partitions a total in a way this shape's dimensions or measures cannot support. */
     public static function refuses(ChartPreset $preset, DatasetShape $shape): bool
     {
-        if (! $preset instanceof EncodesPartOfWhole) {
-            return false;
-        }
+        $multiValued = $preset instanceof EncodesPartOfWhole
+            && array_any($preset->partitioningDimensions($shape), fn (int $index): bool => $shape->isMultiValuedAt($index));
 
-        return array_any($preset->partitioningDimensions($shape), fn (int $index): bool => $shape->isMultiValuedAt($index))
-            || self::unsummableMeasure($preset, $shape) !== null;
+        return $multiValued || self::unsummableMeasure($preset, $shape) !== null;
     }
 
     /**
-     * The first measure the preset would add up although it does not add up, and the time dimension it
-     * would add it up across (`null` for a non-additive measure, which adds up along no dimension); `null` when
+     * The first measure the preset would add up (across the dimensions it partitions by, or by stacking measures)
+     * although it does not add up, and the time dimension it would add it up across (`null` for a non-additive measure, which adds up along no dimension); `null` when
      * every measure is fine.
      *
      * @return array{measure: int, dimension: int|null}|null
      */
     public static function unsummableMeasure(ChartPreset $preset, DatasetShape $shape): ?array
     {
-        if (! $preset instanceof EncodesPartOfWhole || ! $shape->hasNonAdditiveMeasure()) {
+        if (! $shape->hasNonAdditiveMeasure()) {
             return null;
         }
 
-        $partitioning = $preset->partitioningDimensions($shape);
+        // Measures stacked into a total: a ratio or an average has no meaningful sum, whatever the dimensions.
+        if ($preset instanceof StacksMeasures && $preset->stacksMeasures($shape)) {
+            $stacked = array_search(Additivity::NonAdditive, $shape->additivity, true);
+
+            if ($stacked !== false) {
+                return ['measure' => $stacked, 'dimension' => null];
+            }
+        }
+
+        $partitioning = $preset instanceof EncodesPartOfWhole ? $preset->partitioningDimensions($shape) : [];
         if ($partitioning === []) {
             return null;
         }

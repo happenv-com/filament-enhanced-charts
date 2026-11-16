@@ -32,6 +32,12 @@ final class StackedAreaPreset extends CartesianPreset
         return $shape->dimensionCount() === 2 ? [1] : [];
     }
 
+    /** With one dimension the measures themselves are stacked, so their total must make sense. */
+    public function stacksMeasures(DatasetShape $shape): bool
+    {
+        return $shape->dimensionCount() === 1;
+    }
+
     protected function acceptsStructure(DatasetShape $shape): bool
     {
         return $this->acceptsBreakdown($shape);

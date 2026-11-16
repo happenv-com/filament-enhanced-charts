@@ -418,3 +418,17 @@ it('guards a custom preset that opts in and a direct implementation alike', func
     expect(fn (): Option => $custom->option($dataset))->toThrow(ChartPresetException::class, 'share-bar')
         ->and(fn (): Option => $registry->option('share-bar', $dataset))->toThrow(ChartPresetException::class, 'Margin %');
 });
+
+it('refuses stacking non-additive measures of one dimension, but not comparing them', function (string $name): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('channel', 'Channel')],
+        [new DatasetMeasure('margin', 'Margin %', unit: '%')->nonAdditive(), new DatasetMeasure('returns', 'Returns %', unit: '%')->nonAdditive()],
+        [['channel' => 'A', 'margin' => 10, 'returns' => 2]],
+    );
+    $registry = new ChartPresets;
+
+    expect($registry->get($name)->accepts($dataset->shape()))->toBeFalse()
+        ->and(fn (): Option => $registry->option($name, $dataset))->toThrow(ChartPresetException::class, 'Margin %')
+        ->and($registry->option('grouped-bar', $dataset))->toBeInstanceOf(Option::class)
+        ->and($registry->option('stacked-bar', new ChartDataset($dataset->dimensions, [new DatasetMeasure('margin', 'Margin %'), new DatasetMeasure('returns', 'Returns')], $dataset->rows)))->toBeInstanceOf(Option::class);
+})->with(['stacked-bar', 'stacked-horizontal-bar', 'stacked-area']);

@@ -315,3 +315,21 @@ it('never sums a non-additive measure into totals', function (): void {
         ->and(fn (): array => $ratio->totals('channel', 'margin'))->toThrow(InvalidChartDataset::class, 'non-additive')
         ->and($unique->totals('channel', 'margin'))->toBe([['name' => 'A', 'value' => 10], ['name' => 'B', 'value' => 30]]);
 });
+
+it('sums a semi-additive measure across categories but never across time', function (): void {
+    $dimensions = [DatasetDimension::category('warehouse', 'Warehouse'), DatasetDimension::time('month', 'Month')];
+    $measures = [new DatasetMeasure('stock', 'Stock')->semiAdditive()];
+    $acrossCategories = new ChartDataset($dimensions, $measures, [
+        ['warehouse' => 'A', 'month' => 'Jan', 'stock' => 10],
+        ['warehouse' => 'A', 'month' => 'Jan', 'stock' => 5],
+        ['warehouse' => 'B', 'month' => 'Feb', 'stock' => 7],
+    ]);
+    $acrossTime = new ChartDataset($dimensions, $measures, [
+        ['warehouse' => 'A', 'month' => 'Jan', 'stock' => 10],
+        ['warehouse' => 'A', 'month' => 'Feb', 'stock' => 20],
+    ]);
+
+    expect($acrossCategories->totals('warehouse', 'stock'))->toBe([['name' => 'A', 'value' => 15], ['name' => 'B', 'value' => 7]])
+        ->and($acrossCategories->totals('month', 'stock'))->toBe([['name' => 'Jan', 'value' => 15], ['name' => 'Feb', 'value' => 7]])
+        ->and(fn (): array => $acrossTime->totals('warehouse', 'stock'))->toThrow(InvalidChartDataset::class, 'across the time dimension [month]');
+});
