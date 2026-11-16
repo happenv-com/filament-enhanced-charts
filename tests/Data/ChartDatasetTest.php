@@ -7,6 +7,7 @@ use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
 use Happenv\FilamentEnhancedCharts\Data\DatasetDimension;
 use Happenv\FilamentEnhancedCharts\Data\DatasetMeasure;
 use Happenv\FilamentEnhancedCharts\Data\DatasetShape;
+use Happenv\FilamentEnhancedCharts\Enums\Additivity;
 use Happenv\FilamentEnhancedCharts\Enums\DimensionKind;
 use Happenv\FilamentEnhancedCharts\Enums\MeasureRole;
 use Happenv\FilamentEnhancedCharts\Exceptions\InvalidChartDataset;
@@ -265,4 +266,52 @@ it('exposes multi-valued dimensions on the shape per position and in its descrip
         ->and($shape->withRoles(MeasureRole::Median)->multiValued)->toBe([1])
         ->and($shape->describe())->toBe('2 dimensions (time, category (multi-valued)) and 1 measure')
         ->and($shape->toArray())->toBe(['dimensions' => ['time', 'category'], 'measures' => 1, 'roles' => [], 'multiValued' => [1]]);
+});
+
+it('round-trips measure additivity, writing it only when not additive, and reads an array that has none', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::time('month', 'Month')],
+        [new DatasetMeasure('orders', 'Orders'), new DatasetMeasure('margin', 'Margin %')->nonAdditive(), new DatasetMeasure('stock', 'Stock')->semiAdditive()],
+        [['month' => 'Jan', 'orders' => 1, 'margin' => 12.5, 'stock' => 7]],
+    );
+
+    $restored = ChartDataset::fromArray(json_decode(json_encode($dataset->toArray(), JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR));
+
+    expect($restored->toArray())->toBe($dataset->toArray())
+        ->and(array_map(static fn (DatasetMeasure $measure): Additivity => $measure->additivity, $restored->measures))
+        ->toBe([Additivity::Additive, Additivity::NonAdditive, Additivity::SemiAdditive])
+        ->and($dataset->toArray()['measures'][0])->not->toHaveKey('additivity')
+        ->and($dataset->toArray()['measures'][1]['additivity'])->toBe('non-additive')
+        ->and(ChartDataset::fromArray(['dimensions' => [], 'measures' => [['name' => 'a', 'label' => 'A']], 'rows' => []])->measures[0]->additivity)->toBe(Additivity::Additive)
+        ->and(fn (): ChartDataset => ChartDataset::fromArray(['dimensions' => [], 'measures' => [['name' => 'a', 'label' => 'A', 'additivity' => 'sometimes']], 'rows' => []]))
+        ->toThrow(InvalidChartDataset::class, 'measures[0].additivity');
+});
+
+it('reports measure additivity in the shape and describes it', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('channel', 'Channel')],
+        [new DatasetMeasure('orders', 'Orders'), new DatasetMeasure('margin', 'Margin %')->nonAdditive()],
+        [],
+    );
+    $shape = $dataset->shape();
+
+    expect($shape->additivity)->toBe([Additivity::Additive, Additivity::NonAdditive])
+        ->and($shape->additivityAt(1))->toBe(Additivity::NonAdditive)
+        ->and($shape->hasNonAdditiveMeasure())->toBeTrue()
+        ->and($shape->describe())->toBe('1 dimension (category) and 2 measures (1 non-additive)')
+        ->and($shape->toArray()['additivity'])->toBe(['additive', 'non-additive'])
+        ->and(DatasetShape::of(2, DimensionKind::Category)->toArray())->not->toHaveKey('additivity')
+        ->and($shape->withMultiValued(0)->additivity)->toBe($shape->additivity)
+        ->and($shape->withRoles(MeasureRole::Min)->additivity)->toBe($shape->additivity);
+});
+
+it('never sums a non-additive measure into totals', function (): void {
+    $rows = [['channel' => 'A', 'margin' => 10], ['channel' => 'A', 'margin' => 20], ['channel' => 'B', 'margin' => 30]];
+    $additive = new ChartDataset([DatasetDimension::category('channel', 'Channel')], [new DatasetMeasure('margin', 'Margin %')], $rows);
+    $ratio = new ChartDataset([DatasetDimension::category('channel', 'Channel')], [new DatasetMeasure('margin', 'Margin %')->nonAdditive()], $rows);
+    $unique = new ChartDataset([DatasetDimension::category('channel', 'Channel')], [new DatasetMeasure('margin', 'Margin %')->nonAdditive()], [$rows[0], $rows[2]]);
+
+    expect($additive->totals('channel', 'margin'))->toBe([['name' => 'A', 'value' => 30], ['name' => 'B', 'value' => 30]])
+        ->and(fn (): array => $ratio->totals('channel', 'margin'))->toThrow(InvalidChartDataset::class, 'non-additive')
+        ->and($unique->totals('channel', 'margin'))->toBe([['name' => 'A', 'value' => 10], ['name' => 'B', 'value' => 30]]);
 });

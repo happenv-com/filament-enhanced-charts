@@ -116,7 +116,7 @@ final class ChartPresets
 
         // A preset implementing the interfaces directly has no guard of its own; refuse here what accepting() leaves out.
         if (PartOfWholeGuard::refuses($preset, $shape)) {
-            throw ChartPresetException::notAccepted($preset, $shape);
+            throw PartOfWholeGuard::exceptionFor($preset, $dataset, $this->presets);
         }
 
         return $preset->option($dataset);

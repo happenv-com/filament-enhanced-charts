@@ -7,7 +7,6 @@ namespace Happenv\FilamentEnhancedCharts\Presets;
 use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
 use Happenv\FilamentEnhancedCharts\Data\DatasetMeasure;
 use Happenv\FilamentEnhancedCharts\Data\DatasetShape;
-use Happenv\FilamentEnhancedCharts\Exceptions\ChartPresetException;
 use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
 use Happenv\FilamentEnhancedCharts\Option\Axis\ValueAxis;
 use Happenv\FilamentEnhancedCharts\Option\Component\Grid;
@@ -75,7 +74,7 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole
         $shape = $dataset->shape();
 
         if (! $this->accepts($shape) || PartOfWholeGuard::refuses($this, $shape)) {
-            throw ChartPresetException::notAccepted($this, $shape);
+            throw PartOfWholeGuard::exceptionFor($this, $dataset);
         }
 
         return $this->build($dataset);

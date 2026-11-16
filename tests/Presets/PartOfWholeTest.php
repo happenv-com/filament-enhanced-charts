@@ -6,6 +6,7 @@ use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
 use Happenv\FilamentEnhancedCharts\Data\DatasetDimension;
 use Happenv\FilamentEnhancedCharts\Data\DatasetMeasure;
 use Happenv\FilamentEnhancedCharts\Data\DatasetShape;
+use Happenv\FilamentEnhancedCharts\Enums\Additivity;
 use Happenv\FilamentEnhancedCharts\Enums\DimensionKind;
 use Happenv\FilamentEnhancedCharts\Exceptions\ChartPresetException;
 use Happenv\FilamentEnhancedCharts\Option\Option;
@@ -282,4 +283,138 @@ it('refuses a multi-valued dataset in the registry for a preset implementing bot
 
     expect($registry->option('direct-share', $single)->toArray()['series'][0]['type'])->toBe('pie')
         ->and(fn (): Option => $registry->option('direct-share', $multi))->toThrow(ChartPresetException::class, 'direct-share');
+});
+
+/** A one-row dataset of the shape's dimensions (`d0`, `d1`, …) and one measure `ratio` with the given additivity. */
+function datasetOfShape(DatasetShape $shape, Additivity $additivity): ChartDataset
+{
+    $dimensions = [];
+    $row = [];
+    foreach ($shape->dimensions as $index => $kind) {
+        $dimensions[] = new DatasetDimension("d{$index}", "Dimension {$index}", $kind);
+        $row["d{$index}"] = $kind === DimensionKind::Region ? 'PL' : "v{$index}";
+    }
+
+    return new ChartDataset($dimensions, [new DatasetMeasure('ratio', 'Margin %')->withAdditivity($additivity)], [$row + ['ratio' => 12.5]]);
+}
+
+it('leaves an additive measure untouched on every part-of-whole built-in', function (string $name, DatasetShape $shape): void {
+    $dataset = datasetOfShape($shape, Additivity::Additive);
+
+    expect((new ChartPresets)->get($name)->accepts($dataset->shape()))->toBeTrue()
+        ->and((new ChartPresets)->option($name, $dataset))->toBeInstanceOf(Option::class);
+})->with(fn (): array => array_map(
+    static fn (string $name, array $case): array => [$name, $case[0]],
+    array_keys(partOfWholeCases()),
+    partOfWholeCases(),
+));
+
+it('refuses a non-additive measure on every part-of-whole built-in, naming the measure and suggesting other presets', function (string $name, DatasetShape $shape): void {
+    $dataset = datasetOfShape($shape, Additivity::NonAdditive);
+    $registry = new ChartPresets;
+
+    expect($registry->get($name)->accepts($dataset->shape()))->toBeFalse()
+        ->and(array_column($registry->catalog($dataset->shape()), 'name'))->not->toContain($name)
+        ->and(fn (): Option => $registry->option($name, $dataset))->toThrow(ChartPresetException::class, 'Margin %')
+        ->and(fn (): Option => $registry->get($name)->option($dataset))->toThrow(ChartPresetException::class, 'do not add up to a whole');
+})->with(fn (): array => array_map(
+    static fn (string $name, array $case): array => [$name, $case[0]],
+    array_keys(partOfWholeCases()),
+    partOfWholeCases(),
+));
+
+it('suggests presets that split no total in the refusal', function (): void {
+    $dataset = datasetOfShape(DatasetShape::of(1, DimensionKind::Category), Additivity::NonAdditive);
+
+    try {
+        (new ChartPresets)->option('pie', $dataset);
+        $this->fail('pie must refuse a non-additive measure');
+    } catch (ChartPresetException $exception) {
+        expect($exception->getMessage())->toContain('Use a preset that does not split a total', 'bar')->not->toContain('pie, ');
+    }
+});
+
+it('keeps non-additive measures on presets that encode no part-of-whole', function (string $name, DatasetShape $shape): void {
+    $dataset = datasetOfShape($shape, Additivity::NonAdditive);
+
+    expect((new ChartPresets)->option($name, $dataset))->toBeInstanceOf(Option::class);
+})->with([
+    'bar' => ['bar', DatasetShape::of(1, DimensionKind::Category)],
+    'line' => ['line', DatasetShape::of(1, DimensionKind::Time)],
+    'grouped-bar' => ['grouped-bar', DatasetShape::of(1, DimensionKind::Category, DimensionKind::Category)],
+    'heatmap' => ['heatmap', DatasetShape::of(1, DimensionKind::Category, DimensionKind::Category)],
+]);
+
+it('lets a semi-additive measure be split by a category but not summed across time', function (): void {
+    $registry = new ChartPresets;
+    $byCategory = datasetOfShape(DatasetShape::of(1, DimensionKind::Category), Additivity::SemiAdditive);
+    $byTime = datasetOfShape(DatasetShape::of(1, DimensionKind::Time), Additivity::SemiAdditive);
+    $timeIntoCategories = datasetOfShape(DatasetShape::of(1, DimensionKind::Time, DimensionKind::Category), Additivity::SemiAdditive);
+    $timeInHierarchy = datasetOfShape(DatasetShape::of(1, DimensionKind::Time, DimensionKind::Category), Additivity::SemiAdditive);
+
+    expect($registry->option('pie', $byCategory))->toBeInstanceOf(Option::class)
+        ->and($registry->option('theme-river', $timeIntoCategories))->toBeInstanceOf(Option::class)
+        ->and($registry->option('stacked-bar', $timeIntoCategories))->toBeInstanceOf(Option::class)
+        ->and($registry->get('pie')->accepts($byTime->shape()))->toBeFalse()
+        ->and(fn (): Option => $registry->option('pie', $byTime))->toThrow(ChartPresetException::class, 'Dimension 0')
+        ->and(fn (): Option => $registry->option('sunburst', $timeInHierarchy))->toThrow(ChartPresetException::class, 'add up across categories but not across time')
+        ->and($registry->option('line', $byTime))->toBeInstanceOf(Option::class);
+});
+
+it('still refuses a multi-valued dimension with the generic message when the measure is additive', function (): void {
+    $dataset = new ChartDataset(
+        [DatasetDimension::category('tag', 'Tag')->multiValued()],
+        [new DatasetMeasure('orders', 'Orders')->additive()],
+        [['tag' => 'gift', 'orders' => 3]],
+    );
+
+    expect(fn (): Option => (new ChartPresets)->option('pie', $dataset))->toThrow(ChartPresetException::class, 'category (multi-valued)');
+});
+
+it('translates the additivity refusal', function (): void {
+    $dataset = datasetOfShape(DatasetShape::of(1, DimensionKind::Category), Additivity::NonAdditive);
+
+    app()->setLocale('pl');
+
+    expect(fn (): Option => (new ChartPresets)->option('pie', $dataset))->toThrow(ChartPresetException::class, 'nie sumują się do całości');
+});
+
+it('guards a custom preset that opts in and a direct implementation alike', function (): void {
+    $custom = new class extends AbstractChartPreset
+    {
+        public function name(): string
+        {
+            return 'share-bar';
+        }
+
+        public function description(): string
+        {
+            return 'Custom.';
+        }
+
+        public function requirement(): string
+        {
+            return '1 dimension and 1 measure; the measure must be additive';
+        }
+
+        protected function acceptsStructure(DatasetShape $shape): bool
+        {
+            return $shape->dimensionCount() === 1;
+        }
+
+        public function partitioningDimensions(DatasetShape $shape): array
+        {
+            return [0];
+        }
+
+        protected function build(ChartDataset $dataset): Option
+        {
+            return Option::make()->series(PieSeries::make());
+        }
+    };
+    $dataset = datasetOfShape(DatasetShape::of(1, DimensionKind::Category), Additivity::NonAdditive);
+    $registry = (new ChartPresets)->register($custom);
+
+    expect(fn (): Option => $custom->option($dataset))->toThrow(ChartPresetException::class, 'share-bar')
+        ->and(fn (): Option => $registry->option('share-bar', $dataset))->toThrow(ChartPresetException::class, 'Margin %');
 });
