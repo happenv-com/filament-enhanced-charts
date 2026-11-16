@@ -36,7 +36,7 @@ class OrdersChart extends EnhancedChartWidget
 - **23 series types.** Line, bar, pie, scatter, effectScatter, candlestick, boxplot, heatmap, radar, gauge, funnel, sankey, chord, sunburst, treemap, tree, graph, parallel, themeRiver, pictorialBar, map, lines, and fully custom `renderItem` series.
 - **Every coordinate system.** Cartesian grids, polar, radar, geo/maps, calendar, singleAxis, parallel and matrix — plus datasets with transforms, visual maps, data zoom, toolbox, brush and graphic elements.
 - **Filament-native.** Panel theming, automatic [dark mode](#dark-mode), Filament `Color` palettes, `RawJs` for [client-side callbacks](#formatters-and-js-callbacks), Livewire polling, deferred loading and [filters](#filtering-chart-data).
-- **Data straight from Eloquent.** `ChartData::fromPairs()`, `ChartData::fromTimeSeries()` (laravel-trend compatible) and `Dataset::fromModels()` turn query results into chart data, and `HasChartData` builds a whole chart from data and a type ([Feeding data from Eloquent](#feeding-data-from-eloquent)).
+- **Data straight from Eloquent.** `ChartData::fromPairs()`, `ChartData::fromTimeSeries()` (laravel-trend compatible) and `Dataset::fromModels()` turn query results into chart data, and `HasChartData` builds a whole chart from data and a type ([Feeding data from Eloquent](#feeding-data-from-eloquent)). A tabular `ChartDataset` plus a preset name draws any suitable chart without choosing a chart type ([Chart presets](#chart-presets-a-chart-from-a-dataset-without-knowing-chart-types)).
 - **64 languages.** Month and day names, toolbox and aria strings follow the app locale in every language Filament ships ([Translations](#translations)).
 - **Charts in table cells.** Sparklines, candlesticks and donut pies inside table cells via `EnhancedChartColumn`, or any custom per-record chart ([Charts in table cells](#charts-in-table-cells)).
 - **Testable.** Livewire assertions for the resolved chart options in your application's tests ([Testing your application](#testing-your-application)), and the package itself is covered by a Pest suite on every supported version combination.
@@ -375,6 +375,122 @@ class SalesByChannelChart extends EnhancedChartWidget
 (category x-axis + value y-axis) for the axis types and an axis-less option for pie. The moment you
 want more — a second series, custom styling, marks, a scatter's x/y pairs — implement `getOption()`
 directly with the typed builders; this trait is only the shallow-end shortcut.
+
+#### Chart presets: a chart from a dataset, without knowing chart types
+
+`ChartType` needs you to pick the chart. When the data is an aggregate ("orders per channel per
+month") and the choice should be made by a person, a settings screen or an AI, hand the package a
+tabular `ChartDataset` and a **preset name** — the package says which presets can draw that data
+and builds the `Option`:
+
+```php
+use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
+use Happenv\FilamentEnhancedCharts\Data\DatasetDimension;
+use Happenv\FilamentEnhancedCharts\Data\DatasetMeasure;
+use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
+
+$dataset = ChartDataset::fromRows(
+    dimensions: [DatasetDimension::time('month', 'Month'), DatasetDimension::category('channel', 'Channel')],
+    measures: [new DatasetMeasure('orders', 'Orders')],
+    rows: $rows, // [['month' => 'Jan 2026', 'channel' => 'Allegro', 'orders' => 12], …]
+);
+
+$presets = app(ChartPresets::class);
+
+$presets->catalog($dataset->shape()); // [['name' => 'stacked-bar', 'description' => '…', 'requirement' => '…'], …]
+$option = $presets->option('stacked-bar', $dataset); // an Option, ready for getOption()
+```
+
+- **Dimensions** split the rows (`category` labels, or `time` buckets — an *already formatted*
+  label such as `Jan 2026`; the cartesian presets never parse it as a date). **Measures** are the
+  numbers (`int|float|null`). A row is keyed by dimension and measure names.
+- `ChartDataset::fromRows()` coerces query results (numeric strings, ints as labels); the
+  constructor and `fromArray()` are strict. `toArray()` / `fromArray()` round-trip through JSON, so a
+  dataset can be stored; `fromArray()` throws `InvalidChartDataset` on anything malformed.
+- `$dataset->shape()` is just the dimension kinds and the measure count; `ChartPresets::accepting($shape)`
+  returns the presets that accept it, and `catalog()` the same as `name` / `description` /
+  `requirement` data — what an AI needs to choose. A preset registered later shows up there with no
+  change on the consumer's side.
+- `option()` throws `ChartPresetException` for an unknown preset or one that does not accept the
+  shape — it never renders a blank chart.
+
+In a widget, the `HasChartPreset` trait replaces `getOption()`:
+
+```php
+use Happenv\FilamentEnhancedCharts\Concerns\HasChartPreset;
+
+class OrdersPerChannelChart extends EnhancedChartWidget
+{
+    use HasChartPreset;
+
+    protected function getDataset(): ChartDataset
+    {
+        return ChartDataset::fromRows(…);
+    }
+
+    protected function chartPreset(): string
+    {
+        return 'stacked-bar';
+    }
+}
+```
+
+**Built-in presets**
+
+| Preset | Requirement |
+| --- | --- |
+| `pie`, `donut`, `rose`, `funnel` | 1 dimension (category or time) and 1 measure — a named slice per dimension value |
+| `polar-bar` | 1 dimension and 1 measure — bars around a circle |
+| `bar`, `horizontal-bar`, `line`, `smooth-line`, `area` | 1 dimension and 1 or more measures — one series per measure |
+| `grouped-bar`, `stacked-bar`, `stacked-horizontal-bar`, `multi-line`, `stacked-area` | 2 dimensions (first on the x axis, second splits it into series) and 1 measure, or 1 dimension and 2 or more measures |
+| `heatmap` | 2 dimensions (x, y) and 1 measure, with a visual map |
+| `sankey` | 2 dimensions (source, target) and 1 measure |
+| `treemap`, `sunburst` | 1 or 2 dimensions (the second nested in the first) and 1 measure |
+| `radar` | 2 dimensions (axes, entities) and 1 measure, or 1 dimension (entities) and 3 or more measures (axes) |
+| `gauge` | no dimensions and 1 measure — a single value |
+| `theme-river` | 2 dimensions (1 time, 1 category) and 1 measure |
+| `calendar-heatmap` | 1 time dimension of days written `YYYY-MM-DD`, and 1 measure |
+| `scatter` | 1 dimension (every row is a point named by it) and exactly 2 measures (x, y) |
+
+Series that need data an aggregation cannot produce — candlestick, boxplot, graph, tree with
+explicit links, lines, map, parallel, custom, pictorialBar, effectScatter, chord — have no preset;
+build them with `getOption()` and the typed series builders.
+
+**Registering your own preset**
+
+Implement `ChartPreset` (or extend `AbstractChartPreset`, which checks `accepts()` for you) and
+register it from a service provider. A name registered twice replaces the earlier preset, so an app
+can also override a built-in.
+
+```php
+use Happenv\FilamentEnhancedCharts\Data\ChartDataset;
+use Happenv\FilamentEnhancedCharts\Data\DatasetShape;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
+use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
+
+final class BulletPreset extends AbstractChartPreset
+{
+    public function name(): string { return 'bullet'; }                      // stable kebab-case key
+
+    public function description(): string { return 'Compares a value with a target.'; } // one English sentence
+
+    public function requirement(): string { return '1 dimension and 2 measures'; }
+
+    public function accepts(DatasetShape $shape): bool
+    {
+        return $shape->dimensionCount() === 1 && $shape->measures === 2;
+    }
+
+    protected function build(ChartDataset $dataset): Option
+    {
+        return Option::make()->…;
+    }
+}
+
+// In a service provider's boot():
+$this->app->make(ChartPresets::class)->register(new BulletPreset);
+```
 
 ### Colors
 

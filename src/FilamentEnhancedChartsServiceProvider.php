@@ -8,6 +8,7 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Happenv\FilamentEnhancedCharts\Commands\FilamentEnhancedChartsCommand;
+use Happenv\FilamentEnhancedCharts\Presets\ChartPresets;
 use Happenv\FilamentEnhancedCharts\Testing\TestsFilamentEnhancedCharts;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
@@ -35,7 +36,11 @@ class FilamentEnhancedChartsServiceProvider extends PackageServiceProvider
             ->hasCommands($this->getCommands());
     }
 
-    public function packageRegistered(): void {}
+    public function packageRegistered(): void
+    {
+        // Presets are registered while booting and are stateless, so one registry is safe to share across Octane requests.
+        $this->app->singleton(ChartPresets::class);
+    }
 
     public function packageBooted(): void
     {
