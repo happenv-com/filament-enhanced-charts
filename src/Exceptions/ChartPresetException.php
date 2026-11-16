@@ -31,6 +31,26 @@ final class ChartPresetException extends InvalidArgumentException
         ));
     }
 
+    /**
+     * A part-of-whole preset was given a measure that does not add up: `$timeDimension` is the label of the
+     * time dimension a semi-additive measure would be summed across, `null` for a non-additive measure.
+     * The message is translated (`filament-enhanced-charts::additivity.*`).
+     *
+     * @param  list<string>  $suggestions  names of presets that split no total
+     */
+    public static function notAdditive(ChartPreset $preset, string $measure, ?string $timeDimension, array $suggestions): self
+    {
+        $message = $timeDimension === null
+            ? __('filament-enhanced-charts::additivity.non_additive', ['preset' => $preset->name(), 'measure' => $measure])
+            : __('filament-enhanced-charts::additivity.semi_additive', ['preset' => $preset->name(), 'measure' => $measure, 'dimension' => $timeDimension]);
+
+        if ($suggestions !== []) {
+            $message .= ' ' . __('filament-enhanced-charts::additivity.suggestion', ['presets' => implode(', ', $suggestions)]);
+        }
+
+        return new self($message);
+    }
+
     public static function unusableData(ChartPreset $preset, string $problem): self
     {
         return new self("Chart preset [{$preset->name()}] cannot draw this dataset: {$problem}.");

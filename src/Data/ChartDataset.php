@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Happenv\FilamentEnhancedCharts\Data;
 
 use BcMath\Number;
+use Happenv\FilamentEnhancedCharts\Enums\Additivity;
 use Happenv\FilamentEnhancedCharts\Enums\DimensionKind;
 use Happenv\FilamentEnhancedCharts\Enums\MeasureRole;
 use Happenv\FilamentEnhancedCharts\Exceptions\InvalidChartDataset;
@@ -180,7 +181,7 @@ final readonly class ChartDataset
         foreach (self::listAt($data, 'measures') as $index => $item) {
             $path = "measures[{$index}]";
             $item = self::arrayAt($item, $path);
-            self::assertKeys($item, ['name', 'label'], $path, ['role', 'unit']);
+            self::assertKeys($item, ['name', 'label'], $path, ['role', 'unit', 'additivity']);
 
             $role = null;
             if (array_key_exists('role', $item)) {
@@ -195,11 +196,20 @@ final readonly class ChartDataset
                 $unit = self::stringAt($item, 'unit', $path);
             }
 
+            $additivity = Additivity::Additive;
+            if (array_key_exists('additivity', $item)) {
+                $additivity = is_string($item['additivity']) ? Additivity::tryFrom($item['additivity']) : null;
+                if (! $additivity instanceof Additivity) {
+                    throw InvalidChartDataset::at("{$path}.additivity", 'must be one of [' . implode(', ', array_column(Additivity::cases(), 'value')) . ']');
+                }
+            }
+
             $measures[] = new DatasetMeasure(
                 self::stringAt($item, 'name', $path),
                 self::stringAt($item, 'label', $path),
                 $role,
                 $unit,
+                $additivity,
             );
         }
 
@@ -215,7 +225,7 @@ final readonly class ChartDataset
     /**
      * @return array{
      *     dimensions: list<array{name: string, label: string, kind: string, multiValued?: true}>,
-     *     measures: list<array{name: string, label: string, role?: string, unit?: string}>,
+     *     measures: list<array{name: string, label: string, role?: string, unit?: string, additivity?: string}>,
      *     rows: list<Row>,
      * }
      */
@@ -235,6 +245,7 @@ final readonly class ChartDataset
             count($this->measures),
             array_values(array_filter(array_map(static fn (DatasetMeasure $measure): ?MeasureRole => $measure->role, $this->measures))),
             array_keys(array_filter(array_map(static fn (DatasetDimension $dimension): bool => $dimension->multiValued, $this->dimensions))),
+            array_map(static fn (DatasetMeasure $measure): Additivity => $measure->additivity, $this->measures),
         );
     }
 
@@ -331,7 +342,11 @@ final readonly class ChartDataset
 
     /**
      * A measure summed per distinct label of a dimension, in order of first
-     * appearance (`null` when every contributing value is null).
+     * appearance (`null` when every contributing value is null). A non-additive
+     * measure (a ratio, an average) is never summed: it throws when two rows share
+     * a label, so a total of it is never computed. A semi-additive one (a stock
+     * level) is summed across categories only: it throws when the rows of a label
+     * differ in a time dimension.
      *
      * @return list<array{name: string, value: int|float|null}>
      */
@@ -339,6 +354,14 @@ final readonly class ChartDataset
     {
         $labels = $this->labels($dimension);
         $values = $this->values($measure);
+
+        if ($this->measure($measure)->additivity === Additivity::NonAdditive && count(array_unique($labels)) < count($labels)) {
+            throw InvalidChartDataset::at('measures', "the measure [{$measure}] is non-additive and cannot be summed per [{$dimension}]");
+        }
+
+        if ($this->measure($measure)->additivity === Additivity::SemiAdditive) {
+            $this->assertNotSummedAcrossTime($labels, $dimension, $measure);
+        }
 
         $totals = [];
         $order = [];
@@ -406,6 +429,29 @@ final readonly class ChartDataset
     {
         if (preg_match(self::NAME_PATTERN, $name) !== 1) {
             throw InvalidChartDataset::at($what . 's', "the {$what} name [{$name}] must start with a letter or underscore and contain only letters, digits, [_] and [-]");
+        }
+    }
+
+    /**
+     * @param  list<string>  $labels  the label of every row for `$dimension`
+     *
+     * @throws InvalidChartDataset when two rows with the same label carry different values of a time dimension
+     */
+    private function assertNotSummedAcrossTime(array $labels, string $dimension, string $measure): void
+    {
+        foreach ($this->dimensions as $time) {
+            if ($time->kind !== DimensionKind::Time || $time->name === $dimension) {
+                continue;
+            }
+
+            $seen = [];
+            foreach ($this->labels($time->name) as $index => $moment) {
+                if (($seen[$labels[$index]] ?? $moment) !== $moment) {
+                    throw InvalidChartDataset::at('measures', "the measure [{$measure}] is semi-additive and cannot be summed per [{$dimension}] across the time dimension [{$time->name}]");
+                }
+
+                $seen[$labels[$index]] = $moment;
+            }
         }
     }
 

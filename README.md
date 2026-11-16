@@ -409,6 +409,9 @@ $option = $presets->option('stacked-bar', $dataset); // an Option, ready for get
   keyed by dimension and measure names.
 - **Multi-valued dimensions.** A dimension may be marked `multiValued()`; presets that encode
   part-of-whole then refuse it — see [Data semantics](#data-semantics-grain-and-multi-valued-dimensions).
+- **Measure additivity.** A measure may be marked non-additive (`->nonAdditive()`: a ratio, an average, a distinct
+  count) or semi-additive (`->semiAdditive()`: a stock level); presets that encode part-of-whole then refuse it —
+  see [Data semantics](#data-semantics-grain-and-multi-valued-dimensions).
 - **Measure roles.** A measure may carry a `MeasureRole` — `Min`, `Q1`, `Median`, `Q3`, `Max`, `Open`,
   `Close`, `Low`, `High` — naming the statistic it holds (`DatasetMeasure::withRole(MeasureRole::Median,
   'median', 'Median')`). `boxplot` needs exactly the five measures with the roles min, q1, median, q3,
@@ -508,6 +511,51 @@ A custom preset extending `AbstractChartPreset` encodes no part-of-whole unless 
 `option()` then refuse a multi-valued one for it too, even if it overrides `accepts()` itself. This is
 a separate `EncodesPartOfWhole` interface rather than a new method on `ChartPreset`, so an existing
 `ChartPreset` implementation keeps compiling and behaves as before.
+
+##### Measure additivity
+
+A multi-valued dimension makes the *rows* overlap; a **non-additive measure** makes the *values* meaningless
+to add. Margin %, an average order value or a distinct customer count of two slices are not the customer
+count or margin of their union, so a pie or a stack of them is wrong however clean the grain. A stock level is
+in between: it adds up across warehouses, never across months.
+
+```php
+use Happenv\FilamentEnhancedCharts\Data\DatasetMeasure;
+use Happenv\FilamentEnhancedCharts\Enums\Additivity;
+
+new DatasetMeasure('orders', 'Orders');                                  // Additivity::Additive (default)
+(new DatasetMeasure('margin', 'Margin %', unit: '%'))->nonAdditive();    // ratio, average, distinct count
+(new DatasetMeasure('stock', 'Stock'))->semiAdditive();                  // adds up across categories, not time
+new DatasetMeasure('margin', 'Margin %', additivity: Additivity::NonAdditive); // or as an argument
+(new DatasetMeasure('x', 'X'))->withAdditivity(Additivity::Additive);    // set explicitly
+```
+
+| `Additivity` | Part-of-whole preset accepts it when… |
+| --- | --- |
+| `Additive` (default) | always |
+| `SemiAdditive` | none of the dimensions the preset partitions by is a time dimension (a pie by warehouse, a `stacked-area` of categories over time; not a pie by month, nor a `sunburst` with a time level) |
+| `NonAdditive` | never; every preset that encodes part-of-whole refuses it — and so do `stacked-bar`, `stacked-horizontal-bar` and `stacked-area` when they stack *measures* (1 dimension, 2 or more measures), since the stack reads as their total |
+
+Which dimensions a preset partitions by is the same table as above, so presets that merely compare values
+(`bar`, `line`, `grouped-bar`, `heatmap`, …) keep drawing any measure. The refusal is the same shape as the
+multi-valued one: `ChartPresets::accepting($shape)` and `catalog($shape)` leave the preset out and `option()`
+throws `ChartPresetException`, with a **translated** reason naming the measure and suggesting presets that split
+no total (`bar`, `line`, …). The keys live in `resources/lang/<locale>/additivity.php` (`en`, `pl`, `de` shipped;
+others fall back to `en`) and can be overridden like any package translation:
+
+- `filament-enhanced-charts::additivity.non_additive` — `:preset`, `:measure`
+- `filament-enhanced-charts::additivity.semi_additive` — `:preset`, `:measure`, `:dimension` (the time dimension)
+- `filament-enhanced-charts::additivity.suggestion` — `:presets`
+
+The flag survives `toArray()` / `fromArray()` (`"additivity": "non-additive"` is written only when the measure is
+not additive, so an older array reads as additive) and reaches the shape: `DatasetShape::$additivity` (one entry
+per measure), `additivityAt($index)`, `hasNonAdditiveMeasure()`, `withAdditivity(...$additivity)`; `describe()` and
+`toArray()` mention it. `ChartDataset::totals()` — which sums a measure per label — throws
+`InvalidChartDataset` for a non-additive measure when two rows share a label, so a total of a ratio is never
+computed; a semi-additive one (a stock level) throws when the rows of a label differ in a time dimension. A custom
+preset benefits automatically once it implements `EncodesPartOfWhole` (and, to refuse stacked measures, the optional
+`StacksMeasures` interface — `AbstractChartPreset` implements it as "never"; override `stacksMeasures()`). Like multi-valued, marking
+is the consumer's responsibility.
 
 **Built-in presets**
 
