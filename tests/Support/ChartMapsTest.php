@@ -66,3 +66,9 @@ it('hands the map to the page only for the chart that needs it', function (): vo
     expect(livewire(PresetChartTestWidget::class)->html())->not->toContain(ChartMaps::WORLD_ASSET)
         ->and(livewire(PresetChartTestWidget::class, ['preset' => 'world-map', 'perCountry' => true])->html())->toContain(ChartMaps::WORLD_ASSET);
 });
+
+it('sends the map along with a changed option, so a chart switched to a map can register it', function (): void {
+    livewire(PresetChartTestWidget::class, ['preset' => 'bar', 'perCountry' => true])
+        ->set('preset', 'world-map')
+        ->assertDispatched('updateOptions', fn (string $name, array $params): bool => array_keys($params['maps']) === [ChartMaps::WORLD]);
+});

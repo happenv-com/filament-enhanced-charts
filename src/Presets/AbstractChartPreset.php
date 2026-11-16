@@ -86,7 +86,7 @@ abstract class AbstractChartPreset implements ChartPreset
         $grid = Grid::make()->containLabel()->left(8)->right(16)->bottom(8)->top(count($series) > 1 ? 44 : 16);
         if (count($axes) > 1) {
             $horizontal
-                ? $grid->bottom(8 + (int) ($extraNear / 2))->top(44 + (int) ($extraFar / 2) + 16)
+                ? $grid->bottom(8 + $extraNear)->top(44 + $extraFar + 16)
                 : $grid->left(8 + $extraNear)->right(16 + $extraFar + 8);
         }
 

@@ -239,16 +239,17 @@ function structureSignature(options) {
 // which we've already fetched+registered so re-renders/polling don't refetch.
 const registeredMaps = new Set()
 
-// A map is either a GeoJSON file (`*.json` / `*.geojson`, fetched) or an ES
-// module whose default export is the GeoJSON — what the bundled world map
-// (`filament-enhanced-charts-map-world`) is, so it ships through Filament's
-// asset pipeline and loads only for a chart that uses it.
+// A map is either a JavaScript module (`*.js` / `*.mjs`) whose default export
+// is the GeoJSON, or anything else — a file, a route — that answers with GeoJSON
+// and is fetched. The bundled world map (`filament-enhanced-charts-map-world`)
+// is the module form, so it ships through Filament's asset pipeline and loads
+// only for a chart that uses it.
 async function loadMap(url) {
-    if (/\.(geo)?json(\?|#|$)/i.test(url)) {
-        const response = await fetch(url)
-        return response.json()
+    if (/\.m?js(\?|#|$)/i.test(url)) {
+        return (await import(/* webpackIgnore: true */ url)).default
     }
-    return (await import(/* webpackIgnore: true */ url)).default
+    const response = await fetch(url)
+    return response.json()
 }
 
 export default function echarts({ options, chartId, renderer, maps, locale }) {
@@ -264,8 +265,8 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
         themeObserver: null,
 
         init() {
-            this.$wire.$on('updateOptions', ({ options }) => {
-                this.updateChart(options)
+            this.$wire.$on('updateOptions', ({ options, maps }) => {
+                this.updateChart(options, maps)
             })
 
             Alpine.effect(() => {
@@ -308,11 +309,11 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
             // An `updateOptions` that arrived while this script was still loading
             // never reached the listener in `init()`; the widget's view kept it
             // on the chart element, and it is newer than `x-data`'s options.
-            const latest = document.querySelector(
-                this.chartId,
-            )?.__enhancedChartsLatestOptions
+            const host = document.querySelector(this.chartId)
+            const latest = host?.__enhancedChartsLatestOptions
             if (latest) {
                 this.options = latest
+                this.maps = { ...this.maps, ...host.__enhancedChartsLatestMaps }
             }
 
             this.baseOptions = merge(
@@ -368,9 +369,9 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
         // Fetch + echarts.registerMap() every map name referenced by a `map`
         // series or a `geo` component, using the {name: url} map passed from the
         // widget. Idempotent across widgets via the module-level registeredMaps.
-        async registerMaps() {
+        async registerMaps(source = this.options) {
             const referenced = new Set()
-            const opt = this.options || {}
+            const opt = source || {}
             if (Array.isArray(opt.series)) {
                 for (const s of opt.series) {
                     if (s && s.type === 'map' && s.map) {
@@ -411,9 +412,23 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
         // of null (reading 'setOption')". Dropping the update is the whole fix —
         // a chart that no longer exists has nothing to show, and a re-mounted
         // component paints from `this.options` in `initChart()`.
-        updateChart(options) {
+        updateChart(options, maps) {
             if (chart === null) {
                 return
+            }
+
+            // A new option may need a map the chart never had (a bar chart
+            // switched to a world map): register it, then paint.
+            if (maps) {
+                this.maps = { ...this.maps, ...maps }
+                if (
+                    Object.keys(maps).some((name) => !registeredMaps.has(name))
+                ) {
+                    this.registerMaps(options).then(() =>
+                        this.updateChart(options),
+                    )
+                    return
+                }
             }
 
             // Compare like with like: the painted option includes the layout
@@ -424,7 +439,8 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                 structureSignature(this.baseOptions) !==
                     structureSignature(nextBase)
             this.baseOptions = nextBase
-            // `replaceMerge` swaps the series list wholesale: a plain merge
+            // `replaceMerge` swaps the series list wholesale (and the axes, so
+            // a chart that drops a unit does not keep the old value axis): a plain merge
             // matches series by index, so going from six series to two left
             // the four extra ones drawn (and in the legend) from the old data.
             // A changed structure (another preset) replaces everything instead.
@@ -434,7 +450,7 @@ export default function echarts({ options, chartId, renderer, maps, locale }) {
                 ),
                 restructured
                     ? { notMerge: true }
-                    : { replaceMerge: ['series'] },
+                    : { replaceMerge: ['series', 'xAxis', 'yAxis'] },
             )
             this.tuneAxisNames()
         },

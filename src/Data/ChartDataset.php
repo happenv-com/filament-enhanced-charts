@@ -45,7 +45,7 @@ final readonly class ChartDataset
 
     private const string NAME_PATTERN = '/^[A-Za-z_][A-Za-z0-9_\-]*$/';
 
-    private const string REGION_PATTERN = '/^[A-Z]{2}$/';
+    private const string REGION_PATTERN = '/^[A-Z]{2}\z/';
 
     /** @var list<DatasetDimension> */
     public array $dimensions;

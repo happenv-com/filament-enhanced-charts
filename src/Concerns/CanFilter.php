@@ -45,7 +45,7 @@ trait CanFilter
         $options = $this->resolvedOptions = $this->getOptions();
         $this->optionsHash = $this->hashOptions($options);
 
-        $this->dispatch('updateOptions', options: $options)
+        $this->dispatch('updateOptions', options: $options, maps: $this->getMaps())
             ->self();
     }
 

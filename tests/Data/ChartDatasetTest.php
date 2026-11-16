@@ -195,7 +195,7 @@ it('refuses a region value that is not an uppercase alpha-2 code, but normalises
     $make = fn (string $code): ChartDataset => new ChartDataset([DatasetDimension::region('c', 'Country')], [new DatasetMeasure('n', 'N')], [['c' => $code, 'n' => 1]]);
 
     expect(fn (): ChartDataset => $make($value))->toThrow(InvalidChartDataset::class, 'uppercase ISO 3166-1 alpha-2');
-})->with(['pl', 'POL', 'Poland', '', 'P1']);
+})->with(['pl', 'POL', 'Poland', '', 'P1', "PL\n"]);
 
 it('upper-cases and trims region codes read leniently from rows', function (): void {
     $dataset = ChartDataset::fromRows(

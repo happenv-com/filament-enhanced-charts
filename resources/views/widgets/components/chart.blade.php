@@ -37,7 +37,7 @@
                  exists is kept on the chart element, and `initChart()` paints it
                  instead of the older options in `x-data`. --}}
             <div {!! $pollingInterval ? 'wire:poll.' . $pollingInterval . '="updateOptions"' : '' !!} x-data="{}"
-                 x-init="$watch('dropdownOpen', value => $wire.dropdownOpen = value); $wire.$on('updateOptions', ({ options }) => { const host = document.getElementById(@js($chartId)); if (host) { host.__enhancedChartsLatestOptions = options } })">
+                 x-init="$watch('dropdownOpen', value => $wire.dropdownOpen = value); $wire.$on('updateOptions', ({ options, maps }) => { const host = document.getElementById(@js($chartId)); if (host) { host.__enhancedChartsLatestOptions = options; host.__enhancedChartsLatestMaps = maps } })">
             </div>
         </div>
     @else

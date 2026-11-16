@@ -87,10 +87,18 @@ export function darkOverrides(base) {
     const axis = '#9ca3af' // gray-400
     const split = 'rgba(255, 255, 255, 0.08)'
 
-    const axisStyle = {
-        axisLabel: { color: axis },
-        axisLine: { lineStyle: { color: split } },
-        splitLine: { lineStyle: { color: split } },
+    // An axis whose own config sets a colour (a chart with several units
+    // colours each value axis like its series) keeps it.
+    const axisStyleFor = (config) => {
+        const own = config || {}
+        const style = { splitLine: { lineStyle: { color: split } } }
+        if (!own.axisLabel?.color) {
+            style.axisLabel = { color: axis }
+        }
+        if (!own.axisLine?.lineStyle?.color) {
+            style.axisLine = { lineStyle: { color: split } }
+        }
+        return style
     }
 
     const overrides = {
@@ -137,9 +145,9 @@ export function darkOverrides(base) {
     ]) {
         const axis = base[key]
         if (Array.isArray(axis)) {
-            overrides[key] = axis.map(() => axisStyle)
+            overrides[key] = axis.map(axisStyleFor)
         } else if (axis) {
-            overrides[key] = axisStyle
+            overrides[key] = axisStyleFor(axis)
         }
     }
 

@@ -128,3 +128,11 @@ it('describes the combo for a chooser', function (): void {
         ->and($preset->accepts(D::perChannel()->shape()))->toBeFalse()
         ->and($preset->accepts(D::perMonthPerChannel()->shape()))->toBeFalse();
 });
+
+it('makes room for every offset axis of a horizontal chart, as for a vertical one', function (): void {
+    $option = unitOption('horizontal-bar', D::withUnits(['a', 'b', 'c', 'd']));
+
+    expect(array_column($option['xAxis'], 'offset'))->toBe([0, 0, 60, 60])
+        ->and($option['grid']['bottom'])->toBe(8 + 60)
+        ->and($option['grid']['top'])->toBe(44 + 60 + 16);
+});

@@ -125,7 +125,7 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
         $this->optionsHash = $hash;
 
         $this
-            ->dispatch('updateOptions', options: $options)
+            ->dispatch('updateOptions', options: $options, maps: $this->getMaps())
             ->self();
     }
 
@@ -190,7 +190,7 @@ abstract class EnhancedChartWidget extends Widget implements HasSchemas
             $this->optionsHash = $hash;
 
             $this
-                ->dispatch('updateOptions', options: $options)
+                ->dispatch('updateOptions', options: $options, maps: $this->getMaps())
                 ->self();
         }
     }
