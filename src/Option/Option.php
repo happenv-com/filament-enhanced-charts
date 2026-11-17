@@ -512,7 +512,7 @@ final class Option implements Node
 
         $option = array_merge($option, $this->animationArray());
 
-        $option = $this->applyNumberFormatDefaults($this->mergeRaw($option));
+        $option = NumberFormat::resolveLocales($this->applyNumberFormatDefaults($this->mergeRaw($option)));
 
         return $this->scrollable ? $this->yieldWheelToPage($option) : $option;
     }

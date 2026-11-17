@@ -11,6 +11,7 @@ use Happenv\FilamentEnhancedCharts\Option\Component\Grid;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
 use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 
 /**
  * Charts that plot one measure against another with a labelled point per
@@ -40,21 +41,34 @@ abstract class PointsPreset extends AbstractChartPreset
         $xs = $dataset->values($xMeasure->name);
         $ys = $dataset->values($yMeasure->name);
 
+        $xFormat = $xMeasure->resolvedFormat();
+        $yFormat = $yMeasure->resolvedFormat();
+
         $series = [];
         foreach ($names as $row => $name) {
             if ($xs[$row] === null || $ys[$row] === null) {
                 continue;
             }
 
-            $series[] = $this->point($name, [$xs[$row], $ys[$row]]);
+            $point = $this->point($name, [$xs[$row], $ys[$row]]);
+            $series[] = $xFormat instanceof NumberFormat || $yFormat instanceof NumberFormat ? $point->formatDimensions($xFormat, $yFormat) : $point;
+        }
+
+        $xAxis = ValueAxis::make()->name($xMeasure->label)->nameLocation('middle')->nameGap(28)->scale();
+        $yAxis = ValueAxis::make()->name($yMeasure->label)->nameLocation('end')->scale();
+        if ($xFormat instanceof NumberFormat) {
+            $xAxis->format($xFormat);
+        }
+        if ($yFormat instanceof NumberFormat) {
+            $yAxis->format($yFormat);
         }
 
         return Option::make()
             ->tooltip($this->itemTooltip())
             ->legend($this->scrollLegend())
             ->grid(Grid::make()->containLabel()->left(8)->right(24)->top(44)->bottom(36))
-            ->xAxis(ValueAxis::make()->name($xMeasure->label)->nameLocation('middle')->nameGap(28)->scale())
-            ->yAxis(ValueAxis::make()->name($yMeasure->label)->nameLocation('end')->scale())
+            ->xAxis($xAxis)
+            ->yAxis($yAxis)
             ->series(...$series);
     }
 }

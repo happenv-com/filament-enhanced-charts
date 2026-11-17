@@ -27,7 +27,17 @@ function browserFormat(array $cases): array
 
     $results = json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR);
 
-    return array_map(static fn (mixed $value): mixed => is_string($value) ? preg_replace('/[\x{00A0}\x{202F}]/u', ' ', $value) : $value, $results);
+    return foldSpaces($results);
+}
+
+/** @param  array<mixed>  $values */
+function foldSpaces(array $values): array
+{
+    return array_map(static fn (mixed $value): mixed => match (true) {
+        is_string($value) => preg_replace('/[\x{00A0}\x{202F}]/u', ' ', $value),
+        is_array($value) => foldSpaces($value),
+        default => $value,
+    }, $values);
 }
 
 beforeEach(function (): void {
@@ -96,11 +106,38 @@ it('leaves what is not a number alone and formats every number of a data item', 
         [NumberFormat::number()->locale('pl'), 'value', 'Allegro'],
         [NumberFormat::number()->locale('pl'), 'value', [18000, 'x', 2.5]],
         [NumberFormat::number()->locale('pl'), 'value', null],
+        [NumberFormat::number()->locale('pl'), 'axis', [18000, 2.5]],
         [NumberFormat::number()->locale('pl'), 'label', ['value' => ['Mon', 18000], 'encode' => ['x' => [0], 'y' => [1]]]],
         [NumberFormat::number()->locale('pl'), 'label', ['value' => 18000]],
-    ]))->toBe(['Allegro', '18 000, x, 2,5', '', '18 000', '18 000']);
+    ]))->toBe(['Allegro', ['18 000', 'x', '2,5'], '', '18 000, 2,5', '18 000', '18 000']);
 });
 
 it('falls back to the runtime locale for a tag it does not know', function (): void {
     expect(browserFormat([[NumberFormat::number()->locale('not a locale'), 'value', 1234.5]]))->toHaveCount(1);
+});
+
+it('shows the value of a data label, not a coordinate', function (): void {
+    expect(browserFormat([
+        // A heatmap cell [x, y, value].
+        [NumberFormat::number()->locale('pl'), 'label', ['value' => [0, 1, 18000], 'encode' => ['x' => [0], 'y' => [1], 'value' => [2]]]],
+        // A time-series point: the timestamp is on x, the reading on y.
+        [NumberFormat::number()->locale('pl'), 'label', ['value' => [1700000000000, 42], 'encode' => ['x' => [0], 'y' => [1]]]],
+        // A horizontal bar: the category is on y, the value on x.
+        [NumberFormat::number()->locale('pl'), 'label', ['value' => [18000, 'Allegro'], 'encode' => ['x' => [0], 'y' => [1]]]],
+        // A dataset of object rows.
+        [NumberFormat::number()->locale('pl'), 'label', ['value' => ['product' => 'A', 'sales' => 18000], 'dimensionNames' => ['product', 'sales'], 'encode' => ['x' => [0], 'y' => [1]]]],
+    ]))->toBe(['18 000', '42', '18 000', '18 000']);
+});
+
+it('formats each dimension of an item with its own format', function (): void {
+    $marker = NumberFormat::dimensionsMarker([NumberFormat::currency('PLN'), NumberFormat::percent(fraction: false)]);
+    $marker['__number__']['locale'] = 'pl';
+    $marker['__number__']['each'][0]['locale'] = 'pl';
+    $marker['__number__']['each'][1]['locale'] = 'pl';
+
+    $process = new Process(['node', __DIR__ . '/../Fixtures/number-format.mjs']);
+    $process->setInput(json_encode([['spec' => $marker['__number__'], 'input' => [1234.5, 45, 7]]], JSON_THROW_ON_ERROR));
+    $process->mustRun();
+
+    expect(foldSpaces(json_decode($process->getOutput(), true)[0]))->toBe(['1234,50 zł', '45%', '7']);
 });

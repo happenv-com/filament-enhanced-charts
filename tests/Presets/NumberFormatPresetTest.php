@@ -91,3 +91,28 @@ it('refuses a malformed format in a dataset array', function (): void {
 
     expect(fn (): ChartDataset => ChartDataset::fromArray($data))->toThrow(InvalidArgumentException::class);
 });
+
+it('writes the ticks of the one axis several measures of a unit share in that unit even when their precision differs', function (): void {
+    $option = new ChartPresets()->option('bar', formatted([
+        new DatasetMeasure('revenue', 'Revenue', unit: 'PLN', format: NumberFormat::currency('PLN', 0)),
+        new DatasetMeasure('cost', 'Cost', unit: 'PLN', format: NumberFormat::currency('PLN', 2)),
+    ]))->toArray();
+
+    expect($option['yAxis']['axisLabel']['formatter']['__number__'])->toMatchArray(['style' => 'currency', 'currency' => 'PLN', 'decimals' => 0])
+        ->and($option['series'][1]['tooltip']['valueFormatter']['__number__']['decimals'])->toBe(2);
+});
+
+it('formats each coordinate of a points chart by its own measure', function (string $preset): void {
+    $dataset = formatted([
+        new DatasetMeasure('revenue', 'Revenue', unit: 'PLN'),
+        new DatasetMeasure('margin', 'Margin', unit: '%'),
+    ]);
+    $option = new ChartPresets()->option($preset, $dataset)->toArray();
+
+    expect($option['xAxis']['axisLabel']['formatter']['__number__']['style'])->toBe('currency')
+        ->and($option['yAxis']['axisLabel']['formatter']['__number__']['style'])->toBe('percent')
+        ->and($option['series'][0]['tooltip']['valueFormatter']['__number__']['each'])->toBe([
+            ['style' => 'currency', 'currency' => 'PLN', 'locale' => 'en'],
+            ['style' => 'percent', 'fraction' => false, 'locale' => 'en'],
+        ]);
+})->with(['scatter', 'effect-scatter']);

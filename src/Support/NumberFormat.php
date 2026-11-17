@@ -194,21 +194,76 @@ final readonly class NumberFormat
     /**
      * The marker the browser turns into a formatting function, for where it
      * sits in the option: `axis` (an axis label), `value` (a tooltip's value)
-     * or `label` (a data label). The locale is resolved here, at render time,
-     * so every option the server builds is consistent with the page's locale.
+     * or `label` (a data label). A format that pins no locale leaves it out:
+     * `Option::toArray()` fills in the application locale of that moment, so a
+     * builder built once and rendered again in another locale stays consistent.
      *
      * @param  'axis'|'value'|'label'  $role
      * @return array{__number__: array<string, mixed>}
      */
     public function marker(string $role): array
     {
-        return ['__number__' => [...$this->toArray(), 'locale' => $this->resolvedLocale(), 'role' => $role]];
+        return ['__number__' => [...$this->toArray(), 'role' => $role]];
     }
 
-    /** The BCP 47 tag the format is written for: the pinned locale or the application's. */
-    public function resolvedLocale(): string
+    /**
+     * A marker for a data item with several dimensions (the `[x, y]` of a point), each written in a format of
+     * its own; a null entry — and any dimension past the list — is a plain number.
+     *
+     * @param  list<self|null>  $formats
+     * @return array{__number__: array<string, mixed>}
+     */
+    public static function dimensionsMarker(array $formats): array
     {
-        return str_replace('_', '-', $this->locale ?? app()->getLocale());
+        $marker = self::number()->marker('value');
+        $marker['__number__']['each'] = array_map(
+            static fn (?self $format): ?array => $format?->toArray(),
+            array_values($formats),
+        );
+
+        return $marker;
+    }
+
+    /**
+     * An option tree with the application locale laid into every number marker that pins none.
+     *
+     * @param  array<mixed>  $node
+     * @return array<mixed>
+     */
+    public static function resolveLocales(array $node): array
+    {
+        $locale = str_replace('_', '-', app()->getLocale());
+
+        return self::withLocale($node, $locale);
+    }
+
+    /**
+     * @param  array<mixed>  $node
+     * @return array<mixed>
+     */
+    private static function withLocale(array $node, string $locale): array
+    {
+        foreach ($node as $key => $value) {
+            if (! is_array($value)) {
+                continue;
+            }
+
+            if ($key === '__number__') {
+                $value['locale'] = str_replace('_', '-', is_string($value['locale'] ?? null) ? $value['locale'] : $locale);
+                foreach ($value['each'] ?? [] as $index => $each) {
+                    if (is_array($each)) {
+                        $value['each'][$index]['locale'] = str_replace('_', '-', is_string($each['locale'] ?? null) ? $each['locale'] : $value['locale']);
+                    }
+                }
+                $node[$key] = $value;
+
+                continue;
+            }
+
+            $node[$key] = self::withLocale($value, $locale);
+        }
+
+        return $node;
     }
 
     private static function digits(?int $decimals): ?int

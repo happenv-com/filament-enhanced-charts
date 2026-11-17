@@ -26,6 +26,12 @@ trait HasRaw
         return self::deepMerge($base, $this->raw);
     }
 
+    /** A `{__js__}` or `{__number__}` marker is one value — a function — so a marker replaces another instead of merging into it. */
+    private static function isMarker(array $value): bool
+    {
+        return isset($value['__js__']) || isset($value['__number__']);
+    }
+
     /**
      * @param  array<string, mixed>  $base
      * @param  array<string, mixed>  $override
@@ -37,6 +43,7 @@ trait HasRaw
             if (
                 is_array($value) && isset($base[$key]) && is_array($base[$key])
                 && ! array_is_list($value) && ! array_is_list($base[$key])
+                && ! self::isMarker($value) && ! self::isMarker($base[$key])
             ) {
                 $base[$key] = self::deepMerge($base[$key], $value);
             } else {

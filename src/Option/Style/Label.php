@@ -41,9 +41,15 @@ final class Label implements Node
         return $this;
     }
 
-    /** Write the number the label shows in this number format (the locale of the application unless the format pins one). */
+    /** Write the number the label shows in this number format (the locale of the application unless the format pins one). On an axis label it formats the tick; a formatter set explicitly wins. */
     public function format(NumberFormat $format): self
     {
+        // A template or JavaScript formatter set explicitly wins; only an earlier number format is replaced.
+        $current = $this->properties['formatter'] ?? null;
+        if ($current !== null && (! is_array($current) || ! isset($current['__number__']))) {
+            return $this;
+        }
+
         $this->properties['formatter'] = $format->marker('label');
 
         return $this;

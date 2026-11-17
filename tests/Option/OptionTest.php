@@ -114,7 +114,7 @@ it('cartesian() presets an axis tooltip and a top legend', function (): void {
     expect(Option::cartesian()->xAxis(CategoryAxis::make()->data(['a']))->series(LineSeries::make()->data([1]))->toArray())
         ->toBe([
             'legend' => ['top' => 0],
-            'tooltip' => ['trigger' => 'axis', 'valueFormatter' => ['__number__' => ['style' => 'decimal', 'locale' => 'en', 'role' => 'value']]],
+            'tooltip' => ['trigger' => 'axis', 'valueFormatter' => ['__number__' => ['style' => 'decimal', 'role' => 'value', 'locale' => 'en']]],
             'xAxis' => ['type' => 'category', 'data' => ['a']],
             'yAxis' => plainValueAxis(),
             'series' => [['type' => 'line', 'data' => [1]]],

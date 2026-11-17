@@ -28,6 +28,9 @@ abstract class Series implements Node
 
     private ?NumberFormat $numberFormat = null;
 
+    /** @var list<NumberFormat|null>|null */
+    private ?array $dimensionFormats = null;
+
     private ?string $id = null;
 
     private string | array | null $color = null;
@@ -139,6 +142,18 @@ abstract class Series implements Node
     public function format(NumberFormat $format): static
     {
         $this->numberFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * Write each dimension of a multi-dimension item — the `[x, y]` of a scatter point — in a format of its own in the
+     * tooltip: `->formatDimensions(NumberFormat::currency('PLN'), NumberFormat::percent(fraction: false))`. A null
+     * entry is a plain number. A `valueFormatter` set through `tooltip()` wins.
+     */
+    public function formatDimensions(?NumberFormat ...$formats): static
+    {
+        $this->dimensionFormats = array_values($formats);
 
         return $this;
     }
@@ -559,6 +574,10 @@ abstract class Series implements Node
      */
     private function withNumberFormat(array $series): array
     {
+        if ($this->dimensionFormats !== null && ! isset($series['tooltip']['valueFormatter']) && ! isset($series['tooltip']['formatter'])) {
+            $series['tooltip']['valueFormatter'] = NumberFormat::dimensionsMarker($this->dimensionFormats);
+        }
+
         if (! $this->numberFormat instanceof NumberFormat) {
             return $series;
         }

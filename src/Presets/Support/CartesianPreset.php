@@ -62,6 +62,7 @@ abstract class CartesianPreset extends AbstractChartPreset
             $series,
             $this->horizontal(),
             $this->unitAxes($units, array_column($breakdown['series'], 'unit'), $this->horizontal(), array_column($breakdown['series'], 'format')),
+            $this->firstFormat($breakdown['series']),
         );
     }
 }

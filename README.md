@@ -330,13 +330,16 @@ Option::cartesian()
 - `ValueAxis::format()` / `LogAxis::format()` — the tick labels.
 - `Series::format()` — the series' value in the tooltip (a chart can mix a money series and a count;
   each is formatted with its own format) and in its data labels when they are shown.
+- `Series::formatDimensions($xFormat, $yFormat)` — the tooltip of a point whose value is a list (a scatter
+  point `[x, y]`): each dimension in a format of its own.
 - `Tooltip::format()` — every value in the tooltip that has no series format. `Label::format()` — one label.
 - `Option::numberFormat()` — the default of the whole chart (axes, tooltip, labels).
 - Precedence, most specific first: a formatter you wrote → the series' / axis' own format → the
   chart's `numberFormat()` → the plain locale-aware number.
 
-**Locale.** The format is written for `app()->getLocale()` at the moment the option is built and the
-locale travels inside the option, so an initial render and every Livewire update agree, and a widget
+**Locale.** The format is written for `app()->getLocale()` at the moment `Option::toArray()` runs (not
+when the builder was created, so a builder reused across locales stays consistent) and the locale
+travels inside the option, so an initial render and every Livewire update agree, and a widget
 re-rendered in another locale sends the new one. Pin one with `->locale('de')` (underscores such as
 `pt_BR` are fine). An unknown tag falls back to the browser's locale.
 

@@ -29,6 +29,11 @@ trait HasAxisLabel
             ? ['formatter' => Normalize::formatter($axisLabel)]
             : Normalize::value(Normalize::arr($axisLabel));
 
+        // A `Label::format()` marker is built for a data label; on an axis it receives a tick value instead.
+        if (isset($this->axisLabel['formatter']['__number__'])) {
+            $this->axisLabel['formatter']['__number__']['role'] = 'axis';
+        }
+
         return $this;
     }
 

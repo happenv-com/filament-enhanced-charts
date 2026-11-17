@@ -66,6 +66,7 @@ final class BarLinePreset extends AbstractChartPreset
             $series,
             false,
             $this->unitAxes($units, array_column($breakdown['series'], 'unit'), false, array_column($breakdown['series'], 'format')),
+            $this->firstFormat($breakdown['series']),
         );
     }
 }

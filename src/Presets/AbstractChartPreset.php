@@ -138,10 +138,16 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
      *
      * @param  list<Series>  $series
      * @param  list<ValueAxis>  $valueAxes  from `unitAxes()`; empty for the single default value axis
+     * @param  NumberFormat|null  $axisFormat  the number format of that single default value axis
      */
-    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false, array $valueAxes = []): Option
+    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false, array $valueAxes = [], ?NumberFormat $axisFormat = null): Option
     {
-        $axes = count($valueAxes) > 1 ? $valueAxes : [ValueAxis::make()];
+        $default = ValueAxis::make();
+        if ($axisFormat instanceof NumberFormat) {
+            $default->format($axisFormat);
+        }
+
+        $axes = count($valueAxes) > 1 ? $valueAxes : [$default];
 
         // Axes alternate between the two sides, the third and later ones stepping further out; give the plot room for them.
         $near = (int) ceil(count($axes) / 2);
@@ -186,6 +192,23 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
         }
 
         return $units;
+    }
+
+    /**
+     * The number format of the first series that has one: what the single value axis shared by series of one unit
+     * writes its ticks in.
+     *
+     * @param  list<array{format: NumberFormat|null}>  $series
+     */
+    protected function firstFormat(array $series): ?NumberFormat
+    {
+        foreach ($series as $item) {
+            if ($item['format'] instanceof NumberFormat) {
+                return $item['format'];
+            }
+        }
+
+        return null;
     }
 
     /** The colour a series of a multi-axis chart is drawn in. */

@@ -50,22 +50,34 @@ it('infers a format from a free-text unit', function (?string $unit, ?array $exp
     'a lowercase code is a unit' => ['pln', ['style' => 'decimal', 'unit' => 'pln']],
 ]);
 
-it('writes the marker for the application locale at the time it is built', function (): void {
-    $format = NumberFormat::currency('PLN');
+it('leaves the locale out of a marker until the option is built, then lays in the application locale of that moment', function (): void {
+    $marker = ['series' => [['label' => ['formatter' => NumberFormat::currency('PLN')->marker('label')]]]];
 
     app()->setLocale('pl');
-    $polish = $format->marker('value');
+    $polish = NumberFormat::resolveLocales($marker);
     app()->setLocale('en');
-    $english = $format->marker('value');
+    $english = NumberFormat::resolveLocales($marker);
 
-    expect($polish['__number__']['locale'])->toBe('pl')
-        ->and($english['__number__']['locale'])->toBe('en')
-        ->and($polish['__number__']['role'])->toBe('value');
+    expect($marker['series'][0]['label']['formatter']['__number__'])->not->toHaveKey('locale')
+        ->and($polish['series'][0]['label']['formatter']['__number__']['locale'])->toBe('pl')
+        ->and($english['series'][0]['label']['formatter']['__number__']['locale'])->toBe('en');
 });
 
 it('lets a pinned locale win over the application locale, with a BCP 47 tag', function (): void {
     app()->setLocale('pl');
 
-    expect(NumberFormat::number()->locale('pt_BR')->marker('axis')['__number__']['locale'])->toBe('pt-BR')
-        ->and(NumberFormat::number()->locale('de')->locale(null)->marker('axis')['__number__']['locale'])->toBe('pl');
+    expect(NumberFormat::resolveLocales(NumberFormat::number()->locale('pt_BR')->marker('axis'))['__number__']['locale'])->toBe('pt-BR')
+        ->and(NumberFormat::resolveLocales(NumberFormat::number()->locale('de')->locale(null)->marker('axis'))['__number__']['locale'])->toBe('pl');
+});
+
+it('writes a marker for a multi-dimension item with a format per dimension, each in the locale', function (): void {
+    app()->setLocale('de');
+
+    $marker = NumberFormat::resolveLocales(NumberFormat::dimensionsMarker([NumberFormat::currency('PLN'), null, NumberFormat::percent(fraction: true)->locale('pl')]));
+
+    expect($marker['__number__']['each'])->toBe([
+        ['style' => 'currency', 'currency' => 'PLN', 'locale' => 'de'],
+        null,
+        ['style' => 'percent', 'fraction' => true, 'locale' => 'pl'],
+    ])->and($marker['__number__']['role'])->toBe('value');
 });

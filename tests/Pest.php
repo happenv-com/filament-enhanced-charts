@@ -15,5 +15,5 @@ uses(TestCase::class)->in(__DIR__);
  */
 function plainValueAxis(array $axis = []): array
 {
-    return ['type' => 'value', ...$axis, 'axisLabel' => ['formatter' => ['__number__' => ['style' => 'decimal', 'locale' => 'en', 'role' => 'axis']]]];
+    return ['type' => 'value', ...$axis, 'axisLabel' => ['formatter' => ['__number__' => ['style' => 'decimal', 'role' => 'axis', 'locale' => 'en']]]];
 }

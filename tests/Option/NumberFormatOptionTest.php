@@ -34,7 +34,7 @@ it('formats value axes, tooltips and cartesian data labels as locale-aware plain
         ->series(BarSeries::make()->data([1])->label(Label::make()->show()))
         ->toArray();
 
-    expect(numberSpec($option['yAxis']['axisLabel']['formatter']))->toBe(['style' => 'decimal', 'locale' => 'pl', 'role' => 'axis'])
+    expect(numberSpec($option['yAxis']['axisLabel']['formatter']))->toBe(['style' => 'decimal', 'role' => 'axis', 'locale' => 'pl'])
         ->and(numberSpec($option['tooltip']['valueFormatter'])['role'])->toBe('value')
         ->and(numberSpec($option['series'][0]['label']['formatter'])['role'])->toBe('label');
 });
@@ -142,4 +142,44 @@ it('follows the application locale on every build, so a re-render in another loc
     expect($polish['yAxis']['axisLabel']['formatter']['__number__']['locale'])->toBe('pl')
         ->and($english['yAxis']['axisLabel']['formatter']['__number__']['locale'])->toBe('en')
         ->and(json_encode($polish))->not->toBe(json_encode($english));
+});
+
+it('lets a raw() formatter replace a number format instead of merging into it', function (): void {
+    $option = Option::make()
+        ->xAxis(CategoryAxis::make()->data(['a']))
+        ->yAxis(ValueAxis::make()->format(NumberFormat::compact())->raw(['axisLabel' => ['formatter' => ['__js__' => '(v) => v']]]))
+        ->series(BarSeries::make()->format(NumberFormat::compact())->raw(['tooltip' => ['valueFormatter' => ['__js__' => '(v) => v']]]))
+        ->toArray();
+
+    expect($option['yAxis']['axisLabel']['formatter'])->toBe(['__js__' => '(v) => v'])
+        ->and($option['series'][0]['tooltip']['valueFormatter'])->toBe(['__js__' => '(v) => v']);
+});
+
+it('keeps a label template that was set before its format', function (): void {
+    $label = Label::make()->show()->formatter('{c} pcs')->format(NumberFormat::compact())->toArray();
+
+    expect($label['formatter'])->toBe('{c} pcs')
+        ->and(Label::make()->format(NumberFormat::compact())->format(NumberFormat::percent(fraction: true))->toArray()['formatter']['__number__']['style'])->toBe('percent');
+});
+
+it('formats the ticks of an axis whose axisLabel is a Label with a format', function (): void {
+    $option = Option::make()
+        ->xAxis(CategoryAxis::make()->data(['a']))
+        ->yAxis(ValueAxis::make()->axisLabel(Label::make()->format(NumberFormat::compact())))
+        ->toArray();
+
+    expect($option['yAxis']['axisLabel']['formatter']['__number__']['role'])->toBe('axis');
+});
+
+it('resolves the locale of every format when the option is built, however early the format was set', function (): void {
+    app()->setLocale('en');
+    $label = Label::make()->show()->format(NumberFormat::compact());
+    $series = BarSeries::make()->format(NumberFormat::currency('PLN'))->tooltip(['trigger' => 'item']);
+    $builder = fn (): array => Option::make()->xAxis(CategoryAxis::make()->data(['a']))->series($series->label($label))->toArray();
+
+    app()->setLocale('pl');
+    $option = $builder();
+
+    expect($option['series'][0]['label']['formatter']['__number__']['locale'])->toBe('pl')
+        ->and($option['series'][0]['tooltip']['valueFormatter']['__number__']['locale'])->toBe('pl');
 });

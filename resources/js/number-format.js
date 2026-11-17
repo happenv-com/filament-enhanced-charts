@@ -28,13 +28,6 @@ function intl(locale, options) {
     return instance
 }
 
-function escapeHtml(text) {
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-}
-
 // Intl options for a spec. On an axis a currency drops its fraction digits for
 // a whole tick ("18 000 zł", not "18 000,00 zł") unless digits were asked for.
 function intlOptions(spec, value, onAxis) {
@@ -89,32 +82,46 @@ export function formatNumber(spec, value, onAxis = false) {
 }
 
 // Formats a value that may be a number or a list of values (a multi-dimension
-// data item): every number in it is formatted, the rest kept as is.
-function formatAny(spec, value, onAxis, html) {
+// data item). Every number is formatted, the rest kept as is. `spec.each`
+// gives the dimensions of such an item a format of their own (a point with
+// money on x and a percentage on y); a missing entry falls back to the spec.
+// ECharts escapes what a tooltip formatter returns, so nothing is escaped here.
+function formatAny(spec, value, onAxis) {
     if (Array.isArray(value)) {
-        return value
-            .map((item) => formatAny(spec, item, onAxis, html))
-            .join(', ')
+        return value.map((item, index) => {
+            const own = spec.each && spec.each[index]
+            return formatAny(
+                own ? { locale: spec.locale, ...own } : spec,
+                item,
+                onAxis,
+            )
+        })
     }
     const text = formatNumber(spec, value, onAxis)
-    if (typeof text === 'string') {
-        return html && typeof value === 'number' ? escapeHtml(text) : text
-    }
     return text == null ? '' : String(text)
 }
 
-// The numeric part of a data-label's params: a plain value, or — for a series
-// fed by a dataset — the entry its `encode` points at.
+// The number a data label shows: the value of the item, or — for an item with
+// several dimensions (a point, a heatmap cell, a dataset row or an object row)
+// — the dimension the series encodes as its value, then as y, then as x. The
+// first of those that holds a number wins, so a timestamp on x never beats the
+// reading on y.
 function labelValue(params) {
-    const value = params.value
+    let value = params.value
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        value = (params.dimensionNames || []).map((name) => value[name])
+    }
     if (!Array.isArray(value)) {
         return value
     }
     const encode = params.encode || {}
-    const dims = [].concat(encode.y || [], encode.x || [], encode.value || [])
-    for (let i = dims.length - 1; i >= 0; i--) {
-        if (typeof value[dims[i]] === 'number') {
-            return value[dims[i]]
+    for (const dim of [].concat(
+        encode.value || [],
+        encode.y || [],
+        encode.x || [],
+    )) {
+        if (typeof value[dim] === 'number') {
+            return value[dim]
         }
     }
     for (let i = value.length - 1; i >= 0; i--) {
@@ -128,10 +135,16 @@ function labelValue(params) {
 export function numberFormatter(spec) {
     switch (spec.role) {
         case 'axis':
-            return (value) => formatAny(spec, value, true, false)
+            return (value) => joinList(formatAny(spec, value, true))
         case 'label':
-            return (params) => formatAny(spec, labelValue(params), false, false)
+            return (params) =>
+                joinList(formatAny(spec, labelValue(params), false))
         default:
-            return (value) => formatAny(spec, value, false, true)
+            return (value) => formatAny(spec, value, false)
     }
+}
+
+// An axis or a label shows a single string; a tooltip may be given a list.
+function joinList(formatted) {
+    return Array.isArray(formatted) ? formatted.join(', ') : formatted
 }
