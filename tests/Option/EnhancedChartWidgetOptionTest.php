@@ -23,7 +23,32 @@ it('renders getOption() through getOptions() as an array', function (): void {
 
     expect($widget->options())->toBe([
         'xAxis' => ['type' => 'category', 'data' => ['Jan']],
-        'yAxis' => ['type' => 'value'], // defaulted for a cartesian chart
+        'yAxis' => plainValueAxis(), // defaulted for a cartesian chart
         'series' => [['type' => 'line', 'data' => [1]]],
     ]);
+});
+
+it('builds its options in the locale of the moment, so a re-render in another locale sends the new one', function (): void {
+    $widget = new class extends EnhancedChartWidget
+    {
+        protected function getOption(): Option
+        {
+            return Option::make()
+                ->xAxis(CategoryAxis::make()->data(['Jan']))
+                ->series(LineSeries::make()->data([1]));
+        }
+
+        public function options(): array
+        {
+            return $this->getOptions();
+        }
+    };
+
+    app()->setLocale('pl');
+    $polish = $widget->options();
+    app()->setLocale('en');
+    $english = $widget->options();
+
+    expect($polish['yAxis']['axisLabel']['formatter']['__number__']['locale'])->toBe('pl')
+        ->and($english['yAxis']['axisLabel']['formatter']['__number__']['locale'])->toBe('en');
 });

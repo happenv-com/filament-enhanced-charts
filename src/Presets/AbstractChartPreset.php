@@ -16,6 +16,7 @@ use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 use Happenv\FilamentEnhancedCharts\Presets\Support\PartOfWholeGuard;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 
 /**
  * Base for presets: guards `option()` with `accepts()` and carries the layout
@@ -63,6 +64,11 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
         return false;
     }
 
+    private function sameFormat(?NumberFormat $a, ?NumberFormat $b): bool
+    {
+        return $a instanceof NumberFormat && $b instanceof NumberFormat ? $a->equals($b) : $a === $b;
+    }
+
     /** No part-of-whole by default; a preset that encodes one names the dimensions it partitions by. */
     public function partitioningDimensions(DatasetShape $shape): array
     {
@@ -83,7 +89,28 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
             throw PartOfWholeGuard::exceptionFor($this, $dataset);
         }
 
-        return $this->build($dataset);
+        return $this->build($dataset)->applyNumberFormatDefault($this->datasetFormat($dataset));
+    }
+
+    /**
+     * The number format every measure of the dataset shares (its own `format`,
+     * else the one its `unit` implies), which the chart then uses for its value
+     * axes, tooltip and data labels. Null when the measures disagree or none
+     * has one: a chart that draws a money series next to a count formats each
+     * series (and axis) by its own measure instead.
+     */
+    private function datasetFormat(ChartDataset $dataset): ?NumberFormat
+    {
+        $formats = array_map(static fn (DatasetMeasure $measure): ?NumberFormat => $measure->resolvedFormat(), $dataset->measures);
+        $first = $formats[0] ?? null;
+
+        foreach ($formats as $format) {
+            if (! $this->sameFormat($first, $format)) {
+                return null;
+            }
+        }
+
+        return $first;
     }
 
     abstract protected function build(ChartDataset $dataset): Option;
@@ -111,10 +138,16 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
      *
      * @param  list<Series>  $series
      * @param  list<ValueAxis>  $valueAxes  from `unitAxes()`; empty for the single default value axis
+     * @param  NumberFormat|null  $axisFormat  the number format of that single default value axis
      */
-    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false, array $valueAxes = []): Option
+    protected function cartesianOption(CategoryAxis $categories, array $series, bool $horizontal = false, array $valueAxes = [], ?NumberFormat $axisFormat = null): Option
     {
-        $axes = count($valueAxes) > 1 ? $valueAxes : [ValueAxis::make()];
+        $default = ValueAxis::make();
+        if ($axisFormat instanceof NumberFormat) {
+            $default->format($axisFormat);
+        }
+
+        $axes = count($valueAxes) > 1 ? $valueAxes : [$default];
 
         // Axes alternate between the two sides, the third and later ones stepping further out; give the plot room for them.
         $near = (int) ceil(count($axes) / 2);
@@ -161,6 +194,23 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
         return $units;
     }
 
+    /**
+     * The number format of the first series that has one: what the single value axis shared by series of one unit
+     * writes its ticks in.
+     *
+     * @param  list<array{format: NumberFormat|null}>  $series
+     */
+    protected function firstFormat(array $series): ?NumberFormat
+    {
+        foreach ($series as $item) {
+            if ($item['format'] instanceof NumberFormat) {
+                return $item['format'];
+            }
+        }
+
+        return null;
+    }
+
     /** The colour a series of a multi-axis chart is drawn in. */
     protected function seriesColor(int $index): string
     {
@@ -176,9 +226,10 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
      *
      * @param  list<string|null>  $units  from `unitGroups()`
      * @param  list<string|null>  $seriesUnits  the unit of every series, in series order
+     * @param  list<NumberFormat|null>  $seriesFormats  the number format of every series, in series order; an axis writes its ticks in the first one of its series
      * @return list<ValueAxis>
      */
-    protected function unitAxes(array $units, array $seriesUnits, bool $horizontal): array
+    protected function unitAxes(array $units, array $seriesUnits, bool $horizontal, array $seriesFormats = []): array
     {
         if (count($units) < 2) {
             return [];
@@ -196,6 +247,14 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
             }
 
             $carried = array_keys($seriesUnits, $unit, true);
+            foreach ($carried as $seriesIndex) {
+                if (($seriesFormats[$seriesIndex] ?? null) instanceof NumberFormat) {
+                    $axis->format($seriesFormats[$seriesIndex]);
+
+                    break;
+                }
+            }
+
             if (count($carried) === 1) {
                 $color = $this->seriesColor($carried[0]);
                 $axis->axisLine(['show' => true, 'lineStyle' => ['color' => $color]])
@@ -254,7 +313,7 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
      * the x axis; the second dimension (with one measure) or the measures (with
      * one dimension) become the series.
      *
-     * @return array{categories: list<string>, series: list<array{name: string, values: list<int|float|null>, unit: string|null}>}
+     * @return array{categories: list<string>, series: list<array{name: string, values: list<int|float|null>, unit: string|null, format: NumberFormat|null}>}
      */
     protected function breakdown(ChartDataset $dataset): array
     {
@@ -264,7 +323,7 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
             return [
                 'categories' => $dataset->distinct($x),
                 'series' => array_map(
-                    static fn (array $series): array => $series + ['unit' => null],
+                    static fn (array $series): array => $series + ['unit' => null, 'format' => $dataset->measures[0]->resolvedFormat()],
                     $dataset->breakdown($x, $dataset->dimensions[1]->name, $dataset->measures[0]->name),
                 ),
             ];
@@ -273,7 +332,7 @@ abstract class AbstractChartPreset implements ChartPreset, EncodesPartOfWhole, S
         return [
             'categories' => $dataset->labels($x),
             'series' => array_map(
-                static fn (DatasetMeasure $measure): array => ['name' => $measure->label, 'values' => $dataset->values($measure->name), 'unit' => $measure->unit],
+                static fn (DatasetMeasure $measure): array => ['name' => $measure->label, 'values' => $dataset->values($measure->name), 'unit' => $measure->unit, 'format' => $measure->resolvedFormat()],
                 $dataset->measures,
             ),
         ];

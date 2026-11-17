@@ -24,7 +24,7 @@ it('composes a full cartesian option with normalized data', function (): void {
         'color' => ['#0084d1', '#d1d5db'],
         'legend' => ['top' => 0],
         'xAxis' => ['type' => 'category', 'data' => ['Jan', 'Feb']],
-        'yAxis' => ['type' => 'value'],
+        'yAxis' => plainValueAxis(),
         'series' => [
             ['type' => 'line', 'name' => 'Sale', 'data' => [7, ['__js__' => '4.5']]],
         ],
@@ -62,8 +62,8 @@ it('emits multiple y-axes as a list', function (): void {
             ->yAxis(ValueAxis::make(), ValueAxis::make()->name('%'))
             ->toArray()['yAxis']
     )->toBe([
-        ['type' => 'value'],
-        ['type' => 'value', 'name' => '%'],
+        plainValueAxis(),
+        plainValueAxis(['name' => '%']),
     ]);
 });
 
@@ -82,7 +82,7 @@ it('defaults the y-axis to value when an x-axis is set but no y-axis is', functi
     expect(Option::make()->xAxis(CategoryAxis::make()->data(['Jan']))->series(LineSeries::make()->data([1]))->toArray())
         ->toBe([
             'xAxis' => ['type' => 'category', 'data' => ['Jan']],
-            'yAxis' => ['type' => 'value'],
+            'yAxis' => plainValueAxis(),
             'series' => [['type' => 'line', 'data' => [1]]],
         ]);
 });
@@ -91,7 +91,7 @@ it('defaults the x-axis to value when a y-axis is set but no x-axis is', functio
     // Mirror of the y-default, for a horizontal (category-y) chart.
     expect(Option::make()->yAxis(CategoryAxis::make()->data(['Jan']))->series(BarSeries::make()->data([1]))->toArray())
         ->toBe([
-            'xAxis' => ['type' => 'value'],
+            'xAxis' => plainValueAxis(),
             'yAxis' => ['type' => 'category', 'data' => ['Jan']],
             'series' => [['type' => 'bar', 'data' => [1]]],
         ]);
@@ -114,9 +114,9 @@ it('cartesian() presets an axis tooltip and a top legend', function (): void {
     expect(Option::cartesian()->xAxis(CategoryAxis::make()->data(['a']))->series(LineSeries::make()->data([1]))->toArray())
         ->toBe([
             'legend' => ['top' => 0],
-            'tooltip' => ['trigger' => 'axis'],
+            'tooltip' => ['trigger' => 'axis', 'valueFormatter' => ['__number__' => ['style' => 'decimal', 'role' => 'value', 'locale' => 'en']]],
             'xAxis' => ['type' => 'category', 'data' => ['a']],
-            'yAxis' => ['type' => 'value'],
+            'yAxis' => plainValueAxis(),
             'series' => [['type' => 'line', 'data' => [1]]],
         ]);
 });

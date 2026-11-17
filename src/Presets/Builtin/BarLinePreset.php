@@ -11,6 +11,7 @@ use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\BarSeries;
 use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
 use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 
 final class BarLinePreset extends AbstractChartPreset
 {
@@ -53,6 +54,10 @@ final class BarLinePreset extends AbstractChartPreset
                 $drawn = $drawn->yAxisIndex($axis)->color($this->seriesColor($index));
             }
 
+            if ($item['format'] instanceof NumberFormat) {
+                $drawn = $drawn->format($item['format']);
+            }
+
             $series[] = $drawn;
         }
 
@@ -60,7 +65,8 @@ final class BarLinePreset extends AbstractChartPreset
             CategoryAxis::make()->data($breakdown['categories']),
             $series,
             false,
-            $this->unitAxes($units, array_column($breakdown['series'], 'unit'), false),
+            $this->unitAxes($units, array_column($breakdown['series'], 'unit'), false, array_column($breakdown['series'], 'format')),
+            $this->firstFormat($breakdown['series']),
         );
     }
 }

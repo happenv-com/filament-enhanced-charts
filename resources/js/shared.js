@@ -1,5 +1,6 @@
 import merge from 'lodash.merge'
 import * as ApacheECharts from 'echarts'
+import { numberFormatter } from './number-format.js'
 
 // Formatters and custom-series renderItem functions ported from the ECharts
 // gallery reference the global `echarts` namespace (echarts.format.addCommas,
@@ -23,6 +24,9 @@ export function reviveJs(node) {
     }
     if (node && typeof node === 'object') {
         const keys = Object.keys(node)
+        if (keys.length === 1 && keys[0] === '__number__') {
+            return numberFormatter(node.__number__)
+        }
         if (keys.length === 1 && keys[0] === '__js__') {
             try {
                 return new Function('return (' + node.__js__ + ')')()
