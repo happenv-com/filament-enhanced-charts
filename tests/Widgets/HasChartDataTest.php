@@ -22,7 +22,7 @@ it('builds a cartesian option from data + type without writing getOption()', fun
     $options = quickChartOptions($widget);
 
     expect($options['xAxis'])->toBe(['type' => 'category', 'data' => ['B2B', 'B2C']])
-        ->and($options['yAxis'])->toBe(['type' => 'value'])
+        ->and($options['yAxis'])->toBe(plainValueAxis())
         ->and($options['series'])->toBe([['type' => 'bar', 'data' => [60, 40]]])
         // Option::cartesian() preset.
         ->and($options)->toHaveKey('tooltip')

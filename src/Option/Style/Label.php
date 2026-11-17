@@ -6,6 +6,7 @@ use Filament\Support\RawJs;
 use Happenv\FilamentEnhancedCharts\Option\Concerns\HasRaw;
 use Happenv\FilamentEnhancedCharts\Option\Contracts\Node;
 use Happenv\FilamentEnhancedCharts\Option\Support\Normalize;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 use Illuminate\Support\Traits\Conditionable;
 
 /**
@@ -36,6 +37,14 @@ final class Label implements Node
     public function position(string $position): self
     {
         $this->properties['position'] = $position;
+
+        return $this;
+    }
+
+    /** Write the number the label shows in this number format (the locale of the application unless the format pins one). */
+    public function format(NumberFormat $format): self
+    {
+        $this->properties['formatter'] = $format->marker('label');
 
         return $this;
     }

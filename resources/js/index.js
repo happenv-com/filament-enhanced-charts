@@ -167,7 +167,17 @@ function valueAxisLabelWidth(chart, axisIndex, axisConfig) {
 
         const labelOpt = (axisConfig && axisConfig.axisLabel) || {}
         let formatter = labelOpt.formatter
-        if (formatter && typeof formatter === 'object' && formatter.__js__) {
+        if (
+            formatter &&
+            typeof formatter === 'object' &&
+            formatter.__number__
+        ) {
+            formatter = reviveJs(formatter)
+        } else if (
+            formatter &&
+            typeof formatter === 'object' &&
+            formatter.__js__
+        ) {
             try {
                 formatter = new Function('return (' + formatter.__js__ + ')')()
             } catch (e) {

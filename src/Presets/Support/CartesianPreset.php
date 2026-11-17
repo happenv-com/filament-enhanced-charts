@@ -9,6 +9,7 @@ use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
 use Happenv\FilamentEnhancedCharts\Option\Option;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
 use Happenv\FilamentEnhancedCharts\Presets\AbstractChartPreset;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 
 /**
  * Charts on a category axis with one series per measure (or per value of a
@@ -49,6 +50,10 @@ abstract class CartesianPreset extends AbstractChartPreset
                 $drawn = ($this->horizontal() ? $drawn->xAxisIndex($axis) : $drawn->yAxisIndex($axis))->color($this->seriesColor($index));
             }
 
+            if ($item['format'] instanceof NumberFormat) {
+                $drawn = $drawn->format($item['format']);
+            }
+
             $series[] = $drawn;
         }
 
@@ -56,7 +61,7 @@ abstract class CartesianPreset extends AbstractChartPreset
             $this->categoryAxis()->data($breakdown['categories']),
             $series,
             $this->horizontal(),
-            $this->unitAxes($units, array_column($breakdown['series'], 'unit'), $this->horizontal()),
+            $this->unitAxes($units, array_column($breakdown['series'], 'unit'), $this->horizontal(), array_column($breakdown['series'], 'format')),
         );
     }
 }

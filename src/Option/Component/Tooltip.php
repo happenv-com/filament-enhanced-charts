@@ -8,6 +8,7 @@ use Happenv\FilamentEnhancedCharts\Option\Concerns\HasRaw;
 use Happenv\FilamentEnhancedCharts\Option\Contracts\Node;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 use Happenv\FilamentEnhancedCharts\Option\Support\Normalize;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 use Illuminate\Support\Traits\Conditionable;
 
 final class Tooltip implements Node
@@ -24,6 +25,8 @@ final class Tooltip implements Node
 
     /** @var array{__js__: string}|null */
     private ?array $valueFormatter = null;
+
+    private ?NumberFormat $numberFormat = null;
 
     private ?bool $confine = null;
 
@@ -112,6 +115,18 @@ final class Tooltip implements Node
     public function valueFormatter(RawJs | string $formatter): self
     {
         $this->valueFormatter = Normalize::js($formatter);
+
+        return $this;
+    }
+
+    /**
+     * Write every value in the tooltip in this number format. A `valueFormatter()`
+     * or `formatter()` set explicitly wins. A series can carry a format of its
+     * own (`Series::format()`), which wins over this one for that series.
+     */
+    public function format(NumberFormat $format): self
+    {
+        $this->numberFormat = $format;
 
         return $this;
     }
@@ -258,6 +273,8 @@ final class Tooltip implements Node
         }
         if ($this->valueFormatter !== null) {
             $tooltip['valueFormatter'] = $this->valueFormatter;
+        } elseif ($this->numberFormat instanceof NumberFormat && $this->formatter === null) {
+            $tooltip['valueFormatter'] = $this->numberFormat->marker('value');
         }
         if ($this->position !== null) {
             $tooltip['position'] = Normalize::value($this->position);

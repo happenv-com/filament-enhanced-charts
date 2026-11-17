@@ -30,6 +30,7 @@ use Happenv\FilamentEnhancedCharts\Option\Concerns\HasRaw;
 use Happenv\FilamentEnhancedCharts\Option\Contracts\Node;
 use Happenv\FilamentEnhancedCharts\Option\Series\Series;
 use Happenv\FilamentEnhancedCharts\Option\Support\Normalize;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 use Illuminate\Support\Traits\Conditionable;
 
 final class Option implements Node
@@ -38,12 +39,17 @@ final class Option implements Node
     use HasAnimation;
     use HasRaw;
 
+    /** The series whose data label is their value, so a number format can stand in for the missing formatter. */
+    private const array VALUE_LABEL_SERIES = ['bar', 'line', 'scatter', 'effectScatter', 'pictorialBar', 'heatmap'];
+
     /** @var list<string|array<mixed>> */
     private array $color = [];
 
     private string | array | null $backgroundColor = null;
 
     private ?bool $scrollable = null;
+
+    private ?NumberFormat $numberFormat = null;
 
     /** @var list<Legend> */
     private array $legend = [];
@@ -154,6 +160,32 @@ final class Option implements Node
     public function backgroundColor(string | array $backgroundColor): self
     {
         $this->backgroundColor = Normalize::color($backgroundColor);
+
+        return $this;
+    }
+
+    /**
+     * The chart's default number format: what value axes, the tooltip and data
+     * labels use unless they (or a series) carry a format of their own. With
+     * none set they use `NumberFormat::number()` in the application locale.
+     */
+    public function numberFormat(NumberFormat $format): self
+    {
+        $this->numberFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * The chart's default number format, as far as nothing has set one yet —
+     * lets a preset apply its dataset's format without overriding an explicit
+     * `numberFormat()`. Internal wiring.
+     */
+    public function applyNumberFormatDefault(?NumberFormat $default): self
+    {
+        if ($default instanceof NumberFormat) {
+            $this->numberFormat ??= $default;
+        }
 
         return $this;
     }
@@ -480,9 +512,53 @@ final class Option implements Node
 
         $option = array_merge($option, $this->animationArray());
 
-        $option = $this->mergeRaw($option);
+        $option = $this->applyNumberFormatDefaults($this->mergeRaw($option));
 
         return $this->scrollable ? $this->yieldWheelToPage($option) : $option;
+    }
+
+    /**
+     * Lay the default number format over everything numeric that has none of its
+     * own: value and log axes, the tooltip's values and the data labels of
+     * cartesian series. Anything already formatted — by a builder or by raw
+     * JavaScript — is left alone; category and time axes are never touched.
+     *
+     * @param  array<string, mixed>  $option
+     * @return array<string, mixed>
+     */
+    private function applyNumberFormatDefaults(array $option): array
+    {
+        $format = $this->numberFormat ?? NumberFormat::number();
+
+        foreach (['xAxis', 'yAxis', 'angleAxis', 'radiusAxis', 'singleAxis'] as $key) {
+            if (isset($option[$key]) && is_array($option[$key])) {
+                $option[$key] = $this->mapComponents($option[$key], static function (array $axis) use ($format): array {
+                    if (in_array($axis['type'] ?? null, ['value', 'log'], true) && ! isset($axis['axisLabel']['formatter'])) {
+                        $axis['axisLabel']['formatter'] = $format->marker('axis');
+                    }
+
+                    return $axis;
+                });
+            }
+        }
+
+        if (isset($option['tooltip']) && is_array($option['tooltip']) && ! isset($option['tooltip']['formatter']) && ! isset($option['tooltip']['valueFormatter'])) {
+            $option['tooltip']['valueFormatter'] = $format->marker('value');
+        }
+
+        if (isset($option['series']) && is_array($option['series'])) {
+            $option['series'] = $this->mapComponents($option['series'], static function (array $series) use ($format): array {
+                if (($series['label']['show'] ?? false) === true
+                    && ! isset($series['label']['formatter'])
+                    && in_array($series['type'] ?? null, self::VALUE_LABEL_SERIES, true)) {
+                    $series['label']['formatter'] = $format->marker('label');
+                }
+
+                return $series;
+            });
+        }
+
+        return $option;
     }
 
     /**

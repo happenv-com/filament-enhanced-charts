@@ -266,6 +266,97 @@ the `echarts` global is available, so gallery snippets using `echarts.format.add
 Anywhere a number is accepted you may pass a native `\BcMath\Number` instead of
 `int|float|string`; it is serialized as an exact numeric literal rather than a lossy float.
 
+### Number formatting
+
+Numbers on a chart are written in the **application locale** (`app()->getLocale()`, read each time
+the option is built): `18 000` in Polish, `18,000` in English. The browser does the work with
+`Intl.NumberFormat` — you never write JavaScript for it.
+
+With no configuration, value and log axes, tooltips and the data labels of cartesian series
+(`bar`, `line`, `scatter`, `effectScatter`, `pictorialBar`, `heatmap`) that are switched on show a
+plain, locale-aware number with up to two fraction digits. Category and time axes are never touched,
+and neither is a formatter you wrote yourself (`formatter()`, `valueFormatter()`, `axisLabel(RawJs)`,
+`Label::formatter()`, `raw()`): an explicit formatter always wins.
+
+`Happenv\FilamentEnhancedCharts\Support\NumberFormat` is an immutable value that describes the format:
+
+```php
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
+
+NumberFormat::number();                        // 1 234,5      (up to 2 fraction digits)
+NumberFormat::number(decimals: 2);             // 1 234,50     (exactly 2)
+NumberFormat::currency('PLN');                 // 1 234,50 zł  (pl)  ·  PLN 1,234.50 (en)
+NumberFormat::currency('EUR', decimals: 0);    // 1 235 €
+NumberFormat::percent(fraction: false);        // the value is 0-100: 45   -> 45%
+NumberFormat::percent(fraction: true);         // the value is 0-1:   0.45 -> 45%
+NumberFormat::compact();                       // 18 tys. (pl)  ·  18K (en)
+NumberFormat::currency('PLN')->compacted();    // a compact currency
+NumberFormat::number()->unit('kg');            // 12,5 kg  — a plain suffix for what Intl has no unit for
+NumberFormat::number()->locale('de');          // pin a locale instead of the application's
+```
+
+`percent()` makes you say which scale the data is on, because both are common. Only finite numbers
+are formatted; a category name or a date is left as it is. On an axis a currency drops the fraction
+digits of a whole tick (`18 000 zł`).
+
+**Where to set it** — per value axis, per series, per tooltip/label, per chart, or per measure:
+
+```php
+use Happenv\FilamentEnhancedCharts\Option\Axis\CategoryAxis;
+use Happenv\FilamentEnhancedCharts\Option\Axis\ValueAxis;
+use Happenv\FilamentEnhancedCharts\Option\Option;
+use Happenv\FilamentEnhancedCharts\Option\Series\BarSeries;
+use Happenv\FilamentEnhancedCharts\Option\Series\LineSeries;
+use Happenv\FilamentEnhancedCharts\Option\Style\Label;
+
+$revenue = NumberFormat::currency('PLN');
+$orders = NumberFormat::number()->unit('szt.');
+
+Option::cartesian()
+    ->xAxis(CategoryAxis::make()->data(['Jan', 'Feb', 'Mar']))
+    ->yAxis(
+        ValueAxis::make()->name('PLN')->format($revenue),                       // a value axis
+        ValueAxis::make()->name('Orders')->format($orders)->position('right'),
+    )
+    ->series(
+        BarSeries::make()->name('Revenue')->data([120000, 98000, 143500])
+            ->format($revenue),                                                 // a series: its tooltip rows
+        LineSeries::make()->name('Orders')->yAxisIndex(1)->data([310, 280, 402])
+            ->format($orders)
+            ->label(Label::make()->show()),                                     // ...and its labels, when shown
+    );
+```
+
+- `ValueAxis::format()` / `LogAxis::format()` — the tick labels.
+- `Series::format()` — the series' value in the tooltip (a chart can mix a money series and a count;
+  each is formatted with its own format) and in its data labels when they are shown.
+- `Tooltip::format()` — every value in the tooltip that has no series format. `Label::format()` — one label.
+- `Option::numberFormat()` — the default of the whole chart (axes, tooltip, labels).
+- Precedence, most specific first: a formatter you wrote → the series' / axis' own format → the
+  chart's `numberFormat()` → the plain locale-aware number.
+
+**Locale.** The format is written for `app()->getLocale()` at the moment the option is built and the
+locale travels inside the option, so an initial render and every Livewire update agree, and a widget
+re-rendered in another locale sends the new one. Pin one with `->locale('de')` (underscores such as
+`pt_BR` are fine). An unknown tag falls back to the browser's locale.
+
+**Measures and presets.** A `DatasetMeasure` carries a number format of its own, or implies one from
+its `unit`, and the presets apply it to the series, tooltips, labels and the value axis of that unit:
+
+```php
+new DatasetMeasure('revenue', 'Revenue', unit: 'PLN');                 // currency PLN
+new DatasetMeasure('margin', 'Margin', unit: '%');                     // a percentage of 0-100
+new DatasetMeasure('weight', 'Weight', unit: 'kg');                    // a number followed by kg
+new DatasetMeasure('rate', 'Rate', unit: '%', format: NumberFormat::percent(fraction: true)); // explicit wins
+$measure->withFormat(NumberFormat::currency('EUR', 0));
+```
+
+A unit that is a three-letter ISO 4217 code (`PLN`, `EUR`, `USD`, …) is a currency, `%` is a
+percentage of 0-100, anything else is a plain number with the unit as a suffix, and no unit means
+the plain number. When every measure of a dataset shares a format the whole chart uses it; when they
+differ (a revenue and an order count) each series and each unit's value axis uses its own. A
+measure's `format` is part of `ChartDataset::toArray()` / `fromArray()` only when it is set.
+
 ### Feeding data from Eloquent
 
 A series' `data()` and an axis' `data()` take any `iterable`, so a `Collection` works — but the
@@ -421,7 +512,7 @@ $option = $presets->option('stacked-bar', $dataset); // an Option, ready for get
   other preset ignores roles and draws the measures as plain values, so a candlestick dataset still
   draws as a `line`. A dataset uses each role at most once.
 - **Measure units.** A measure may carry a free-text `unit` (`new DatasetMeasure('revenue', 'Revenue',
-  unit: 'PLN')`; `PLN`, `pcs`, `%`, `views` — the package never interprets it). On the presets that
+  unit: 'PLN')`; `PLN`, `pcs`, `%`, `views`; it also implies a number format, see [Number formatting](#number-formatting)). On the presets that
   draw one series per measure, each *distinct* unit gets its own value axis: the first on the left,
   the second on the right, further ones alternating sides with a growing offset (60&nbsp;px steps) and
   more room in the grid. Each axis is named by its unit and takes the colour of its series when it

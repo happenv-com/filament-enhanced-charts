@@ -15,6 +15,7 @@ use Happenv\FilamentEnhancedCharts\Option\Style\Emphasis;
 use Happenv\FilamentEnhancedCharts\Option\Style\ItemStyle;
 use Happenv\FilamentEnhancedCharts\Option\Style\Label;
 use Happenv\FilamentEnhancedCharts\Option\Support\Normalize;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 use Illuminate\Support\Traits\Conditionable;
 
 abstract class Series implements Node
@@ -24,6 +25,8 @@ abstract class Series implements Node
     use HasRaw;
 
     private ?string $name = null;
+
+    private ?NumberFormat $numberFormat = null;
 
     private ?string $id = null;
 
@@ -123,6 +126,19 @@ abstract class Series implements Node
     public function name(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Write this series' values in this number format: in the tooltip (each
+     * series with its own, so a money series and a count can share a chart)
+     * and, when the series shows data labels, in the labels. A `valueFormatter`
+     * set through `tooltip()` or a `formatter` on the `label()` wins.
+     */
+    public function format(NumberFormat $format): static
+    {
+        $this->numberFormat = $format;
 
         return $this;
     }
@@ -532,6 +548,29 @@ abstract class Series implements Node
             'labelLine' => $this->labelLine,
         ]);
 
-        return array_merge($series, $this->animationArray());
+        return array_merge($this->withNumberFormat($series), $this->animationArray());
+    }
+
+    /**
+     * The built series with its number format laid into the tooltip and, when the labels are shown, the label.
+     *
+     * @param  array<string, mixed>  $series
+     * @return array<string, mixed>
+     */
+    private function withNumberFormat(array $series): array
+    {
+        if (! $this->numberFormat instanceof NumberFormat) {
+            return $series;
+        }
+
+        if (! isset($series['tooltip']['valueFormatter']) && ! isset($series['tooltip']['formatter'])) {
+            $series['tooltip']['valueFormatter'] ??= $this->numberFormat->marker('value');
+        }
+
+        if (($series['label']['show'] ?? false) === true) {
+            $series['label']['formatter'] ??= $this->numberFormat->marker('label');
+        }
+
+        return $series;
     }
 }

@@ -9,6 +9,7 @@ use Happenv\FilamentEnhancedCharts\Enums\Additivity;
 use Happenv\FilamentEnhancedCharts\Enums\DimensionKind;
 use Happenv\FilamentEnhancedCharts\Enums\MeasureRole;
 use Happenv\FilamentEnhancedCharts\Exceptions\InvalidChartDataset;
+use Happenv\FilamentEnhancedCharts\Support\NumberFormat;
 use Stringable;
 
 /**
@@ -181,7 +182,7 @@ final readonly class ChartDataset
         foreach (self::listAt($data, 'measures') as $index => $item) {
             $path = "measures[{$index}]";
             $item = self::arrayAt($item, $path);
-            self::assertKeys($item, ['name', 'label'], $path, ['role', 'unit', 'additivity']);
+            self::assertKeys($item, ['name', 'label'], $path, ['role', 'unit', 'additivity', 'format']);
 
             $role = null;
             if (array_key_exists('role', $item)) {
@@ -204,12 +205,22 @@ final readonly class ChartDataset
                 }
             }
 
+            $format = null;
+            if (array_key_exists('format', $item)) {
+                try {
+                    $format = is_array($item['format']) ? NumberFormat::fromArray($item['format']) : throw new \InvalidArgumentException('must be an object');
+                } catch (\InvalidArgumentException $exception) {
+                    throw InvalidChartDataset::at("{$path}.format", $exception->getMessage());
+                }
+            }
+
             $measures[] = new DatasetMeasure(
                 self::stringAt($item, 'name', $path),
                 self::stringAt($item, 'label', $path),
                 $role,
                 $unit,
                 $additivity,
+                $format,
             );
         }
 
@@ -225,7 +236,7 @@ final readonly class ChartDataset
     /**
      * @return array{
      *     dimensions: list<array{name: string, label: string, kind: string, multiValued?: true}>,
-     *     measures: list<array{name: string, label: string, role?: string, unit?: string, additivity?: string}>,
+     *     measures: list<array{name: string, label: string, role?: string, unit?: string, additivity?: string, format?: array<string, mixed>}>,
      *     rows: list<Row>,
      * }
      */
